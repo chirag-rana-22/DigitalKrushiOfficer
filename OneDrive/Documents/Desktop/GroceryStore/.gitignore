@@ -1,0 +1,25 @@
+## .NET / Visual Studio
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build outputs
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+
+## Environment / secrets
+appsettings.Development.json
+secrets.json
+.env
+
+## OS files
+.DS_Store
+Thumbs.db
