@@ -1,0 +1,36 @@
+@model List<Digital_Krushi_Officer.Models.TblDiseaseDataset>
+@{
+    ViewData["Title"] = "Disease Dataset";
+    ViewData["ActiveMenu"] = "Diseases";
+}
+<div class="page-header d-flex justify-between align-center">
+    <div><h1>🔬 Disease Dataset</h1><p>Crop disease knowledge base</p></div>
+    <a href="/Admin/AddDisease" class="btn-primary-green">➕ Add Disease</a>
+</div>
+<div class="card">
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead><tr><th>Crop</th><th>Disease</th><th>Pesticide</th><th>Severity</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    <tr>
+                        <td style="font-weight:600;">@d.CropName</td>
+                        <td style="font-weight:600;">@d.DiseaseName</td>
+                        <td style="font-size:0.82rem;color:var(--text-gray);">@d.RecommendedPesticide</td>
+                        <td><span class="badge @(d.SeverityLevel=="Critical"?"badge-red":d.SeverityLevel=="High"?"badge-red":d.SeverityLevel=="Medium"?"badge-yellow":"badge-green")">@d.SeverityLevel</span></td>
+                        <td><span class="badge @(d.IsActive?"badge-green":"badge-red")">@(d.IsActive?"Active":"Inactive")</span></td>
+                        <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                            <a href="/Admin/EditDisease/@d.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">✏️ Update</a>
+                            <form asp-action="ToggleDiseaseStatus" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@d.Id" />
+                                <button type="submit" class="@(d.IsActive?"btn-red":"btn-primary-green")" style="padding:6px 14px;font-size:0.78rem;">@(d.IsActive?"Deactivate":"Activate")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

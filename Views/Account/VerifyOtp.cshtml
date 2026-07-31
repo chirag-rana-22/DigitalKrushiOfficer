@@ -1,0 +1,23 @@
+@model Digital_Krushi_Officer.Models.ViewModels.VerifyOtpViewModel
+@{ ViewData["Title"] = "Verify OTP"; ViewData["HideLayout"] = true; Layout = "_Layout"; }
+<div class="auth-page">
+    <div class="auth-card" style="max-width:420px;">
+        <div class="auth-logo">
+            <div class="logo-icon" style="background:linear-gradient(135deg,#FBC02D,#F9A825);">📧</div>
+            <h2>Verify Email</h2>
+            <p>Enter the OTP sent to <strong>@Model.Email</strong></p>
+        </div>
+        <form asp-action="VerifyOtp" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="Email" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3"></div>
+            <div class="form-group text-center">
+                <label class="form-label">Enter 6-Digit OTP</label>
+                <input asp-for="OTPCode" class="form-control" style="text-align:center;font-size:1.8rem;letter-spacing:12px;font-weight:700;" placeholder="------" maxlength="6" />
+                <span asp-validation-for="OTPCode" class="validation-msg"></span>
+            </div>
+            <button type="submit" class="btn-primary-green w-100" style="justify-content:center;padding:14px;margin-top:8px;">✅ Verify OTP</button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:0.8rem;color:var(--text-gray);">OTP valid for 10 minutes. Check your spam folder.</p>
+    </div>
+</div>

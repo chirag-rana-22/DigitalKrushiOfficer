@@ -1,0 +1,164 @@
+@model Digital_Krushi_Officer.Models.ViewModels.FarmerDashboardViewModel
+@{
+    ViewData["Title"] = "Farmer Dashboard";
+    ViewData["ActiveMenu"] = "Dashboard";
+}
+<div class="page-header d-flex justify-between align-center">
+    <div>
+        <div class="breadcrumb">🏠 Home</div>
+        <h1>Welcome, @Model.User?.Name! 👨‍🌾</h1>
+        <p>Here's your farming overview for today</p>
+    </div>
+    <div style="color:var(--text-gray);font-size:0.85rem;text-align:right;">
+        📍 @(Model.User?.District ?? "Gujarat")<br>
+        <span style="color:var(--green);font-weight:600;">@DateTime.Now.ToString("dddd, dd MMM yyyy")</span>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="grid-4 mb-4">
+    <div class="stat-card">
+        <div class="stat-icon green">💬</div>
+        <div><div class="stat-value">@Model.TotalQueries</div><div class="stat-label">Total Queries</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow">⏳</div>
+        <div><div class="stat-value">@Model.PendingQueries</div><div class="stat-label">Pending</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">🌱</div>
+        <div><div class="stat-value">@Model.TotalCrops</div><div class="stat-label">My Crops</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">⭐</div>
+        <div><div class="stat-value">@Model.TotalFeedback</div><div class="stat-label">Feedback Given</div></div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card p-4 mb-4">
+    <h5 style="font-weight:700;margin-bottom:16px;">⚡ Quick Actions</h5>
+    <div class="grid-6">
+        <a href="/Chat/Index" class="action-card">
+            <span class="action-icon">🤖</span>
+            <h6>Ask Officer</h6>
+            <p>Get expert reply</p>
+        </a>
+        <a href="/Chat/DiseaseDetection" class="action-card">
+            <span class="action-icon">🔬</span>
+            <h6>Disease Library</h6>
+            <p>Browse diseases</p>
+        </a>
+        <a href="/Farmer/Crops" class="action-card">
+            <span class="action-icon">🌱</span>
+            <h6>My Crops</h6>
+            <p>Manage crops</p>
+        </a>
+        <a href="/Weather/Index" class="action-card">
+            <span class="action-icon">☁</span>
+            <h6>Weather</h6>
+            <p>Live forecast</p>
+        </a>
+        <a href="/Scheme/Index" class="action-card">
+            <span class="action-icon">📜</span>
+            <h6>Schemes</h6>
+            <p>Gov. subsidies</p>
+        </a>
+        <a href="/Farmer/QueryHistory" class="action-card">
+            <span class="action-icon">📋</span>
+            <h6>History</h6>
+            <p>Past queries</p>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Queries -->
+    <div class="col-lg-7">
+        <div class="card" style="height:100%;">
+            <div class="card-header-green d-flex justify-between align-center">
+                <span style="font-weight:700;">💬 Recent Queries</span>
+                <a href="/Farmer/QueryHistory" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">View All →</a>
+            </div>
+            <div style="padding:16px;">
+                @if (!Model.RecentQueries.Any())
+                {
+                    <div style="text-align:center;padding:32px;color:var(--text-gray);">
+                        <div style="font-size:2.5rem;margin-bottom:8px;">💬</div>
+                        <p>No queries yet. <a href="/Chat/Index" style="color:var(--green);font-weight:600;">Ask your first question!</a></p>
+                    </div>
+                }
+                @foreach (var q in Model.RecentQueries)
+                {
+                    <div style="border-bottom:1px solid #F0F0F0;padding:14px 0;display:flex;gap:12px;align-items:flex-start;">
+                        <div style="width:36px;height:36px;border-radius:10px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            @(q.QueryType == "Image" ? "📷" : q.QueryType == "Voice" ? "🎤" : "💬")
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.875rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@(q.QueryText?.Length > 60 ? q.QueryText[..60] + "..." : q.QueryText)</div>
+                            <div style="display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap;">
+                                <span class="badge @(q.Status == "Answered" ? "badge-green" : q.Status == "Escalated" ? "badge-yellow" : "badge-gray")">@q.Status</span>
+                                <span style="color:var(--text-gray);font-size:0.75rem;">@q.CreatedDate.ToString("dd MMM, hh:mm tt")</span>
+                                @if (q.AIResponse?.ConfidenceScore != null)
+                                {
+                                    <span style="color:var(--green);font-size:0.75rem;font-weight:600;">@q.AIResponse.ConfidenceScore%</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather + Active Crops -->
+    <div class="col-lg-5">
+        @if (Model.Weather != null)
+        {
+            <div class="weather-card mb-3">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+                    <div>
+                        <div style="font-size:0.8rem;opacity:0.8;">☁ @Model.Weather.District Weather</div>
+                        <div class="weather-temp">@Model.Weather.Temperature°C</div>
+                        <div style="opacity:0.85;margin-top:4px;">@Model.Weather.Description</div>
+                    </div>
+                    <div style="text-align:right;font-size:3rem;">
+                        @(Model.Weather.AlertType == "Rain" ? "🌧" : Model.Weather.AlertType == "Heat" ? "☀" : Model.Weather.AlertType == "Cold" ? "🌨" : "⛅")
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+                    <div class="weather-stat"><div class="label">💧 Humidity</div><div class="value">@Model.Weather.Humidity%</div></div>
+                    <div class="weather-stat"><div class="label">🌧 Rain</div><div class="value">@Model.Weather.RainChance%</div></div>
+                    <div class="weather-stat"><div class="label">💨 Wind</div><div class="value">@Model.Weather.WindSpeed km/h</div></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px;font-size:0.8rem;">
+                    🌾 @Model.Weather.FarmingAlert
+                </div>
+            </div>
+        }
+
+        <div class="card">
+            <div class="card-header-green d-flex justify-between align-center">
+                <span style="font-weight:700;">🌱 Active Crops</span>
+                <a href="/Farmer/Crops" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">Manage →</a>
+            </div>
+            <div style="padding:12px;">
+                @if (!Model.ActiveCrops.Any())
+                {
+                    <div style="text-align:center;padding:20px;color:var(--text-gray);font-size:0.875rem;">No active crops. <a href="/Farmer/Crops" style="color:var(--green);">Add crops →</a></div>
+                }
+                @foreach (var c in Model.ActiveCrops)
+                {
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F5F5F5;">
+                        <div style="width:36px;height:36px;background:#E8F5E9;border-radius:8px;display:flex;align-items:center;justify-content:center;">🌾</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;font-size:0.875rem;">@c.Crop?.CropName</div>
+                            <div style="color:var(--text-gray);font-size:0.75rem;">@c.Crop?.Season · @(c.LandArea ?? 0) acres</div>
+                        </div>
+                        <span class="badge badge-green">Growing</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

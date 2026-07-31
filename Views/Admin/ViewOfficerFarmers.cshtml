@@ -1,0 +1,105 @@
+@model List<Digital_Krushi_Officer.Models.TblFarmerOfficerAssignment>
+@{
+    ViewData["Title"] = "Officer's Assigned Farmers";
+    var officer = ViewBag.Officer as Digital_Krushi_Officer.Models.TblUser;
+}
+
+<div class="page-header d-flex justify-between align-center">
+    <div>
+        <h1>👮 @officer?.Name - Assigned Farmers</h1>
+        <p>@Model.Count farmers assigned to this officer</p>
+    </div>
+    <a href="/Admin/Officers" class="btn-outline-green" style="padding:10px 18px;text-decoration:none;">← Back</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card" style="padding:32px;text-align:center;color:var(--text-gray);">
+        <p>No farmers assigned to @officer?.Name</p>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Farmer Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>District</th>
+                        <th>Village</th>
+                        <th>Land Area</th>
+                        <th>Main Crop</th>
+                        <th>Assigned Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var assignment in Model)
+                    {
+                        var farmer = assignment.Farmer;
+                        var farmerDetails = farmer?.FarmerDetails;
+
+                        <tr>
+                            <td style="color:var(--text-gray);font-weight:600;">@farmer?.Id</td>
+                            <td style="font-weight:600;">@farmer?.Name</td>
+                            <td style="font-size:0.82rem;color:var(--text-gray);">@farmer?.Email</td>
+                            <td>@farmer?.Mobile</td>
+                            <td>@assignment.District</td>
+                            <td>@assignment.Village</td>
+                            <td>@(farmerDetails?.LandArea != null ? $"{farmerDetails.LandArea} acres" : "N/A")</td>
+                            <td>@farmerDetails?.MainCrop</td>
+                            <td style="font-size:0.8rem;color:var(--text-gray);">@assignment.CreatedDate.ToString("dd MMM yyyy")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top:20px;padding:16px;background-color:#e8f4f8;border-radius:8px;border-left:4px solid #0066cc;">
+        <p style="margin:0;font-size:0.9rem;color:#0066cc;">
+            <strong>ℹ️ Information:</strong> All queries from these farmers will be assigned to
+            <strong>@officer?.Name</strong> for review and response.
+        </p>
+    </div>
+}
+
+<style>
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-between {
+        justify-content: space-between;
+    }
+
+    .align-center {
+        align-items: center;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        background-color: #f5f5f5;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .data-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .data-table tr:hover {
+        background-color: #f9f9f9;
+    }
+</style>

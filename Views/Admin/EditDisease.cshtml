@@ -1,0 +1,36 @@
+@model Digital_Krushi_Officer.Models.TblDiseaseDataset
+@{ ViewData["Title"] = "Update Disease Record"; ViewData["ActiveMenu"] = "Diseases"; }
+<div class="page-header"><h1>✏️ Update Disease Record</h1></div>
+<div class="card p-4" style="max-width:640px;">
+    <form asp-action="EditDisease" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div class="grid-2">
+            <div class="form-group"><label class="form-label">🌾 Crop Name</label><input asp-for="CropName" class="form-control" required /></div>
+            <div class="form-group"><label class="form-label">🦠 Disease Name</label><input asp-for="DiseaseName" class="form-control" required /></div>
+        </div>
+        <div class="form-group"><label class="form-label">🔍 Symptoms</label><textarea asp-for="Symptoms" class="form-control" rows="3"></textarea></div>
+        <div class="form-group"><label class="form-label">💊 Solution / Treatment</label><textarea asp-for="Solution" class="form-control" rows="3"></textarea></div>
+        <div class="grid-2">
+            <div class="form-group"><label class="form-label">🧪 Recommended Pesticide</label><input asp-for="RecommendedPesticide" class="form-control" /></div>
+            <div class="form-group">
+                <label class="form-label">⚠ Severity Level</label>
+                <select asp-for="SeverityLevel" class="form-control form-select">
+                    <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group"><label class="form-label">🖼 Reference Image Path</label><input asp-for="ReferenceImagePath" class="form-control" placeholder="/images/diseases/example.jpg" /></div>
+        <div class="form-group">
+            <label class="form-label">🔄 Status</label>
+            <select asp-for="IsActive" class="form-control form-select">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+            <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">💾 Save Changes</button>
+            <a href="/Admin/Diseases" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">Cancel</a>
+        </div>
+    </form>
+</div>

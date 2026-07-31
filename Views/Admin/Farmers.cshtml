@@ -1,0 +1,50 @@
+@model List<Digital_Krushi_Officer.Models.TblUser>
+@{
+    ViewData["Title"] = "Manage Farmers";
+    ViewData["ActiveMenu"] = "Farmers";
+    var search = ViewBag.Search as string;
+}
+<div class="page-header d-flex justify-between align-center">
+    <div><h1>👨‍🌾 Manage Farmers</h1><p>@Model.Count registered farmers</p></div>
+</div>
+<div class="card mb-3 p-3">
+    <form method="get">
+        <div style="display:flex;gap:12px;">
+            <input type="text" name="search" class="form-control" placeholder="Search by name, email, district..." value="@search" style="flex:1;" />
+            <button type="submit" class="btn-primary-green" style="padding:10px 24px;">🔍 Search</button>
+            @if (search != null) { <a href="/Admin/Farmers" class="btn-outline-green" style="padding:10px 18px;text-decoration:none;">✕ Clear</a> }
+        </div>
+    </form>
+</div>
+<div class="card">
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Mobile</th><th>District</th><th>Verified</th><th>Joined</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+                @foreach (var f in Model)
+                {
+                    <tr>
+                        <td style="color:var(--text-gray);font-weight:600;">@f.Id</td>
+                        <td style="font-weight:600;">@f.Name</td>
+                        <td style="font-size:0.82rem;color:var(--text-gray);">@f.Email</td>
+                        <td>@f.Mobile</td>
+                        <td>@f.District</td>
+                        <td><span class="badge @(f.IsEmailVerified?"badge-green":"badge-yellow")">@(f.IsEmailVerified?"✓ Verified":"Pending")</span></td>
+                        <td style="font-size:0.8rem;color:var(--text-gray);">@f.CreatedDate.ToString("dd MMM yyyy")</td>
+                        <td><span class="badge @(f.IsActive?"badge-green":"badge-red")">@(f.IsActive?"Active":"Inactive")</span></td>
+                        <td>
+                            <form asp-action="ToggleFarmerStatus" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@f.Id" />
+                                <button type="submit" class="@(f.IsActive?"btn-red":"btn-primary-green")" style="padding:6px 14px;font-size:0.78rem;">
+                                    @(f.IsActive?"Deactivate":"Activate")
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any()){ <tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text-gray);">No farmers found.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>

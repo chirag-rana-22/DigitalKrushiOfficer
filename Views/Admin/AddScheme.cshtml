@@ -1,0 +1,31 @@
+@model Digital_Krushi_Officer.Models.TblGovernmentScheme
+@{ ViewData["Title"] = "Add Scheme"; ViewData["ActiveMenu"] = "Schemes"; }
+<div class="page-header"><h1>➕ Add Government Scheme</h1></div>
+<div class="card p-4" style="max-width:640px;">
+    <form asp-action="AddScheme" method="post">
+        @Html.AntiForgeryToken()
+        <div class="form-group"><label class="form-label">📜 Scheme Name</label><input asp-for="SchemeName" class="form-control" required /></div>
+        <div class="form-group"><label class="form-label">📝 Description</label><textarea asp-for="Description" class="form-control" rows="4"></textarea></div>
+        <div class="form-group"><label class="form-label">✅ Eligibility</label><textarea asp-for="Eligibility" class="form-control" rows="3"></textarea></div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">📁 Category</label>
+                <select asp-for="Category" class="form-control form-select">
+                    <option>Subsidy</option><option>Loan</option><option>Insurance</option><option>Training</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">🔄 Status</label>
+                <select asp-for="Status" class="form-control form-select">
+                    <option>Active</option><option>Expired</option><option>Draft</option>
+                </select>
+            </div>
+            <div class="form-group"><label class="form-label">📅 Start Date</label><input asp-for="StartDate" type="date" class="form-control" /></div>
+            <div class="form-group"><label class="form-label">📅 Last Date</label><input asp-for="LastDate" type="date" class="form-control" /></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+            <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">✅ Add Scheme</button>
+            <a href="/Admin/Schemes" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">Cancel</a>
+        </div>
+    </form>
+</div>

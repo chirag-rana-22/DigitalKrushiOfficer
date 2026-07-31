@@ -1,0 +1,60 @@
+@model List<Digital_Krushi_Officer.Models.TblGovernmentScheme>
+@{
+    ViewData["Title"] = "Government Schemes";
+    ViewData["ActiveMenu"] = "Schemes";
+    var categories = ViewBag.Categories as List<string?> ?? new();
+    var currentCat = ViewBag.Category as string;
+    var catIcons = new Dictionary<string,string>{{"Subsidy","💰"},{"Loan","🏦"},{"Insurance","🛡"},{"Training","📚"},{"","📜"}};
+}
+<div class="page-header d-flex justify-between align-center">
+    <div><h1>📜 Government Schemes</h1><p>Agriculture subsidies, loans, and insurance for farmers</p></div>
+</div>
+
+<!-- Category Filter -->
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+    <a href="/Scheme/Index" class="@(currentCat == null ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">All Schemes</a>
+    @foreach (var cat in categories.Where(c => c != null))
+    {
+        <a href="/Scheme/Index?category=@cat" class="@(currentCat == cat ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">
+            @(catIcons.ContainsKey(cat!) ? catIcons[cat!] : "📌") @cat
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card p-5 text-center"><div style="font-size:4rem;">📜</div><p style="color:var(--text-gray);">No schemes found.</p></div>
+}
+else
+{
+    <div class="grid-2">
+        @foreach (var s in Model)
+        {
+            var isExpiringSoon = s.LastDate.HasValue && s.LastDate.Value < DateTime.Now.AddDays(30);
+            <div class="card p-4">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+                    <div style="width:48px;height:48px;border-radius:12px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">
+                        @(catIcons.ContainsKey(s.Category ?? "") ? catIcons[s.Category!] : "📌")
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <span class="badge badge-green">@s.Status</span>
+                        @if (s.Category != null) { <span class="badge badge-blue">@s.Category</span> }
+                        @if (isExpiringSoon) { <span class="badge badge-red">Expiring Soon!</span> }
+                    </div>
+                </div>
+                <h5 style="font-weight:700;margin-bottom:8px;font-size:1rem;">@s.SchemeName</h5>
+                <p style="color:var(--text-gray);font-size:0.83rem;margin-bottom:12px;line-height:1.5;">@(s.Description?.Length > 120 ? s.Description[..120] + "..." : s.Description)</p>
+                <div style="background:#F8F9FA;border-radius:8px;padding:10px;margin-bottom:12px;">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-gray);margin-bottom:4px;">✅ ELIGIBILITY</div>
+                    <div style="font-size:0.82rem;color:#424242;">@(s.Eligibility?.Length > 80 ? s.Eligibility[..80] + "..." : s.Eligibility)</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div style="font-size:0.78rem;color:var(--text-gray);">
+                        📅 Last Date: <strong style="color:@(isExpiringSoon ? "var(--red)" : "var(--text-dark)");">@(s.LastDate?.ToString("dd MMM yyyy") ?? "Open")</strong>
+                    </div>
+                    <a href="/Scheme/Detail/@s.Id" class="btn-outline-green" style="padding:7px 16px;font-size:0.8rem;text-decoration:none;">Details →</a>
+                </div>
+            </div>
+        }
+    </div>
+}

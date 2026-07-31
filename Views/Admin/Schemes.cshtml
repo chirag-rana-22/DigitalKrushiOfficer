@@ -1,0 +1,36 @@
+@model List<Digital_Krushi_Officer.Models.TblGovernmentScheme>
+@{
+    ViewData["Title"] = "Manage Schemes";
+    ViewData["ActiveMenu"] = "Schemes";
+}
+<div class="page-header d-flex justify-between align-center">
+    <div><h1>📜 Manage Schemes</h1><p>Government agriculture schemes</p></div>
+    <a href="/Admin/AddScheme" class="btn-primary-green">➕ Add Scheme</a>
+</div>
+<div class="card">
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead><tr><th>Name</th><th>Category</th><th>Status</th><th>Last Date</th><th>Active</th><th>Action</th></tr></thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td style="font-weight:700;max-width:200px;">@s.SchemeName</td>
+                        <td><span class="badge badge-blue">@s.Category</span></td>
+                        <td><span class="badge @(s.Status=="Active"?"badge-green":"badge-red")">@s.Status</span></td>
+                        <td style="font-size:0.82rem;">@(s.LastDate?.ToString("dd MMM yyyy") ?? "Open")</td>
+                        <td><span class="badge @(s.IsActive?"badge-green":"badge-red")">@(s.IsActive?"Yes":"No")</span></td>
+                        <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                            <a href="/Admin/EditScheme/@s.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">✏️ Update</a>
+                            <form asp-action="ToggleSchemeStatus" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.Id" />
+                                <button type="submit" class="@(s.IsActive?"btn-red":"btn-primary-green")" style="padding:6px 14px;font-size:0.78rem;">@(s.IsActive?"Deactivate":"Activate")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

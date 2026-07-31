@@ -1,0 +1,264 @@
+@model List<TblAIResponse>
+@using Digital_Krushi_Officer.Models
+
+@{
+    ViewData["Title"] = "Pending AI Reviews";
+    ViewData["ActiveMenu"] = "PendingReviews";
+    var pending = Model?.Count(r => r.ApprovalStatus == ApprovalStatus.Pending) ?? 0;
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h1>✅ Pending AI Response Reviews</h1>
+        <p class="subtitle">Review and approve complex farmer queries</p>
+    </div>
+
+    <div class="alert-info" style="margin-bottom:20px;">
+        <strong>📋 pending</strong> - Complex questions awaiting your expert review
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">✨</div>
+            <h3>All Caught Up!</h3>
+            <p>No pending AI responses to review. Great work!</p>
+        </div>
+    }
+    else
+    {
+        <div class="reviews-grid">
+            @foreach (var response in Model.Where(r => r.ApprovalStatus == ApprovalStatus.Pending).OrderByDescending(r =>
+        r.CreatedDate))
+            {
+                var farmer = response.Query?.Farmer;
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-meta">
+                            <h3>@response.Query?.QueryText?.Substring(0, Math.Min(60, response.Query.QueryText?.Length ?? 0))...
+                            </h3>
+                            <small>From: <strong>@farmer?.Name</strong> (@farmer?.Email)</small>
+                        </div>
+                        <div class="complexity-badge">
+                            @if (response.ComplexityLevel == ComplexityLevel.Complex)
+                            {
+                                <span class="badge badge-danger">🔴 Complex</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="review-body">
+                        <div class="ai-answer">
+                            <h4>AI Answer:</h4>
+                            <div class="answer-preview"
+                                 style="background:#f5f5f5;padding:12px;border-radius:8px;max-height:200px;overflow-y:auto;font-size:0.9rem;">
+                                @Html.Raw(response.AIAnswer?.Replace("\n", "<br>"))
+                            </div>
+                        </div>
+
+                        <div class="response-info">
+                            <div class="info-row">
+                                <span>🎯 Confidence:</span>
+                                <strong>@(response.ConfidenceScore?.ToString("P0"))</strong>
+                            </div>
+                            <div class="info-row">
+                                <span>⏱️ Response Time:</span>
+                                <strong>@(response.ResponseTimeMs)ms</strong>
+                            </div>
+                            <div class="info-row">
+                                <span>📅 Submitted:</span>
+                                <strong>@response.CreatedDate.ToString("dd MMM yyyy HH:mm")</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-actions">
+                        <a href="/Officer/ReviewResponse/@response.Id" class="btn btn-primary">Review & Decide</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .page-header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--green);
+    }
+
+    .page-header h1 {
+        color: var(--green);
+        margin-bottom: 4px;
+    }
+
+    .page-header .subtitle {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .alert-info {
+        background: #e8f4f8;
+        border-left: 4px solid #0066cc;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #f9f9f9;
+        border-radius: 12px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        color: #999;
+    }
+
+    .reviews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+        gap: 20px;
+    }
+
+    .review-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .review-card:hover {
+        border-color: var(--green);
+        box-shadow: 0 4px 12px rgba(34, 139, 34, 0.15);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .review-header h3 {
+        margin: 0 0 4px;
+        color: #333;
+        font-size: 1rem;
+    }
+
+    .review-header small {
+        color: #999;
+        display: block;
+    }
+
+    .complexity-badge {
+        flex-shrink: 0;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .badge-danger {
+        background: #ffe0e0;
+        color: #d32f2f;
+    }
+
+    .review-body {
+        margin-bottom: 16px;
+    }
+
+    .ai-answer h4 {
+        color: #333;
+        font-size: 0.9rem;
+        margin: 0 0 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .answer-preview {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .response-info {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .info-row span {
+        font-weight: 500;
+    }
+
+    .info-row strong {
+        color: var(--green);
+    }
+
+    .review-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: var(--green);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1e7e34;
+    }
+
+    @@media(max-width: 768px) {
+        .reviews-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .response-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

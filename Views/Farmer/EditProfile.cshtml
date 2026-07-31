@@ -1,0 +1,61 @@
+@model Digital_Krushi_Officer.Models.ViewModels.EditProfileViewModel
+@{ ViewData["Title"] = "Edit Profile"; ViewData["ActiveMenu"] = "Profile"; }
+<div class="page-header"><h1>✏ Edit Profile</h1><p>Update your farming account information</p></div>
+<div class="card p-4" style="max-width:680px;">
+    <form asp-action="EditProfile" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3"></div>
+        <h6 style="font-weight:700;color:var(--green);margin-bottom:14px;">👤 Personal Information</h6>
+        <div class="grid-2">
+            <div class="form-group"><label class="form-label">Full Name</label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="validation-msg"></span></div>
+            <div class="form-group"><label class="form-label">Mobile</label><input asp-for="Mobile" class="form-control" /></div>
+            <div class="form-group">
+                <label class="form-label">🗺 State</label>
+                <input asp-for="State" class="form-control" value="Gujarat" readonly
+                       style="background:rgba(255,255,255,0.05);color:var(--text-gray);cursor:not-allowed;opacity:0.8;" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">📍 District</label>
+                <select asp-for="District" id="fp-district" class="form-control form-select">
+                    <option value="">Loading...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">🏘 Village / City</label>
+                <select asp-for="Village" id="fp-village" class="form-control form-select">
+                    <option value="">-- Select District First --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Preferred Language</label>
+                <select asp-for="PreferredLanguage" class="form-control form-select">
+                    <option value="Gujarati">ગુજરાતી (Gujarati)</option>
+                    <option value="Hindi">हिन्दी (Hindi)</option>
+                    <option value="English">English</option>
+                </select>
+            </div>
+        </div>
+        <hr style="border-color:#E0E0E0;margin:16px 0;" />
+        <h6 style="font-weight:700;color:var(--green);margin-bottom:14px;">🌾 Farming Details</h6>
+        <div class="grid-2">
+            <div class="form-group"><label class="form-label">Main Crop</label><input asp-for="MainCrop" class="form-control" placeholder="e.g. Cotton" /></div>
+            <div class="form-group"><label class="form-label">Land Area (acres)</label><input asp-for="LandArea" type="number" step="0.1" class="form-control" /></div>
+            <div class="form-group"><label class="form-label">Soil Type</label><input asp-for="SoilType" class="form-control" placeholder="e.g. Black, Sandy Loam" /></div>
+            <div class="form-group"><label class="form-label">Experience (years)</label><input asp-for="FarmingExperience" type="number" class="form-control" /></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+            <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">💾 Save Changes</button>
+            <a href="/Farmer/Profile" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">Cancel</a>
+        </div>
+    </form>
+</div>
+@section Scripts {
+<script src="/js/gujarat-location.js"></script>
+<script>
+const preDistrict = '@Html.Raw(Model?.District ?? "")';
+const preVillage  = '@Html.Raw(Model?.Village  ?? "")';
+document.addEventListener('DOMContentLoaded', async function () {
+    await initGujaratLocation('fp-district', 'fp-village', preDistrict, preVillage);
+});
+</script>
+}

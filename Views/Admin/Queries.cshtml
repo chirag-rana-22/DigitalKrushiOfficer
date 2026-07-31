@@ -1,0 +1,37 @@
+@model List<Digital_Krushi_Officer.Models.TblQuery>
+@{ ViewData["Title"] = "All Queries"; ViewData["ActiveMenu"] = "Queries"; var statusFilter = ViewBag.StatusFilter as string; }
+<div class="page-header"><h1>💬 All Queries</h1><p>System-wide query log</p></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <a href="/Admin/Queries" class="@(statusFilter==null?"btn-primary-green":"btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">All</a>
+    @foreach(var s in new[]{"Pending","Answered","Escalated","Closed"})
+    {
+        <a href="/Admin/Queries?status=@s" class="@(statusFilter==s?"btn-primary-green":"btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">@s</a>
+    }
+</div>
+<div class="card">
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead><tr><th>#</th><th>Farmer</th><th>Query</th><th>Type</th><th>AI Confidence</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+                @foreach (var q in Model)
+                {
+                    <tr>
+                        <td style="font-weight:700;color:var(--text-gray);">#@q.Id</td>
+                        <td><div style="font-weight:600;">@q.Farmer?.Name</div><div style="font-size:0.75rem;color:var(--text-gray);">@q.Farmer?.District</div></td>
+                        <td style="max-width:220px;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;font-size:0.85rem;">@q.QueryText</div></td>
+                        <td><span style="font-size:1.1rem;">@(q.QueryType=="Image"?"📷":q.QueryType=="Voice"?"🎤":"💬")</span></td>
+                        <td>
+                            @if(q.AIResponse?.ConfidenceScore != null)
+                            {
+                                <div style="font-size:0.82rem;font-weight:700;color:@(q.AIResponse.ConfidenceScore>75?"var(--green)":q.AIResponse.ConfidenceScore>50?"#F57F17":"var(--red)");">@q.AIResponse.ConfidenceScore%</div>
+                            } else { <span style="color:var(--text-gray);">—</span> }
+                        </td>
+                        <td><span class="badge @(q.Status=="Answered"?"badge-green":q.Status=="Escalated"?"badge-yellow":q.Status=="Closed"?"badge-blue":"badge-gray")">@q.Status</span></td>
+                        <td style="font-size:0.8rem;color:var(--text-gray);">@q.CreatedDate.ToString("dd MMM yyyy")</td>
+                    </tr>
+                }
+                @if(!Model.Any()){ <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-gray);">No queries found.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>

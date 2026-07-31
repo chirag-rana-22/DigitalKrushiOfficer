@@ -1,0 +1,100 @@
+@model List<Digital_Krushi_Officer.Models.TblQuery>
+@{
+    ViewData["Title"] = "Query History";
+    ViewData["ActiveMenu"] = "History";
+}
+<div class="page-header">
+    <h1>📋 Query History</h1>
+    <p>All your past AI queries and responses</p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card p-5 text-center">
+        <div style="font-size:4rem;margin-bottom:16px;">💬</div>
+        <h4>No queries yet</h4>
+        <p style="color:var(--text-gray);">Start by asking the AI a farming question</p>
+        <a href="/Chat/Index" class="btn-primary-green" style="display:inline-flex;margin-top:16px;">🤖 Ask AI Now</a>
+    </div>
+}
+else
+{
+    <div style="display:flex;flex-direction:column;gap:14px;">
+        @foreach (var q in Model)
+        {
+            <div class="card p-4">
+                <div style="display:flex;gap:14px;align-items:flex-start;">
+                    <div style="width:44px;height:44px;background:#E8F5E9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">
+                        @(q.QueryType == "Image" ? "📷" : q.QueryType == "Voice" ? "🎤" : "💬")
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+                            <span class="badge @(q.Status=="Answered"?"badge-green":q.Status=="Escalated"?"badge-yellow":q.Status=="Closed"?"badge-blue":"badge-gray")">@q.Status</span>
+                            <span class="badge badge-gray">@q.QueryType</span>
+                            <span class="badge badge-gray">@q.QueryLanguage</span>
+                            <span style="color:var(--text-gray);font-size:0.78rem;margin-left:auto;">@q.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</span>
+                        </div>
+                        @if (q.QueryType == "Image" && q.ImagePath != null)
+                        {
+                            <img src="@q.ImagePath" style="width:80px;height:60px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block;" />
+                        }
+                        <div style="font-weight:600;font-size:0.9rem;margin-bottom:8px;">@q.QueryText</div>
+
+                        @if (q.AIResponse != null)
+                        {
+                            <div style="background:#F8FFF8;border-left:3px solid #2E7D32;border-radius:0 8px 8px 0;padding:12px;margin-bottom:8px;">
+                                <div style="font-size:0.72rem;font-weight:700;color:#2E7D32;margin-bottom:6px;">🤖 AI RESPONSE · @(q.AIResponse.ConfidenceScore)% Confidence</div>
+                                <div style="font-size:0.85rem;color:#424242;line-height:1.6;white-space:pre-wrap;">@(q.AIResponse.AIAnswer?.Length > 300 ? q.AIResponse.AIAnswer[..300] + "..." : q.AIResponse.AIAnswer)</div>
+                            </div>
+                        }
+
+                        @if (q.Escalation?.OfficerReply != null)
+                        {
+                            <div style="background:#FFF8E1;border-left:3px solid #FBC02D;border-radius:0 8px 8px 0;padding:12px;margin-bottom:8px;">
+                                <div style="font-size:0.72rem;font-weight:700;color:#F57F17;margin-bottom:6px;">👮 OFFICER REPLY · @q.Escalation.Officer?.Name</div>
+                                <div style="font-size:0.85rem;color:#424242;">@q.Escalation.OfficerReply</div>
+                            </div>
+                        }
+
+                        @if (q.Feedbacks.Any())
+                        {
+                            var fb = q.Feedbacks.First();
+                            <div style="font-size:0.8rem;color:var(--text-gray);">
+                                Your rating: @string.Concat(Enumerable.Range(1,5).Select(i => i <= fb.Rating ? "⭐" : "☆"))
+                            </div>
+                        }
+                        else if (q.Status == "Answered")
+                        {
+                            <div style="margin-top:8px;" id="fb-@q.Id">
+                                <span style="font-size:0.78rem;color:var(--text-gray);">Rate this answer: </span>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    var starVal = i;
+                                    <button onclick="submitFeedback(@q.Id, @starVal)" style="background:none;border:none;font-size:1rem;cursor:pointer;padding:2px;">☆</button>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@Html.AntiForgeryToken()
+@section Scripts {
+<script>
+async function submitFeedback(queryId, rating) {
+    var fd = new FormData();
+    fd.append('queryId', queryId);
+    fd.append('rating', rating);
+    fd.append('feedbackType', rating >= 4 ? 'Helpful' : 'NotHelpful');
+    var resp = await fetch('/Farmer/SubmitFeedback', { method:'POST', headers:{'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value}, body: fd });
+    var data = await resp.json();
+    if (data.success) {
+        var el = document.getElementById('fb-' + queryId);
+        if (el) el.innerHTML = '<span style="font-size:0.78rem;color:var(--green);">✅ Thank you for your feedback! ' + '⭐'.repeat(rating) + '</span>';
+    }
+}
+</script>
+}

@@ -1,0 +1,62 @@
+@model List<Digital_Krushi_Officer.Models.TblUser>
+@{
+    ViewData["Title"] = "Manage Officers";
+    ViewData["ActiveMenu"] = "Officers";
+}
+<div class="page-header">
+    <h1>👮 Manage Officers</h1>
+    <p>@Model.Count agriculture officers registered</p>
+</div>
+<div class="card">
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>District</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td style="color:var(--text-gray);font-weight:600;">@o.Id</td>
+                        <td style="font-weight:600;">@o.Name</td>
+                        <td style="font-size:0.82rem;color:var(--text-gray);">@o.Email</td>
+                        <td>@(o.OfficerDetails?.Department ?? "—")</td>
+                        <td>@(o.OfficerDetails?.Designation ?? "—")</td>
+                        <td>@o.District</td>
+                        <td><span
+                            class="badge @(o.IsActive ? "badge-green" : "badge-red")">@(o.IsActive ? "Active" : "Inactive")</span>
+                        </td>
+                        <td>
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                <a href="/Admin/ViewOfficerFarmers/@o.Id" class="btn-primary-green"
+                                   style="padding:6px 12px;font-size:0.78rem;text-decoration:none;">👥 Farmers</a>
+                                <form asp-action="ToggleOfficerStatus" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@o.Id" />
+                                    <button type="submit" class="@(o.IsActive ? "btn-red" : "btn-primary-green")"
+                                            style="padding:6px 14px;font-size:0.78rem;">@(o.IsActive ? "Deactivate" : "Activate")</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" style="text-align:center;padding:32px;color:var(--text-gray);">No officers found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

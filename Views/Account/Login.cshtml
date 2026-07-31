@@ -1,0 +1,61 @@
+@model Digital_Krushi_Officer.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    ViewData["HideLayout"] = true;
+    Layout = "_Layout";
+}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <div class="logo-icon">🌾</div>
+            <h2>Welcome Back</h2>
+            <p>Login to Digital Krushi Officer</p>
+        </div>
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-banner success mb-3">✅ @TempData["Success"]</div>
+        }
+        @if (TempData["Warning"] != null)
+        {
+            <div class="alert-banner warning mb-3">⚠ @TempData["Warning"]</div>
+        }
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3" style="display:block"></div>
+            <div class="form-group">
+                <label class="form-label">📧 Email Address</label>
+                <input asp-for="Email" class="form-control" placeholder="your@email.com" />
+                <span asp-validation-for="Email" class="validation-msg"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">🔒 Password</label>
+                <div style="position:relative;">
+                    <input asp-for="Password" class="form-control" placeholder="Enter your password" id="pwdField" />
+                    <button type="button" onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;">👁</button>
+                </div>
+                <span asp-validation-for="Password" class="validation-msg"></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <label style="display:flex;gap:8px;align-items:center;cursor:pointer;font-size:0.85rem;">
+                    <input asp-for="RememberMe" type="checkbox" /> Remember me
+                </label>
+                <a href="/Account/ForgotPassword" style="color:var(--green);font-size:0.85rem;text-decoration:none;font-weight:600;">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn-primary-green w-100" style="justify-content:center;font-size:1rem;padding:14px;">
+                🔑 Login
+            </button>
+        </form>
+        <p style="text-align:center;margin-top:20px;font-size:0.875rem;color:var(--text-gray);">
+            Don't have an account? <a href="/Account/Register" style="color:var(--green);font-weight:700;">Register here</a>
+        </p>
+        <a href="/" style="display:block;text-align:center;margin-top:12px;font-size:0.8rem;color:var(--text-gray);text-decoration:none;">← Back to Home</a>
+    </div>
+</div>
+@section Scripts {
+<script>
+function togglePwd(){
+    var f=document.getElementById('pwdField');
+    f.type=f.type==='password'?'text':'password';
+}
+</script>
+}

@@ -1,0 +1,182 @@
+@model Digital_Krushi_Officer.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    ViewData["ActiveMenu"] = "Dashboard";
+}
+<div class="page-header">
+    <h1>📊 Admin Dashboard</h1>
+    <p>System overview and analytics</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid-4 mb-4">
+    <div class="stat-card">
+        <div class="stat-icon green">👨‍🌾</div>
+        <div>
+            <div class="stat-value">@Model.TotalFarmers</div>
+            <div class="stat-label">Total Farmers</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">👮</div>
+        <div>
+            <div class="stat-value">@Model.TotalOfficers</div>
+            <div class="stat-label">Officers</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow">💬</div>
+        <div>
+            <div class="stat-value">@Model.TotalQueries</div>
+            <div class="stat-label">Total Queries</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">⏳</div>
+        <div>
+            <div class="stat-value">@Model.PendingQueries</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+</div>
+<div class="grid-4 mb-4">
+    <div class="stat-card">
+        <div class="stat-icon yellow">📨</div>
+        <div>
+            <div class="stat-value">@Model.PendingEscalations</div>
+            <div class="stat-label">Pending Escal.</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+            <div class="stat-value">@Model.SolvedEscalations</div>
+            <div class="stat-label">Solved Escal.</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon brown">🌾</div>
+        <div>
+            <div class="stat-value">@Model.TotalCrops</div>
+            <div class="stat-label">Crop Types</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">📜</div>
+        <div>
+            <div class="stat-value">@Model.ActiveSchemes</div>
+            <div class="stat-label">Active Schemes</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Admin Actions -->
+<div class="card p-4 mb-4">
+    <h5 style="font-weight:700;margin-bottom:14px;">⚡ Quick Actions</h5>
+    <div class="grid-6">
+        <a href="/Admin/Farmers" class="action-card"><span class="action-icon">👨‍🌾</span>
+            <h6>Farmers</h6>
+            <p>Manage users</p>
+        </a>
+        <a href="/Admin/Officers" class="action-card"><span class="action-icon">👮</span>
+            <h6>Officers</h6>
+            <p>Manage staff</p>
+        </a>
+        <a href="/Admin/AssignFarmerToOfficer" class="action-card"><span class="action-icon">🔗</span>
+            <h6>Assignments</h6>
+            <p>Link farmers</p>
+        </a>
+        <a href="/Admin/Crops" class="action-card"><span class="action-icon">🌾</span>
+            <h6>Crops</h6>
+            <p>Crop database</p>
+        </a>
+        <a href="/Admin/Schemes" class="action-card"><span class="action-icon">📜</span>
+            <h6>Schemes</h6>
+            <p>Gov schemes</p>
+        </a>
+        <a href="/Admin/Diseases" class="action-card"><span class="action-icon">🔬</span>
+            <h6>Diseases</h6>
+            <p>Disease DB</p>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header-green d-flex justify-between align-center">
+                <span style="font-weight:700;">👨‍🌾 Recent Farmers</span>
+                <a href="/Admin/Farmers" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">View
+                    All →</a>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>District</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in Model.RecentFarmers)
+                            {
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:600;">@f.Name</div>
+                                        <div style="font-size:0.75rem;color:var(--text-gray);">@f.Email</div>
+                                    </td>
+                                    <td style="font-size:0.875rem;">@f.District</td>
+                                    <td><span class="badge badge-blue">@f.Role</span></td>
+                                    <td><span
+                                        class="badge @(f.IsActive?"badge-green":"badge-red")">@(f.IsActive?"Active":"Inactive")</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header-green d-flex justify-between align-center">
+                    <span style="font-weight:700;">💬 Recent Queries</span>
+                    <a href="/Admin/Queries" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">View
+                        All →</a>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Farmer</th>
+                                    <th>Query</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var q in Model.RecentQueries)
+                                {
+                                    <tr>
+                                        <td style="font-weight:600;font-size:0.85rem;">@q.Farmer?.Name</td>
+                                        <td style="max-width:180px;">
+                                            <div
+                                                style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;font-size:0.82rem;">
+                                                @q.QueryText</div>
+                                            </td>
+                                            <td><span
+                                                style="font-size:1rem;">@(q.QueryType=="Image"?"📷":q.QueryType=="Voice"?"🎤":"💬")</span>
+                                            </td>
+                                            <td><span
+                                                class="badge @(q.Status=="Answered"?"badge-green":q.Status=="Escalated"?"badge-yellow":"badge-gray")">@q.Status</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>

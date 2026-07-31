@@ -1,0 +1,514 @@
+@model Digital_Krushi_Officer.Models.ViewModels.ChatViewModel
+@{
+    ViewData["Title"] = "AI Krushi Officer Chat";
+    ViewData["ActiveMenu"] = "Chat";
+}
+
+@section Styles {
+<style>
+/* ── Chat Page Layout ── */
+.chat-page { display:flex; flex-direction:column; height:calc(100vh - 80px); max-width:900px; margin:0 auto; }
+.chat-top { padding:12px 0 8px; flex-shrink:0; }
+.chat-top h1 { font-size:1.3rem; font-weight:700; margin:0; color:var(--text-dark,#1a1a1a); }
+.chat-top p  { font-size:0.8rem; color:var(--text-gray,#666); margin:2px 0 0; }
+
+/* ── Messages Area ── */
+.msg-area { flex:1; overflow-y:auto; padding:16px 4px; display:flex; flex-direction:column; gap:18px; }
+.msg-area::-webkit-scrollbar { width:5px; }
+.msg-area::-webkit-scrollbar-thumb { background:#ccc; border-radius:4px; }
+
+/* ── Bubbles ── */
+.msg-row { display:flex; gap:10px; animation:fadeUp .3s ease; }
+.msg-row.user { justify-content:flex-end; }
+@@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+.avatar { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+.avatar.ai { background:#E8F5E9; }
+.avatar.officer { background:#FFF8E1; }
+
+.bubble { max-width:72%; padding:12px 16px; border-radius:16px; line-height:1.6; font-size:0.88rem; }
+.bubble.user { background:linear-gradient(135deg,#2E7D32,#43A047); color:#fff; border-bottom-right-radius:4px; }
+.bubble.ai   { background:#fff; border:1px solid #e0e0e0; border-bottom-left-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.bubble.officer { background:#FFFDE7; border:1px solid #FDD835; border-bottom-left-radius:4px; }
+
+/* ── Markdown inside bubble ── */
+.bubble h1,.bubble h2,.bubble h3 { margin:.5em 0 .3em; font-size:1em; font-weight:700; color:#1B5E20; }
+.bubble h2 { font-size:1.05em; border-bottom:1px solid #e8f5e9; padding-bottom:4px; }
+.bubble ul,.bubble ol { padding-left:18px; margin:.3em 0; }
+.bubble li { margin:.15em 0; }
+.bubble table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:.6em 0; }
+.bubble table th { background:#E8F5E9; padding:5px 8px; text-align:left; border:1px solid #c8e6c9; }
+.bubble table td { padding:5px 8px; border:1px solid #e0e0e0; }
+.bubble blockquote { border-left:3px solid #43A047; margin:.5em 0; padding:.3em 10px; background:#f9fff9; color:#2E7D32; border-radius:0 6px 6px 0; font-size:0.85em; }
+.bubble code { background:#f4f4f4; padding:1px 5px; border-radius:4px; font-size:0.82em; }
+.bubble strong { color:#1B5E20; }
+.bubble.user strong { color:#fff; }
+.bubble.user h2, .bubble.user h3 { color:#fff; border-color:rgba(255,255,255,.3); }
+
+/* ── Label ── */
+.bubble-label { font-size:0.68rem; font-weight:700; letter-spacing:.5px; margin-bottom:5px; }
+.bubble-label.ai { color:#2E7D32; }
+.bubble-label.officer { color:#F57F17; }
+
+/* ── Confidence bar ── */
+.conf-wrap { margin-top:8px; }
+.conf-text { font-size:0.68rem; color:#999; margin-bottom:3px; }
+.conf-bar { height:4px; background:#eee; border-radius:2px; overflow:hidden; }
+.conf-fill { height:100%; border-radius:2px; }
+.conf-fill.high { background:#43A047; }
+.conf-fill.medium { background:#FBC02D; }
+.conf-fill.low { background:#E53935; }
+
+/* ── Escalation notice ── */
+.esc-notice { background:#FFF8E1; border-radius:6px; padding:7px 10px; margin-top:8px; font-size:0.76rem; color:#F57F17; border:1px solid #FFE082; }
+
+/* ── Feedback stars ── */
+.fb-row { display:flex; gap:4px; margin-top:8px; }
+.fb-row button { background:none; border:none; font-size:1rem; cursor:pointer; padding:2px; transition:transform .15s; }
+.fb-row button:hover { transform:scale(1.3); }
+
+/* ── Typing indicator ── */
+.typing-row { display:flex; gap:10px; align-items:center; }
+.typing-dots { display:flex; gap:5px; padding:10px 14px; background:#fff; border:1px solid #e0e0e0; border-radius:16px; border-bottom-left-radius:4px; }
+.typing-dots span { width:7px; height:7px; border-radius:50%; background:#43A047; display:inline-block; animation:bounce 1.2s infinite; }
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* ── Pending notice (awaiting officer) ── */
+.pending-notice { background:#E3F2FD; border-left:3px solid #1976D2; padding:8px 12px; border-radius:0 8px 8px 0; font-size:0.8rem; color:#1565C0; margin-top:6px; }
+
+/* ── Input area ── */
+.input-area { flex-shrink:0; padding:10px 0 4px; border-top:1px solid #f0f0f0; }
+.quick-btns { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.quick-btn { padding:6px 13px; border-radius:20px; font-size:0.76rem; cursor:pointer; font-family:Poppins,sans-serif; border:1px solid; transition:all .2s; white-space:nowrap; }
+.quick-btn:hover { transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,.1); }
+.input-row { display:flex; gap:8px; align-items:flex-end; }
+.chat-textarea { flex:1; border:2px solid #e0e0e0; border-radius:12px; padding:10px 14px; font-family:Poppins,sans-serif; font-size:0.88rem; resize:none; outline:none; max-height:120px; transition:border-color .2s; }
+.chat-textarea:focus { border-color:#43A047; }
+.icon-btn { width:42px; height:42px; border-radius:10px; border:none; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; transition:all .2s; flex-shrink:0; }
+.icon-btn:hover { transform:scale(1.08); }
+.icon-btn.voice { background:#E8F5E9; color:#2E7D32; }
+.icon-btn.voice.recording { background:#E53935; color:#fff; animation:pulse .8s infinite; }
+.icon-btn.image { background:#E3F2FD; color:#1565C0; }
+.icon-btn.send  { background:linear-gradient(135deg,#2E7D32,#43A047); color:#fff; }
+.voice-status { text-align:center; font-size:0.76rem; color:#E53935; margin-top:5px; display:none; }
+@@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,.4)}50%{box-shadow:0 0 0 8px rgba(229,57,53,0)}}
+
+/* ── Timestamp ── */
+.ts { font-size:0.67rem; opacity:.55; text-align:right; margin-top:5px; }
+.bubble.user .ts { color:#cef; }
+
+/* ── Image preview strip — lives INSIDE the input box (Gemini style) ── */
+.img-preview-strip { display:none; gap:8px; flex-wrap:wrap; padding:6px 0 8px; border-bottom:1px solid #f0f0f0; margin-bottom:4px; }
+.img-preview-strip.has-images { display:flex; }
+.img-thumb-wrap { position:relative; display:inline-flex; }
+.img-thumb-wrap img { width:80px; height:80px; object-fit:cover; border-radius:12px; display:block; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+.img-thumb-remove { position:absolute; top:-5px; right:-5px; width:20px; height:20px; background:rgba(0,0,0,.6); color:#fff; border:2px solid #fff; border-radius:50%; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
+.input-box-wrap { flex:1; display:flex; flex-direction:column; border:2px solid #e0e0e0; border-radius:16px; padding:8px 14px; transition:border-color .2s; background:#fff; }
+.input-box-wrap:focus-within { border-color:#43A047; }
+.chat-textarea { border:none; outline:none; resize:none; font-family:Poppins,sans-serif; font-size:0.88rem; max-height:120px; width:100%; background:transparent; padding:4px 0; }
+/* ── Image-message bubble ── */
+.bubble.user .chat-img { width:100%; max-width:300px; border-radius:12px; display:block; margin-bottom:8px; }
+.bubble.user.img-bubble { padding:8px; max-width:320px; }
+.bubble.user.img-bubble .prompt-text { padding:4px 6px 2px; font-size:0.88rem; }
+</style>
+}
+
+<div class="chat-page">
+    <div class="chat-top">
+        <h1>🤖 Digital Krushi Officer AI</h1>
+        <p>Ask your farming questions in Gujarati, Hindi, or English — get expert advice instantly.</p>
+    </div>
+
+    <div class="msg-area" id="msgArea">
+        <!-- Welcome -->
+        <div style="text-align:center; padding:10px 0;">
+            <div style="display:inline-block; background:#f9fff9; border:1px dashed #a5d6a7; border-radius:12px; padding:12px 20px; font-size:0.82rem; color:#555;">
+                🌾 Welcome! Ask me anything about crops, diseases, weather, or government schemes.
+            </div>
+        </div>
+
+        @foreach (var msg in Model.Messages)
+        {
+            <!-- User message -->
+            <div class="msg-row user">
+                <div class="bubble user">
+                    @if (msg.QueryType == "Image" && msg.ImagePath != null)
+                    {
+                        <img src="@msg.ImagePath" class="chat-img" style="width:100%;max-width:300px;border-radius:12px;display:block;margin-bottom:8px;" />
+                        @if (!string.IsNullOrEmpty(msg.QueryText) && !msg.QueryText.StartsWith("📷 Image analysis"))
+                        {
+                            <div class="prompt-text">@msg.QueryText</div>
+                        }
+                    }
+                    else
+                    {
+                        @msg.QueryText
+                    }
+                    <div class="ts">@msg.CreatedDate.ToString("hh:mm tt")</div>
+                </div>
+            </div>
+
+            @if (msg.AIAnswer != null)
+            {
+                <!-- AI answer -->
+                <div class="msg-row">
+                    <div class="avatar ai">🤖</div>
+                    <div>
+                        <div class="bubble ai">
+                            <div class="bubble-label ai">🤖 AI KRUSHI OFFICER</div>
+                            <div class="md-content">@Html.Raw(msg.AIAnswer)</div>
+                            @if (msg.ConfidenceScore != null)
+                            {
+                                <div class="conf-wrap">
+                                    <div class="conf-text">Confidence: @msg.ConfidenceScore%</div>
+                                    <div class="conf-bar">
+                                        <div class="conf-fill @(msg.ConfidenceScore > 75 ? "high" : msg.ConfidenceScore > 50 ? "medium" : "low")" style="width:@msg.ConfidenceScore%"></div>
+                                    </div>
+                                </div>
+                            }
+                            @if (msg.IsEscalated)
+                            {
+                                <div class="esc-notice">⚠ Forwarded to Agriculture Officer for expert review.</div>
+                            }
+                        </div>
+                        <div class="fb-row" id="fb-@msg.QueryId">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <button onclick="submitFeedback(@msg.QueryId, @i)" title="Rate @i star">@(msg.FeedbackRating >= i ? "⭐" : "☆")</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (msg.ApprovalStatus == "Pending")
+            {
+                <div class="msg-row">
+                    <div class="avatar ai" style="background:#E3F2FD; font-size:.9rem;">⏳</div>
+                    <div class="pending-notice">Your question has been sent to an Agriculture Officer for review. You'll see the answer in <b>Officer Replies</b> once it's approved.</div>
+                </div>
+            }
+
+            @if (msg.OfficerReply != null)
+            {
+                <!-- Officer reply -->
+                <div class="msg-row">
+                    <div class="avatar officer">👮</div>
+                    <div class="bubble officer">
+                        <div class="bubble-label officer">👮 AGRICULTURE OFFICER</div>
+                        @msg.OfficerReply
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- Typing indicator -->
+        <div class="typing-row" id="typingIndicator" style="display:none;">
+            <div class="avatar ai">🤖</div>
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <div class="quick-btns">
+            <button class="quick-btn" style="background:#E8F5E9;border-color:#A5D6A7;color:#2E7D32;" onclick="quickAsk('Cotton crop mein koi bimari hai, kya karun?')">🌿 Cotton disease</button>
+            <button class="quick-btn" style="background:#E3F2FD;border-color:#90CAF9;color:#1565C0;" onclick="quickAsk('Aaj ka mausam aur kheti ke liye sujhav')">☁️ Weather advice</button>
+            <button class="quick-btn" style="background:#FFF8E1;border-color:#FFE082;color:#F57F17;" onclick="quickAsk('PM-KISAN yojana ke baare mein batao')">📜 Gov schemes</button>
+            <button class="quick-btn" style="background:#EFEBE9;border-color:#BCAAA4;color:#5D4037;" onclick="quickAsk('Gehun ki fasal ke liye khad ki maatra batao')">🌾 Fertilizer dose</button>
+            <button class="quick-btn" style="background:#F3E5F5;border-color:#CE93D8;color:#6A1B9A;" onclick="quickAsk('ડાંગર ની ખેતી માટે ક્યારે ખાતર આપવું?')">🌱 Gujarati query</button>
+        </div>
+        <div class="input-row">
+            <button class="icon-btn voice" id="voiceBtn" onclick="toggleVoice()" title="Voice input">🎤</button>
+            <label for="imageUpload" class="icon-btn image" title="Upload crop image" style="cursor:pointer;">📷</label>
+            <input type="file" id="imageUpload" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(this)" />
+            <div class="input-box-wrap" id="inputBoxWrap">
+                <!-- Preview strip lives INSIDE the box, above the textarea -->
+                <div class="img-preview-strip" id="imgPreviewStrip"></div>
+                <textarea class="chat-textarea" id="chatInput"
+                          placeholder="Ask about your crop image, or type any farming question…"
+                          rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            </div>
+            <button class="icon-btn send" onclick="sendMessage()" title="Send">➤</button>
+        </div>
+        <div class="voice-status" id="voiceStatus">🎤 Listening… speak your question</div>
+    </div>
+</div>
+
+@section Scripts {
+<!-- marked.js for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // Configure marked
+    marked.setOptions({ breaks: true, gfm: true });
+
+    let recognition = null, isRecording = false;
+
+    // ── Helpers ──
+    function autoResize(el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    }
+    function handleKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    }
+    function quickAsk(text) {
+        document.getElementById('chatInput').value = text;
+        sendMessage();
+    }
+    function scrollBottom() {
+        var el = document.getElementById('msgArea');
+        el.scrollTop = el.scrollHeight;
+    }
+    function getToken() {
+        return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+    }
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function renderMd(text) {
+        try { return marked.parse(text || ''); } catch { return escHtml(text); }
+    }
+    function now12() {
+        return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ── Show / hide typing ──
+    function showTyping() { document.getElementById('typingIndicator').style.display='flex'; scrollBottom(); }
+    function hideTyping() { document.getElementById('typingIndicator').style.display='none'; }
+
+    // ── Append user bubble ──
+    function appendUser(text, imgPath) {
+        var area = document.getElementById('msgArea');
+        var div = document.createElement('div');
+        div.className = 'msg-row user';
+        var imgHtml = imgPath ? `<img src="${imgPath}" style="max-width:180px;border-radius:8px;margin-bottom:6px;display:block;">` : '';
+        div.innerHTML = `<div class="bubble user">${imgHtml}${escHtml(text)}<div class="ts">${now12()}</div></div>`;
+        area.insertBefore(div, document.getElementById('typingIndicator'));
+        scrollBottom();
+    }
+
+    // ── Append AI bubble ──
+    function appendAI(queryId, mdText, confidence, isEscalated) {
+        var area = document.getElementById('msgArea');
+        var confColor = confidence > 75 ? 'high' : confidence > 50 ? 'medium' : 'low';
+        var confHtml = confidence > 0 ? `<div class="conf-wrap"><div class="conf-text">Confidence: ${confidence.toFixed(0)}%</div><div class="conf-bar"><div class="conf-fill ${confColor}" style="width:${confidence}%"></div></div></div>` : '';
+        var escHtml2 = isEscalated ? `<div class="esc-notice">⚠ Forwarded to Agriculture Officer for expert review.</div>` : '';
+        var fbHtml = queryId > 0 ? `<div class="fb-row" id="fb-${queryId}">${[1,2,3,4,5].map(i=>`<button onclick="submitFeedback(${queryId},${i})" title="Rate ${i} star">☆</button>`).join('')}</div>` : '';
+
+        var wrapper = document.createElement('div');
+        wrapper.style.cssText = 'display:flex;flex-direction:column;gap:0;';
+        wrapper.innerHTML = `
+            <div class="msg-row">
+                <div class="avatar ai">🤖</div>
+                <div>
+                    <div class="bubble ai">
+                        <div class="bubble-label ai">🤖 AI KRUSHI OFFICER</div>
+                        <div class="md-content">${renderMd(mdText)}</div>
+                        ${confHtml}${escHtml2}
+                    </div>
+                    ${fbHtml}
+                </div>
+            </div>`;
+        area.insertBefore(wrapper, document.getElementById('typingIndicator'));
+        scrollBottom();
+    }
+
+    // ── Append pending notice ──
+    function appendPending(msg) {
+        var area = document.getElementById('msgArea');
+        var div = document.createElement('div');
+        div.className = 'msg-row';
+        div.innerHTML = `<div class="avatar ai" style="background:#E3F2FD;font-size:.9rem;">⏳</div><div class="pending-notice">${escHtml(msg)}</div>`;
+        area.insertBefore(div, document.getElementById('typingIndicator'));
+        scrollBottom();
+    }
+
+    // ── Send message (handles text-only OR image+text) ──
+    async function sendMessage() {
+        var input = document.getElementById('chatInput');
+        var text = input.value.trim();
+
+        // If there are pending images, send them with the prompt (even if prompt is empty)
+        if (pendingImages.length > 0) {
+            input.value = ''; input.style.height = 'auto';
+            await sendWithImages(text);
+            return;
+        }
+
+        if (!text) return;
+        appendUser(text);
+        input.value = ''; input.style.height = 'auto';
+        showTyping();
+        try {
+            var resp = await fetch('/Chat/Ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                body: JSON.stringify({ queryText: text })
+            });
+            var data = await resp.json();
+            hideTyping();
+            if (data.success) {
+                if (data.answer) {
+                    appendAI(data.queryId, data.answer, data.confidence || 0, data.isEscalated || false);
+                } else {
+                    appendPending(data.message || 'Your question is being reviewed by an Agriculture Officer.');
+                }
+            } else {
+                appendAI(0, '❌ Sorry, something went wrong. Please try again.', 0, false);
+            }
+        } catch {
+            hideTyping();
+            appendAI(0, '❌ Network error. Please check your connection.', 0, false);
+        }
+    }
+
+    // ── Pending images state (ChatGPT style) ──
+    let pendingImages = []; // [{file, objectUrl}]
+
+    function handleImageSelect(input) {
+        if (!input.files || !input.files.length) return;
+        for (var f of Array.from(input.files)) {
+            var url = URL.createObjectURL(f);
+            pendingImages.push({ file: f, objectUrl: url });
+        }
+        input.value = ''; // reset so same file can be re-selected
+        renderPreviews();
+        document.getElementById('chatInput').focus();
+    }
+
+    function renderPreviews() {
+        var strip = document.getElementById('imgPreviewStrip');
+        strip.innerHTML = '';
+        if (!pendingImages.length) { strip.classList.remove('has-images'); return; }
+        strip.classList.add('has-images');
+        pendingImages.forEach((img, idx) => {
+            var wrap = document.createElement('div');
+            wrap.className = 'img-thumb-wrap';
+            wrap.innerHTML = `<img src="${img.objectUrl}" alt="preview">
+                <button class="img-thumb-remove" onclick="removePreview(${idx})" title="Remove">✕</button>`;
+            strip.appendChild(wrap);
+        });
+    }
+
+    function removePreview(idx) {
+        URL.revokeObjectURL(pendingImages[idx].objectUrl);
+        pendingImages.splice(idx, 1);
+        renderPreviews();
+    }
+
+    // ── Send: handles both text-only and image+text ──
+    async function sendWithImages(text) {
+        var userArea = document.getElementById('msgArea');
+        var userDiv = document.createElement('div');
+        userDiv.className = 'msg-row user';
+
+        // ALL images go in ONE bubble, stacked vertically, prompt + timestamp at bottom
+        var allImgsHtml = pendingImages.map(img =>
+            `<img src="${img.objectUrl}" style="width:100%;max-width:300px;border-radius:12px;display:block;margin-bottom:6px;">`
+        ).join('');
+        var textPart = text ? `<div style="font-size:0.88rem;margin-top:2px;">${escHtml(text)}</div>` : '';
+        userDiv.innerHTML = `<div class="bubble user" style="padding:10px;max-width:340px;">
+            ${allImgsHtml}
+            ${textPart}
+            <div class="ts">${now12()}</div>
+        </div>`;
+        userArea.insertBefore(userDiv, document.getElementById('typingIndicator'));
+        scrollBottom();
+
+        // Keep a copy of files BEFORE clearing pending state
+        var toUpload = pendingImages.map(p => ({ file: p.file, objectUrl: p.objectUrl }));
+
+        // Clear preview strip UI immediately
+        pendingImages = [];
+        renderPreviews();
+
+        // Revoke object URLs AFTER the browser has had a tick to paint the images
+        setTimeout(() => toUpload.forEach(p => URL.revokeObjectURL(p.objectUrl)), 2000);
+
+        // Upload each image + prompt, append AI response for each
+        showTyping();
+        for (var img of toUpload) {
+            var fd = new FormData();
+            fd.append('image', img.file);
+            fd.append('userPrompt', text || '');
+            fd.append('cropName', '');
+            try {
+                var resp = await fetch('/Chat/UploadImage', {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': getToken() },
+                    body: fd
+                });
+                var data = await resp.json();
+                if (data.success) {
+                    appendAI(data.queryId, data.analysis, data.confidence || 82, false);
+                } else {
+                    appendAI(0, '❌ Image upload failed. Please try again.', 0, false);
+                }
+            } catch { appendAI(0, '❌ Network error uploading image.', 0, false); }
+        }
+        hideTyping();
+        setTimeout(scrollBottom, 200);
+    }
+
+    // ── Voice ──
+    function toggleVoice() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Voice input not supported. Please use Chrome.'); return;
+        }
+        if (isRecording) { recognition.stop(); return; }
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.lang = 'gu-IN';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.onstart = () => {
+            isRecording = true;
+            document.getElementById('voiceBtn').classList.add('recording');
+            document.getElementById('voiceStatus').style.display = 'block';
+        };
+        recognition.onend = () => {
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+            document.getElementById('voiceStatus').style.display = 'none';
+        };
+        recognition.onresult = (e) => {
+            document.getElementById('chatInput').value = e.results[0][0].transcript;
+            sendMessage();
+        };
+        recognition.onerror = () => {
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+            document.getElementById('voiceStatus').style.display = 'none';
+        };
+        recognition.start();
+    }
+
+    // ── Feedback ──
+    async function submitFeedback(queryId, rating) {
+        var fd = new FormData();
+        fd.append('queryId', queryId);
+        fd.append('rating', rating);
+        fd.append('feedbackType', rating >= 4 ? 'Helpful' : 'NotHelpful');
+        await fetch('/Farmer/SubmitFeedback', { method: 'POST', headers: { 'RequestVerificationToken': getToken() }, body: fd });
+        var el = document.getElementById('fb-' + queryId);
+        if (el) el.querySelectorAll('button').forEach((b, i) => b.textContent = i < rating ? '⭐' : '☆');
+    }
+
+    // ── Init: render existing Markdown in loaded history ──
+    document.querySelectorAll('.md-content').forEach(el => {
+        try { el.innerHTML = marked.parse(el.textContent); } catch {}
+    });
+
+    scrollBottom();
+
+    // ── MutationObserver: always keep bottom visible on any DOM change ──
+    (function() {
+        var area = document.getElementById('msgArea');
+        new MutationObserver(function() {
+            area.scrollTop = area.scrollHeight;
+        }).observe(area, { childList: true, subtree: true, characterData: true });
+    })();
+</script>
+@Html.AntiForgeryToken()
+}

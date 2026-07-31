@@ -1,0 +1,138 @@
+@model Digital_Krushi_Officer.Models.ViewModels.WeatherViewModel
+@{
+    ViewData["Title"] = "Weather Advisory";
+    ViewData["ActiveMenu"] = "Weather";
+    var weatherIcon = Model?.AlertType == "Rain" ? "🌧" : Model?.AlertType == "Heat" ? "☀" : Model?.AlertType == "Cold" ? "🌨" : Model?.AlertType == "Wind" ? "💨" : "⛅";
+}
+<div class="page-header">
+    <h1>☁ Weather Advisory</h1>
+    <p>Real-time weather with farming-specific alerts</p>
+</div>
+
+<!-- Search Bar -->
+<div class="card p-4 mb-4">
+    <form asp-action="Search" method="post">
+        @Html.AntiForgeryToken()
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+            <div style="flex:1;min-width:180px;">
+                <label class="form-label">📍 District</label>
+                <select name="district" id="wx-district" class="form-control form-select" required>
+                    <option value="">Loading districts...</option>
+                </select>
+            </div>
+            <div style="flex:1;min-width:180px;">
+                <label class="form-label">🏘 Village (Optional)</label>
+                <select name="village" id="wx-village" class="form-control form-select">
+                    <option value="">-- Select District First --</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary-green" style="padding:12px 24px;">🔍 Get Weather</button>
+        </div>
+    </form>
+</div>
+
+
+@if (Model != null)
+{
+    <!-- Main Weather Card -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5">
+            <div class="weather-card" style="height:100%;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+                    <div>
+                        <div style="font-size:0.82rem;opacity:0.8;margin-bottom:4px;">📍 @Model.District @(Model.Village != "" ? "· " + Model.Village : "")</div>
+                        <div class="weather-temp">@Model.Temperature°C</div>
+                        <div style="font-size:1rem;opacity:0.85;margin-top:4px;">@Model.Description</div>
+                        <div style="font-size:0.78rem;opacity:0.65;margin-top:6px;">Updated: @Model.FetchedAt.ToString("hh:mm tt, dd MMM")</div>
+                    </div>
+                    <div style="font-size:5rem;line-height:1;">@weatherIcon</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+                    <div class="weather-stat"><div class="label">💧 Humidity</div><div class="value">@Model.Humidity%</div></div>
+                    <div class="weather-stat"><div class="label">🌧 Rain</div><div class="value">@Model.RainChance%</div></div>
+                    <div class="weather-stat"><div class="label">💨 Wind</div><div class="value">@Model.WindSpeed<br><small style="font-size:0.65rem;">km/h</small></div></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:14px;">
+                    <div style="font-size:0.72rem;opacity:0.7;margin-bottom:4px;font-weight:600;">🌾 FARMING ALERT</div>
+                    <div style="font-size:0.875rem;">@Model.FarmingAlert</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card p-4" style="height:100%;">
+                <h5 style="font-weight:700;margin-bottom:16px;">🌾 Today's Farming Recommendations</h5>
+                @{
+                    var recs = new List<(string Icon, string Title, string Desc)>();
+                    if (Model.RainChance > 60) {
+                        recs.Add(("🌧","Delay Spraying","High rain chance today. Postpone pesticide and fertilizer spraying to avoid washoff."));
+                        recs.Add(("🌊","Check Drainage","Ensure field drainage channels are clear to prevent waterlogging."));
+                    } else if (Model.Temperature > 38) {
+                        recs.Add(("🌅","Early Morning Work","Do field operations before 10 AM to avoid heat stress."));
+                        recs.Add(("💧","Increase Irrigation","Hot weather increases water demand. Irrigate crops in evening."));
+                    } else {
+                        recs.Add(("✅","Good Farming Day","Weather is suitable for all farming activities today."));
+                        recs.Add(("🌱","Sowing/Transplanting","Ideal conditions for field operations and crop management."));
+                    }
+                    if (Model.Humidity > 80) recs.Add(("🔬","Monitor for Fungus","High humidity increases fungal disease risk. Inspect crops regularly."));
+                    if (Model.WindSpeed > 25) recs.Add(("🌪","Stake Tall Plants","Strong winds expected. Support and stake tall crops."));
+                    recs.Add(("☀","Plan Harvest","Check 7-day forecast before planning harvest operations."));
+                }
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    @foreach (var r in recs.Take(4))
+                    {
+                        <div style="display:flex;gap:12px;align-items:flex-start;background:#F8FFF8;border-radius:10px;padding:12px;">
+                            <div style="font-size:1.4rem;flex-shrink:0;">@r.Icon</div>
+                            <div>
+                                <div style="font-weight:700;font-size:0.875rem;margin-bottom:2px;">@r.Title</div>
+                                <div style="color:var(--text-gray);font-size:0.8rem;">@r.Desc</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Weather Tips -->
+    <div class="card p-4">
+        <h5 style="font-weight:700;margin-bottom:16px;">📊 Seasonal Weather Guide</h5>
+        <div class="grid-4">
+            @{
+                var seasons = new[]{
+                    new{name="Kharif Season",months="Jun–Oct",icon="🌧",tip="Monsoon crops. Ensure drainage."},
+                    new{name="Rabi Season",months="Nov–Mar",icon="🌾",tip="Winter crops. Monitor frost."},
+                    new{name="Zaid Season",months="Mar–Jun",icon="☀",tip="Summer crops. Extra irrigation."},
+                    new{name="Year Round",months="All Season",icon="🔄",tip="Sugarcane, banana & more."}
+                };
+            }
+            @foreach (var s in seasons)
+            {
+                <div style="background:#F8F9FA;border-radius:12px;padding:16px;text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:8px;">@s.icon</div>
+                    <div style="font-weight:700;font-size:0.875rem;">@s.name</div>
+                    <div style="color:var(--text-gray);font-size:0.75rem;margin:4px 0;">@s.months</div>
+                    <div style="font-size:0.78rem;color:#424242;">@s.tip</div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="card p-5 text-center">
+        <div style="font-size:4rem;margin-bottom:16px;">☁</div>
+        <h4>Enter your district to get weather</h4>
+        <p style="color:var(--text-gray);">Real-time weather data with farming advisories</p>
+    </div>
+}
+@section Scripts {
+<script src="/js/gujarat-location.js"></script>
+<script>
+const preDistrict = '@Html.Raw(Model?.District ?? "")';
+const preVillage  = '@Html.Raw(Model?.Village  ?? "")';
+document.addEventListener('DOMContentLoaded', async function () {
+    await initGujaratLocation('wx-district', 'wx-village', preDistrict, preVillage);
+});
+</script>
+}
+
