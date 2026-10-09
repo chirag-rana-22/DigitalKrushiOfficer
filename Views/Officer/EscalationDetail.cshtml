@@ -32,7 +32,7 @@
                 </div>
                 @if (Model.Query?.ImagePath != null)
                 {
-                    <img src="@Model.Query.ImagePath" style="max-width:100%;border-radius:10px;margin-bottom:14px;" />
+                    <img src="@Url.Action("QueryImage", "Media", new { id = Model.Query.Id })" style="max-width:100%;border-radius:10px;margin-bottom:14px;" />
                 }
                 <div style="background:#F8F9FA;border-radius:10px;padding:16px;font-size:0.9rem;line-height:1.7;">
                     @Model.Query?.QueryText
@@ -56,8 +56,8 @@
         {
             <div class="card p-4">
                 <h5 style="font-weight:700;margin-bottom:16px;">✍ Your Expert Reply</h5>
-                <form asp-action="Reply" method="post">
-                    @Html.AntiForgeryToken()
+                <form asp-action="Reply" method="post" asp-antiforgery="true">
+
                     <input type="hidden" name="EscalationId" value="@Model.Id" />
                     <div class="form-group">
                         <label class="form-label">Reply to Farmer</label>

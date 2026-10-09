@@ -17,3 +17,12 @@
 # OS files
 Thumbs.db
 Desktop.ini
+
+# Local secrets, runtime data and generated outputs
+appsettings.Local.json
+/App_Data/
+/artifacts/
+**/bin/
+**/obj/
+TestResults/
+*.trx

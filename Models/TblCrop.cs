@@ -8,6 +8,7 @@ namespace Digital_Krushi_Officer.Models
     {
         [Key]
         public int Id { get; set; }
+        public int? CreatedBy { get; set; }
 
         [Required, MaxLength(100)]
         public string CropName { get; set; } = string.Empty;

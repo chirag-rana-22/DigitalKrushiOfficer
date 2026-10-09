@@ -1,0 +1,8 @@
+@model List<Digital_Krushi_Officer.Models.TblQuery>
+@{ ViewData["Title"]="Review queue"; ViewData["ActiveMenu"]="ReviewQueue"; var officers=ViewBag.Officers as List<Digital_Krushi_Officer.Models.TblUser> ?? new(); }
+<div class="page-header"><span class="eyebrow">ADMIN WORKSPACE</span><h1>Review queue</h1><p>Assign unanswered questions and follow up on older requests.</p></div>
+@if(!Model.Any()) { <div class="card empty-state"><h2>All caught up</h2><p>No open questions need assignment.</p></div> }
+@foreach(var q in Model) {
+<div class="card p-4 mb-3"><div class="d-flex justify-content-between flex-wrap"><h3>#@q.Id · @q.Farmer?.Name</h3><span class="badge badge-yellow">@q.Status</span></div><p>@q.QueryText</p><p class="text-muted">Received @q.CreatedDate.ToString("dd MMM yyyy, HH:mm") · @((DateTime.Now-q.CreatedDate).Days) days open</p>
+<form asp-action="AssignQuery" method="post" class="d-flex gap-2 flex-wrap" asp-antiforgery="true"><input type="hidden" name="queryId" value="@q.Id"/><select name="officerId" aria-label="Officer for query @q.Id" class="form-select" style="max-width:360px" required><option value="">Choose a verified officer</option>@foreach(var officer in officers){<option value="@officer.Id" selected="@(q.Escalation?.OfficerId==officer.Id)">@officer.Name · @officer.District</option>}</select><button class="btn-primary-green">Assign officer</button></form></div>
+}

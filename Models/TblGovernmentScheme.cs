@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Digital_Krushi_Officer.Models
 {
     [Table("TblGovernmentScheme")]
-    public class TblGovernmentScheme
+    public class TblGovernmentScheme : IValidatableObject
     {
         [Key]
         public int Id { get; set; }
@@ -31,5 +31,13 @@ namespace Digital_Krushi_Officer.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? UpdatedDate { get; set; }
         public int? CreatedBy { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext context)
+        {
+            if (!string.IsNullOrWhiteSpace(DocumentUrl) && (!Uri.TryCreate(DocumentUrl, UriKind.Absolute, out var uri) || (uri.Scheme != "https" && uri.Scheme != "http")))
+                yield return new ValidationResult("Enter an HTTP or HTTPS document URL.", new[] { nameof(DocumentUrl) });
+            if (StartDate != null && LastDate < StartDate) yield return new ValidationResult("Last date must follow the start date.", new[] { nameof(LastDate) });
+            if (Status is not ("Active" or "Closed" or "Upcoming" or "Expired")) yield return new ValidationResult("Choose a valid scheme status.", new[] { nameof(Status) });
+        }
     }
 }

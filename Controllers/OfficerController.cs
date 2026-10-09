@@ -80,8 +80,10 @@ namespace Digital_Krushi_Officer.Controllers
         [HttpPost]
         public async Task<IActionResult> Reply(EscalationReplyViewModel model)
         {
+            if (!ModelState.IsValid || model.Status is not ("Solved" or "InProgress")) return BadRequest("Enter a valid reply and status.");
             var esc = await _db.Escalations
                 .Include(e => e.Query).ThenInclude(q => q!.Farmer)
+                .Include(e => e.Query).ThenInclude(q => q!.AIResponse)
                 .FirstOrDefaultAsync(e => e.Id == model.EscalationId && e.OfficerId == UserId);
 
             if (esc == null) return NotFound();
@@ -94,6 +96,7 @@ namespace Digital_Krushi_Officer.Controllers
             if (esc.Query != null)
             {
                 esc.Query.Status = model.Status == "Solved" ? "Answered" : "Escalated";
+                if (model.Status == "Solved" && esc.Query.AIResponse != null) QueryWorkflow.Publish(esc.Query.AIResponse, UserId, "Officer replied directly", model.OfficerReply);
                 esc.Query.UpdatedDate = DateTime.Now;
             }
             await _db.SaveChangesAsync();
@@ -162,94 +165,45 @@ namespace Digital_Krushi_Officer.Controllers
         }
 
         // ── AI Response Review Actions ──
-        public async Task<IActionResult> PendingReviews()
-        {
+
+        private IQueryable<TblAIResponse> AssignedResponses() => _db.AIResponses
+            .Include(r => r.Query).ThenInclude(q => q!.Escalation)
+            .Include(r => r.Query).ThenInclude(q => q!.Farmer)
+            .Where(r => r.Query != null && r.Query.Escalation != null && r.Query.Escalation.OfficerId == UserId);
+        public async Task<IActionResult> PendingReviews() {
             ViewBag.ActiveMenu = "PendingReviews";
-            var pendingResponses = await _db.AIResponses
-                .Where(r => r.ApprovalStatus == ApprovalStatus.Pending &&
-                            r.ComplexityLevel == ComplexityLevel.Complex)
-                .Include(r => r.Query).ThenInclude(q => q!.Farmer)
-                .OrderByDescending(r => r.CreatedDate)
-                .ToListAsync();
-
-            return View(pendingResponses);
+            return View(await AssignedResponses().Where(r => r.ApprovalStatus == ApprovalStatus.Pending || r.ApprovalStatus == ApprovalStatus.Rejected).OrderBy(r => r.CreatedDate).ToListAsync());
         }
-
-        public async Task<IActionResult> ReviewResponse(int id)
-        {
-            var response = await _db.AIResponses
-                .Include(r => r.Query).ThenInclude(q => q!.Farmer)
-                .FirstOrDefaultAsync(r => r.Id == id && r.ApprovalStatus == ApprovalStatus.Pending);
-
-            if (response == null) return NotFound();
-            return View(response);
+        public async Task<IActionResult> ReviewResponse(int id) {
+            var response = await AssignedResponses().FirstOrDefaultAsync(r => r.Id == id);
+            return response == null ? NotFound() : View(response);
         }
-
         [HttpPost]
-        public async Task<IActionResult> ApproveResponse(int id, string? officerNotes)
-        {
-            var response = await _db.AIResponses
-                .Include(r => r.Query)
-                .FirstOrDefaultAsync(r => r.Id == id && r.ApprovalStatus == ApprovalStatus.Pending);
-
+        public async Task<IActionResult> ApproveResponse(int id, string? officerNotes) {
+            var response = await AssignedResponses().FirstOrDefaultAsync(r => r.Id == id && r.ApprovalStatus == ApprovalStatus.Pending);
             if (response == null) return NotFound();
-
-            response.ApprovalStatus = ApprovalStatus.Approved;
-            response.ApprovedByOfficerId = UserId;
-            response.ApprovedDate = DateTime.Now;
-            response.OfficerNotes = officerNotes;
-
-            if (response.Query != null)
-                response.Query.Status = "Answered";
-
-            await _db.SaveChangesAsync();
-            TempData["Success"] = "Response approved! Farmer will see the answer.";
-            return RedirectToAction("PendingReviews");
+            if (response.AIModel == "Unavailable" || string.IsNullOrWhiteSpace(response.AIAnswer) || officerNotes?.Length > 1000) return BadRequest("Write a reviewed answer using Modify and approve.");
+            QueryWorkflow.Publish(response, UserId, officerNotes); await _db.SaveChangesAsync();
+            TempData["Success"] = "Reviewed answer published to the farmer."; return RedirectToAction(nameof(PendingReviews));
         }
-
         [HttpPost]
-        public async Task<IActionResult> RejectResponse(int id, string? rejectionReason)
-        {
-            var response = await _db.AIResponses
-                .Include(r => r.Query)
-                .FirstOrDefaultAsync(r => r.Id == id && r.ApprovalStatus == ApprovalStatus.Pending);
-
+        public async Task<IActionResult> RejectResponse(int id, string? rejectionReason) {
+            var response = await AssignedResponses().FirstOrDefaultAsync(r => r.Id == id && r.ApprovalStatus == ApprovalStatus.Pending);
             if (response == null) return NotFound();
-
-            response.ApprovalStatus = ApprovalStatus.Rejected;
-            response.ApprovedByOfficerId = UserId;
-            response.ApprovedDate = DateTime.Now;
-            response.OfficerNotes = $"Rejected - {rejectionReason}";
-
-            if (response.Query != null)
-                response.Query.Status = "NeedsRevision";
-
-            await _db.SaveChangesAsync();
-            TempData["Warning"] = "Response rejected. AI will generate a new answer.";
-            return RedirectToAction("PendingReviews");
+            if (string.IsNullOrWhiteSpace(rejectionReason) || rejectionReason.Length > 950) return BadRequest("Provide a rejection reason under 950 characters.");
+            response.ApprovalStatus = ApprovalStatus.Rejected; response.OfficerNotes = rejectionReason;
+            response.ApprovedByOfficerId = UserId; response.ApprovedDate = DateTime.Now; response.Query!.Status = "NeedsRevision";
+            if (response.Query.Escalation != null) response.Query.Escalation.Status = "InProgress";
+            await _db.SaveChangesAsync(); TempData["Warning"] = "Draft rejected. Edit and approve a corrected answer from your review queue.";
+            return RedirectToAction(nameof(PendingReviews));
         }
-
         [HttpPost]
-        public async Task<IActionResult> ModifyAndApprove(int id, string modifiedAnswer, string? officerNotes)
-        {
-            var response = await _db.AIResponses
-                .Include(r => r.Query)
-                .FirstOrDefaultAsync(r => r.Id == id && r.ApprovalStatus == ApprovalStatus.Pending);
-
+        public async Task<IActionResult> ModifyAndApprove(int id, string modifiedAnswer, string? officerNotes) {
+            var response = await AssignedResponses().FirstOrDefaultAsync(r => r.Id == id && (r.ApprovalStatus == ApprovalStatus.Pending || r.ApprovalStatus == ApprovalStatus.Rejected));
             if (response == null) return NotFound();
-
-            response.AIAnswer = modifiedAnswer;
-            response.ApprovalStatus = ApprovalStatus.Modified;
-            response.ApprovedByOfficerId = UserId;
-            response.ApprovedDate = DateTime.Now;
-            response.OfficerNotes = officerNotes;
-
-            if (response.Query != null)
-                response.Query.Status = "Answered";
-
-            await _db.SaveChangesAsync();
-            TempData["Success"] = "Response modified and approved! Farmer will see the updated answer.";
-            return RedirectToAction("PendingReviews");
+            if (string.IsNullOrWhiteSpace(modifiedAnswer) || modifiedAnswer.Length > 16000 || officerNotes?.Length > 1000) return BadRequest("Write an answer under 16000 characters and notes under 1000 characters.");
+            QueryWorkflow.Publish(response, UserId, officerNotes, modifiedAnswer); await _db.SaveChangesAsync();
+            TempData["Success"] = "Corrected answer published to the farmer."; return RedirectToAction(nameof(PendingReviews));
         }
     }
 }

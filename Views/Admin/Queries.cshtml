@@ -1,5 +1,6 @@
 @model List<Digital_Krushi_Officer.Models.TblQuery>
 @{ ViewData["Title"] = "All Queries"; ViewData["ActiveMenu"] = "Queries"; var statusFilter = ViewBag.StatusFilter as string; }
+<partial name="_QueryFilters" />
 <div class="page-header"><h1>💬 All Queries</h1><p>System-wide query log</p></div>
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
     <a href="/Admin/Queries" class="@(statusFilter==null?"btn-primary-green":"btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">All</a>
@@ -35,3 +36,5 @@
         </table>
     </div>
 </div>
+
+<partial name="_QueryPager" />

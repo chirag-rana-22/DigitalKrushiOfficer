@@ -70,6 +70,7 @@
                         @foreach (var item in Model)
                         {
                             var farmer = item.Farmer as Digital_Krushi_Officer.Models.TblUser;
+                            if (farmer == null) { continue; }
                             var assignedOfficer = item.AssignedOfficer as Digital_Krushi_Officer.Models.TblUser;
                             var availableOfficers = item.AvailableOfficers as List<Digital_Krushi_Officer.Models.TblUser>;
 
@@ -91,8 +92,8 @@
                                 </td>
                                 <td>
                                     <div style="display:flex;gap:8px;align-items:center;">
-                                        <form method="post" asp-action="AssignFarmerToOfficer" style="display:inline;flex:1;">
-                                            @Html.AntiForgeryToken()
+                                        <form method="post" asp-action="AssignFarmerToOfficer" style="display:inline;flex:1;" asp-antiforgery="true">
+
                                             <input type="hidden" name="farmerId" value="@farmer.Id" />
                                             <div style="display:flex;gap:4px;">
                                                 <select name="officerId" class="form-control"
@@ -118,8 +119,8 @@
                                     <div style="display:flex;gap:8px;">
                                         @if (assignedOfficer != null)
                                         {
-                                            <form method="post" asp-action="UnassignFarmer" style="display:inline;">
-                                                @Html.AntiForgeryToken()
+                                            <form method="post" asp-action="UnassignFarmer" style="display:inline;" asp-antiforgery="true">
+
                                                 <input type="hidden" name="farmerId" value="@farmer.Id" />
                                                 <button type="submit" class="btn-red" style="padding:6px 14px;font-size:0.78rem;"
                                                         onclick="return confirm('Remove assignment?')">

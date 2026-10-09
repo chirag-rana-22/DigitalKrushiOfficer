@@ -22,8 +22,8 @@
                         <td><span class="badge @(d.IsActive?"badge-green":"badge-red")">@(d.IsActive?"Active":"Inactive")</span></td>
                         <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
                             <a href="/Admin/EditDisease/@d.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">✏️ Update</a>
-                            <form asp-action="ToggleDiseaseStatus" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
+                            <form asp-action="ToggleDiseaseStatus" method="post" style="display:inline;" asp-antiforgery="true">
+
                                 <input type="hidden" name="id" value="@d.Id" />
                                 <button type="submit" class="@(d.IsActive?"btn-red":"btn-primary-green")" style="padding:6px 14px;font-size:0.78rem;">@(d.IsActive?"Deactivate":"Activate")</button>
                             </form>

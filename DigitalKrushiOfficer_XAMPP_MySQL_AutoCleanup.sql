@@ -599,10 +599,10 @@ DELIMITER ;
 -- SAMPLE DATA INSERTION
 -- =====================================================
 
--- Insert Admin User (Password: 'Admin@123' - hashed)
+-- Insert Admin User (Password: 'Admin@123' - valid BCrypt hash)
 INSERT INTO TblUser (Name, Email, Mobile, PasswordHash, Role, State, District, PreferredLanguage, IsEmailVerified, IsActive)
 VALUES ('System Admin', 'admin@digitalkrushi.com', '9999999999', 
-        '$2a$11$vQXqKqX8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8QZ8', 
+        '$2a$11$sdwLaIqrHaly6zRFIthbB.H6WfINnqO.PpUzJTgvRYSV6AWGuTyWu', 
         'Admin', 'Gujarat', 'Ahmedabad', 'Gujarati', 1, 1);
 
 -- Insert Sample Crops

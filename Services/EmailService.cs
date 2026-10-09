@@ -54,6 +54,7 @@ namespace Digital_Krushi_Officer.Services
                 msg.Body    = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
                 using var client = new SmtpClient();
+                client.Timeout = 15000;
 
                 _logger.LogInformation("📧 Step 1: Connecting to {Host}:{Port}...", host, port);
                 await client.ConnectAsync(host, port, SecureSocketOptions.StartTls);

@@ -22,6 +22,48 @@ namespace Digital_Krushi_Officer.Data.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("Digital_Krushi_Officer.Models.OtpChallenge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Consumed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("ExpiresUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ProtectedCode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("SentUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email", "Purpose")
+                        .IsUnique();
+
+                    b.ToTable("OtpChallenge");
+                });
+
             modelBuilder.Entity("Digital_Krushi_Officer.Models.TblAIResponse", b =>
                 {
                     b.Property<int>("Id")

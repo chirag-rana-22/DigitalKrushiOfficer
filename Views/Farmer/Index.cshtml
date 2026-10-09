@@ -162,3 +162,5 @@
         </div>
     </div>
 </div>
+
+@if(Model.Weather == null) { <div class="alert-banner warning mt-3">Weather data is unavailable. <a href="/Weather">Try a district forecast</a>.</div> }

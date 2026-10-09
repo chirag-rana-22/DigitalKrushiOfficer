@@ -16,8 +16,8 @@
             <div class="role-tab active" onclick="setRole('Farmer',this)">👨‍🌾 Farmer</div>
             <div class="role-tab" onclick="setRole('Officer',this)">👮 Officer</div>
         </div>
-        <form asp-action="Register" method="post" id="regForm">
-            @Html.AntiForgeryToken()
+        <form asp-action="Register" method="post" id="regForm" asp-antiforgery="true">
+
             <input asp-for="Role" id="roleInput" type="hidden" />
             <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3"></div>
             <div class="grid-2">
@@ -40,7 +40,7 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label class="form-label">🔒 Password</label>
-                    <input asp-for="Password" class="form-control" placeholder="Min 6 characters" />
+                    <input asp-for="Password" class="form-control" placeholder="At least 10 characters" />
                     <span asp-validation-for="Password" class="validation-msg"></span>
                 </div>
                 <div class="form-group">
@@ -91,12 +91,12 @@
 <script src="/js/gujarat-location.js"></script>
 <script>
 // Pre-selected values (in case of validation error / model re-render)
-const preDistrict = '@Html.Raw(Model?.District ?? "")';
-const preVillage  = '@Html.Raw(Model?.Village  ?? "")';
+const preDistrict = @Json.Serialize(Model?.District ?? "");
+const preVillage  = @Json.Serialize(Model?.Village  ?? "");
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Init role
-    setRole('Farmer', document.querySelector('.role-tab.active'));
+    setRole(@Json.Serialize(Model?.Role is "Officer" ? "Officer" : "Farmer"), document.querySelector('.role-tab.active'));
 
     // Init district + village dropdowns
     await initGujaratLocation('reg-district', 'reg-village', preDistrict, preVillage);

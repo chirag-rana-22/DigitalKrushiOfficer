@@ -2,8 +2,8 @@
 @{ ViewData["Title"] = "Update Disease Record"; ViewData["ActiveMenu"] = "Diseases"; }
 <div class="page-header"><h1>✏️ Update Disease Record</h1></div>
 <div class="card p-4" style="max-width:640px;">
-    <form asp-action="EditDisease" method="post">
-        @Html.AntiForgeryToken()
+    <form asp-action="EditDisease" method="post" asp-antiforgery="true">
+
         <input asp-for="Id" type="hidden" />
         <div class="grid-2">
             <div class="form-group"><label class="form-label">🌾 Crop Name</label><input asp-for="CropName" class="form-control" required /></div>

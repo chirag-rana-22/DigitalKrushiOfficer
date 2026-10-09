@@ -1,67 +1,12 @@
-// site.js - Digital Krushi Officer
-
-// Auto-dismiss alerts after 5 seconds
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.alert-banner').forEach(function (alert) {
-        setTimeout(function () {
-            alert.style.transition = 'opacity 0.5s ease';
-            alert.style.opacity = '0';
-            setTimeout(function () { alert.style.display = 'none'; }, 500);
-        }, 5000);
-    });
-
-    // Active nav link highlighting
-    var path = window.location.pathname;
-    document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
-        if (link.getAttribute('href') === path) {
-            link.classList.add('active');
-        }
-    });
-
-    // Smooth table row hover
-    document.querySelectorAll('.data-table tbody tr').forEach(function (row) {
-        row.style.transition = 'background 0.2s ease';
-    });
-
-    // Tooltip for truncated text
-    document.querySelectorAll('[title]').forEach(function (el) {
-        el.style.cursor = 'help';
-    });
+// Keep messages visible until the user has had time to read and act on them.
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebar=document.getElementById('sidebar'), toggle=document.getElementById('sidebarToggle');
+    const close=()=>{ sidebar?.classList.remove('open'); toggle?.setAttribute('aria-expanded','false'); };
+    toggle?.addEventListener('click',()=>{ const opened=sidebar.classList.toggle('open'); toggle.setAttribute('aria-expanded',String(opened)); });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); });
+    document.addEventListener('click',e=>{ if(sidebar && !sidebar.contains(e.target) && !toggle?.contains(e.target)) close(); });
+    document.querySelectorAll('.sidebar-nav a').forEach(link=>{ if(link.pathname===location.pathname){link.classList.add('active');link.setAttribute('aria-current','page');} });
+    document.querySelectorAll('input:not([type="hidden"]),select,textarea').forEach(input=>{ const label=input.closest('.form-group')?.querySelector('label'); if(label && input.id && !label.htmlFor) label.htmlFor=input.id; });
 });
-
-// Close modal on outside click
-window.addEventListener('click', function (e) {
-    var modals = document.querySelectorAll('[id$="Modal"]');
-    modals.forEach(function (modal) {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-});
-
-// CSRF token helper
-function getAntiForgeryToken() {
-    var el = document.querySelector('input[name="__RequestVerificationToken"]');
-    return el ? el.value : '';
-}
-
-// Number animation
-function animateNumber(el, target, duration) {
-    var start = 0;
-    var step = target / (duration / 16);
-    var timer = setInterval(function () {
-        start += step;
-        if (start >= target) { el.textContent = target; clearInterval(timer); }
-        else { el.textContent = Math.floor(start); }
-    }, 16);
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.stat-value').forEach(function (el) {
-        var val = parseInt(el.textContent);
-        if (!isNaN(val) && val > 0) {
-            el.textContent = '0';
-            animateNumber(el, val, 800);
-        }
-    });
-});
+function getAntiForgeryToken(){return document.querySelector('input[name="__RequestVerificationToken"]')?.value||'';}
+window.addEventListener('click',e=>{document.querySelectorAll('[id$="Modal"]').forEach(modal=>{if(e.target===modal)modal.style.display='none';});});

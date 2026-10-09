@@ -43,6 +43,13 @@
             <div class="info-card query-info">
                 <h3>❓ Farmer's Question</h3>
                 <div class="query-text">@query?.QueryText</div>
+                @if (query?.ImagePath != null)
+                {
+                    <a href="@Url.Action("QueryImage", "Media", new { id = query.Id })" target="_blank" rel="noopener">
+                        <img src="@Url.Action("QueryImage", "Media", new { id = query.Id })" alt="Crop photo submitted by the farmer; open for full-size review" style="max-width:100%;max-height:420px;object-fit:contain;border-radius:12px;margin-top:16px;" />
+                    </a>
+                }
+
                 <div class="query-meta">
                     <small>Asked on: @query?.CreatedDate.ToString("dd MMM yyyy HH:mm")</small>
                 </div>
@@ -55,7 +62,7 @@
                 <div class="response-stats">
                     <div class="stat">
                         <span class="stat-label">Confidence Score</span>
-                        <span class="stat-value">@(Model?.ConfidenceScore?.ToString("P0"))</span>
+                        <span class="stat-value">@(Model?.ConfidenceScore?.ToString("0") ?? "Not measured")</span>
                     </div>
                     <div class="stat">
                         <span class="stat-label">Complexity Level</span>
@@ -83,7 +90,7 @@
                 <div class="ai-answer-full">
                     <h4>Full Answer:</h4>
                     <div class="answer-box">
-                        @Html.Raw(Model?.AIAnswer?.Replace("\n", "<br>") ?? "No answer")
+                        @(Model?.AIAnswer ?? "No draft available")
                     </div>
                 </div>
             </div>
@@ -97,7 +104,7 @@
                     <h4>Approve As-Is</h4>
                     <p class="action-desc">Send the AI answer directly to the farmer without changes.</p>
                     <form method="post" action="/Officer/ApproveResponse"
-                          onsubmit="return confirm('Approve this response?');">
+                          onsubmit="return confirm('Approve this response?');" asp-antiforgery="true">
                         <input type="hidden" name="id" value="@Model?.Id" />
                         <textarea name="officerNotes" placeholder="Optional: Add notes (visible to admin only)..."
                                   style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px;"></textarea>
@@ -109,7 +116,7 @@
                 <div class="action-section">
                     <h4>Edit & Approve</h4>
                     <p class="action-desc">Modify the AI answer before sending to the farmer.</p>
-                    <form method="post" action="/Officer/ModifyAndApprove">
+                    <form method="post" action="/Officer/ModifyAndApprove" asp-antiforgery="true">
                         <input type="hidden" name="id" value="@Model?.Id" />
                         <textarea name="modifiedAnswer" required
                                   style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px;min-height:150px;">@Model?.AIAnswer</textarea>
@@ -121,15 +128,15 @@
 
                 <!-- Reject -->
                 <div class="action-section">
-                    <h4>Reject & Request New Answer</h4>
-                    <p class="action-desc">Reject this answer and ask AI to generate a new one with better accuracy.</p>
+                    <h4>Mark for revision</h4>
+                    <p class="action-desc">Keep the draft private and record what needs correction. You can edit and approve the corrected answer from your queue.</p>
                     <form method="post" action="/Officer/RejectResponse"
-                          onsubmit="return confirm('Reject this response? AI will generate a new answer.');">
+                          onsubmit="return confirm('Mark this draft for officer revision?');" asp-antiforgery="true">
                         <input type="hidden" name="id" value="@Model?.Id" />
                         <textarea name="rejectionReason" required
                                   placeholder="Reason for rejection (e.g., 'Inaccurate disease identification', 'Incorrect dosage')..."
                                   style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px;"></textarea>
-                        <button type="submit" class="btn btn-danger">❌ Reject & Regenerate</button>
+                        <button type="submit" class="btn btn-danger">❌ Mark for revision</button>
                     </form>
                 </div>
             </div>

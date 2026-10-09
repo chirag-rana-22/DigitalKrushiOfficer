@@ -13,7 +13,7 @@ namespace Digital_Krushi_Officer.Controllers
 
         public async Task<IActionResult> Index(string? category)
         {
-            var q = _db.GovernmentSchemes.Where(s => s.IsActive && s.Status == "Active");
+            var q = _db.GovernmentSchemes.Where(s => s.IsActive && s.Status == "Active" && (s.LastDate == null || s.LastDate >= DateTime.Today));
             if (!string.IsNullOrEmpty(category))
                 q = q.Where(s => s.Category == category);
             ViewBag.Category = category;
@@ -24,7 +24,7 @@ namespace Digital_Krushi_Officer.Controllers
 
         public async Task<IActionResult> Detail(int id)
         {
-            var scheme = await _db.GovernmentSchemes.FindAsync(id);
+            var scheme = await _db.GovernmentSchemes.FirstOrDefaultAsync(s => s.Id == id && s.IsActive && s.Status == "Active" && (s.LastDate == null || s.LastDate >= DateTime.Today));
             if (scheme == null) return NotFound();
             return View(scheme);
         }

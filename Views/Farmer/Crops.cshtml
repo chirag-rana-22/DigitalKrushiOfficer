@@ -51,15 +51,15 @@ else
                 <div style="display:flex;gap:8px;">
                     @if (c.Status == "Growing")
                     {
-                        <form asp-action="UpdateCropStatus" method="post" style="flex:1;">
-                            @Html.AntiForgeryToken()
+                        <form asp-action="UpdateCropStatus" method="post" style="flex:1;" asp-antiforgery="true">
+
                             <input type="hidden" name="id" value="@c.Id" />
                             <input type="hidden" name="status" value="Harvested" />
                             <button type="submit" class="btn-outline-green w-100" style="font-size:0.8rem;padding:8px;">✅ Mark Harvested</button>
                         </form>
                     }
-                    <form asp-action="DeleteCrop" method="post">
-                        @Html.AntiForgeryToken()
+                    <form asp-action="DeleteCrop" method="post" asp-antiforgery="true">
+
                         <input type="hidden" name="id" value="@c.Id" />
                         <button type="submit" class="btn-red" style="padding:8px 14px;font-size:0.8rem;" onclick="return confirm('Remove this crop?')">🗑</button>
                     </form>
@@ -76,8 +76,8 @@ else
             <h5 style="font-weight:700;margin:0;">➕ Add New Crop</h5>
             <button onclick="document.getElementById('addCropModal').style.display='none'" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">✕</button>
         </div>
-        <form asp-action="AddCrop" method="post">
-            @Html.AntiForgeryToken()
+        <form asp-action="AddCrop" method="post" asp-antiforgery="true">
+
             <div class="form-group">
                 <label class="form-label">🌾 Select Crop</label>
                 <select name="cropId" class="form-control form-select" required>

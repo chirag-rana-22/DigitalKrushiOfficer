@@ -2,8 +2,8 @@
 @{ ViewData["Title"] = "Add Disease"; ViewData["ActiveMenu"] = "Diseases"; }
 <div class="page-header"><h1>🔬 Add Disease Record</h1></div>
 <div class="card p-4" style="max-width:660px;">
-    <form asp-action="AddDisease" method="post" enctype="multipart/form-data">
-        @Html.AntiForgeryToken()
+    <form asp-action="AddDisease" method="post" enctype="multipart/form-data" asp-antiforgery="true">
+
         <div class="grid-2">
             <div class="form-group"><label class="form-label">🌾 Crop Name</label><input asp-for="CropName" class="form-control" required /></div>
             <div class="form-group"><label class="form-label">🦠 Disease Name</label><input asp-for="DiseaseName" class="form-control" required /></div>
@@ -20,7 +20,7 @@
             </div>
         </div>
 
-        
+
         <div class="form-group" style="margin-top:12px;">
             <label class="form-label">🖼️ Disease Reference Image</label>
             <input type="file" id="diseaseImageInput" name="DiseaseImage" class="form-control"

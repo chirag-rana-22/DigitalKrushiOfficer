@@ -26,6 +26,7 @@ namespace Digital_Krushi_Officer.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<OtpChallenge>().HasIndex(c => new { c.Email, c.Purpose }).IsUnique();
 
             // TblUser
             modelBuilder.Entity<TblUser>(entity =>
@@ -153,7 +154,7 @@ namespace Digital_Krushi_Officer.Data
                 Name = "System Admin",
                 Email = "admin@digitalkrushi.com",
                 Mobile = "9999999999",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                PasswordHash = "$2a$11$kIyeaoI3dq4Wx2PUqhcVqOfe/sO6WvK0Lx5aJWyAdO.eQkREvd1by",
                 Role = "Admin",
                 State = "Gujarat",
                 District = "Ahmedabad",

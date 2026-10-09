@@ -56,7 +56,8 @@ namespace Digital_Krushi_Officer.Models.ViewModels
         public string IconCode { get; set; } = string.Empty;
         public string FarmingAlert { get; set; } = string.Empty;
         public string AlertType { get; set; } = string.Empty;
-        public DateTime FetchedAt { get; set; } = DateTime.Now;
+        public DateTime FetchedAt { get; set; } = DateTime.UtcNow;
+        public DateTime ForecastAt { get; set; }
     }
 
     public class ChatViewModel
@@ -99,41 +100,53 @@ namespace Digital_Krushi_Officer.Models.ViewModels
         [Display(Name = "Mobile")]
         public string? Mobile { get; set; }
 
+        [MaxLength(100)]
         [Display(Name = "State")]
         public string? State { get; set; }
 
+        [MaxLength(100)]
         [Display(Name = "District")]
         public string? District { get; set; }
 
+        [MaxLength(100)]
         [Display(Name = "Village")]
         public string? Village { get; set; }
 
+        [RegularExpression("^(Gujarati|Hindi|English)$")]
         [Display(Name = "Preferred Language")]
         public string PreferredLanguage { get; set; } = "Gujarati";
 
         // Farmer specific
+        [Range(0.01, 1000000)]
         [Display(Name = "Land Area (acres)")]
         public decimal? LandArea { get; set; }
 
+        [MaxLength(100)]
         [Display(Name = "Soil Type")]
         public string? SoilType { get; set; }
 
+        [MaxLength(100)]
         [Display(Name = "Main Crop")]
         public string? MainCrop { get; set; }
 
+        [Range(0, 100)]
         [Display(Name = "Farming Experience (years)")]
         public int? FarmingExperience { get; set; }
 
         // Officer specific
+        [MaxLength(100)]
         [Display(Name = "Department")]
         public string? Department { get; set; }
 
+        [MaxLength(100)]
         [Display(Name = "Designation")]
         public string? Designation { get; set; }
 
+        [Range(0, 100)]
         [Display(Name = "Experience Years")]
         public int? ExperienceYears { get; set; }
 
+        [MaxLength(100)]
         [Display(Name = "Specialization")]
         public string? Specialization { get; set; }
     }
@@ -167,6 +180,7 @@ namespace Digital_Krushi_Officer.Models.ViewModels
     {
         public int EscalationId { get; set; }
         [Required]
+        [MaxLength(16000)]
         public string OfficerReply { get; set; } = string.Empty;
         [Required]
         public string Status { get; set; } = "Solved";

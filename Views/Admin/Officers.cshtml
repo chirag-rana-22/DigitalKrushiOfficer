@@ -39,8 +39,8 @@
                             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                 <a href="/Admin/ViewOfficerFarmers/@o.Id" class="btn-primary-green"
                                    style="padding:6px 12px;font-size:0.78rem;text-decoration:none;">👥 Farmers</a>
-                                <form asp-action="ToggleOfficerStatus" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
+                                <form asp-action="ToggleOfficerStatus" method="post" style="display:inline;" asp-antiforgery="true">
+
                                     <input type="hidden" name="id" value="@o.Id" />
                                     <button type="submit" class="@(o.IsActive ? "btn-red" : "btn-primary-green")"
                                             style="padding:6px 14px;font-size:0.78rem;">@(o.IsActive ? "Deactivate" : "Activate")</button>

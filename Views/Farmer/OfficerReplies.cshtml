@@ -6,7 +6,7 @@
     var solved = Model.Count(q => q.Escalation?.Status == "Solved");
     var avgRating = Model.Any(q => q.Feedbacks.Any())
         ? Model.Where(q => q.Feedbacks.Any())
-               .Average(q => (double)q.Feedbacks.First().Rating)
+               .Average(q => (double)(q.Feedbacks.First().Rating ?? 0))
                .ToString("0.0")
         : "–";
 }
@@ -156,7 +156,7 @@ else
                         <div class="q-label">👨‍🌾 YOUR QUESTION</div>
                         @if (q.QueryType == "Image" && q.ImagePath != null)
                         {
-                            <img src="@q.ImagePath" alt="Crop image" />
+                            <img src="@Url.Action("QueryImage", "Media", new { id = q.Id })" alt="Crop image" />
                         }
                         <div>@q.QueryText</div>
                         <div class="q-ts">@q.CreatedDate.ToString("hh:mm tt")</div>
@@ -205,19 +205,5 @@ else
 }
 
 @section Scripts {
-<script>
-    function getToken() {
-        return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
-    }
-    async function submitFeedback(queryId, rating) {
-        var fd = new FormData();
-        fd.append('queryId', queryId);
-        fd.append('rating', rating);
-        fd.append('feedbackType', rating >= 4 ? 'Helpful' : 'NotHelpful');
-        await fetch('/Farmer/SubmitFeedback', { method: 'POST', headers: { 'RequestVerificationToken': getToken() }, body: fd });
-        var el = document.getElementById('fb-' + queryId);
-        if (el) el.querySelectorAll('button').forEach((b, i) => b.textContent = i < rating ? '⭐' : '☆');
-    }
-</script>
-@Html.AntiForgeryToken()
+    <script src="~/js/feedback.js" asp-append-version="true"></script>
 }

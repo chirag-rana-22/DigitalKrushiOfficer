@@ -27,7 +27,7 @@ namespace Digital_Krushi_Officer.Controllers
         {
             var user = await _db.Users.Include(u => u.FarmerDetails).FirstOrDefaultAsync(u => u.Id == UserId);
             var totalQueries = await _db.Queries.CountAsync(q => q.FarmerId == UserId);
-            var pendingQueries = await _db.Queries.CountAsync(q => q.FarmerId == UserId && (q.Status == "Pending" || q.Status == "Escalated"));
+            var pendingQueries = await _db.Queries.CountAsync(q => q.FarmerId == UserId && (q.Status != "Answered" && q.Status != "Closed" || q.Status == "Escalated"));
             var totalCrops = await _db.FarmerCrops.CountAsync(c => c.FarmerId == UserId);
             var totalFeedback = await _db.Feedbacks.CountAsync(f => f.Query!.FarmerId == UserId);
             var recentQueries = await _db.Queries.Where(q => q.FarmerId == UserId)
@@ -37,7 +37,7 @@ namespace Digital_Krushi_Officer.Controllers
             var activeCrops = await _db.FarmerCrops.Where(c => c.FarmerId == UserId && c.Status == "Growing")
                 .Include(c => c.Crop).Take(4).ToListAsync();
 
-            var district = User.FindFirstValue("District") ?? "Ahmedabad";
+            var district = User.FindFirstValue("District") ?? "";
             var village = User.FindFirstValue("Village") ?? "";
             var weatherData = await _weather.GetWeatherAsync(district, village);
 
@@ -138,6 +138,7 @@ namespace Digital_Krushi_Officer.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCrop(int cropId, decimal? landArea, DateTime? sowingDate, DateTime? harvestDate)
         {
+            if (!await _db.Crops.AnyAsync(c => c.Id == cropId && c.IsActive) || landArea <= 0 || (sowingDate != null && harvestDate < sowingDate)) return BadRequest("Choose an active crop, positive land area and valid dates.");
             _db.FarmerCrops.Add(new TblFarmerCrop
             {
                 FarmerId = UserId, CropId = cropId,
@@ -153,6 +154,7 @@ namespace Digital_Krushi_Officer.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCropStatus(int id, string status)
         {
+            if (status is not ("Growing" or "Harvested" or "Failed")) return BadRequest("Invalid crop status.");
             var crop = await _db.FarmerCrops.FirstOrDefaultAsync(c => c.Id == id && c.FarmerId == UserId);
             if (crop != null) { crop.Status = status; crop.UpdatedDate = DateTime.Now; await _db.SaveChangesAsync(); }
             return RedirectToAction("Crops");
@@ -166,14 +168,17 @@ namespace Digital_Krushi_Officer.Controllers
             return RedirectToAction("Crops");
         }
 
-        public async Task<IActionResult> QueryHistory()
+
+        public async Task<IActionResult> QueryHistory(string? search, string? status, int page = 1)
         {
-            var queries = await _db.Queries.Where(q => q.FarmerId == UserId)
-                .Include(q => q.AIResponse)
-                .Include(q => q.Escalation).ThenInclude(e => e!.Officer)
-                .Include(q => q.Feedbacks)
-                .OrderByDescending(q => q.CreatedDate).ToListAsync();
-            return View(queries);
+            page = Math.Clamp(page, 1, 10000);
+            var source = _db.Queries.AsNoTracking().Where(q => q.FarmerId == UserId);
+            if (!string.IsNullOrWhiteSpace(search)) source = source.Where(q => q.QueryText != null && q.QueryText.Contains(search));
+            if (!string.IsNullOrWhiteSpace(status)) source = source.Where(q => q.Status == status);
+            var queries = await source.Include(q => q.AIResponse).Include(q => q.Escalation).ThenInclude(e => e!.Officer)
+                .Include(q => q.Feedbacks).OrderByDescending(q => q.CreatedDate).ThenByDescending(q => q.Id).Skip((page - 1) * 50).Take(51).ToListAsync();
+            ViewBag.Page = page; ViewBag.HasNext = queries.Count > 50; ViewBag.Search = search; ViewBag.StatusFilter = status;
+            return View(queries.Take(50).ToList());
         }
 
         public async Task<IActionResult> OfficerReplies()
@@ -191,7 +196,8 @@ namespace Digital_Krushi_Officer.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitFeedback(int queryId, int rating, string? feedbackText, string? feedbackType)
         {
-            var query = await _db.Queries.FirstOrDefaultAsync(q => q.Id == queryId && q.FarmerId == UserId);
+            if (rating < 1 || rating > 5 || feedbackText?.Length > 2000 || feedbackType?.Length > 50) return BadRequest("Enter a rating from 1 to 5 and feedback under 2000 characters.");
+            var query = await _db.Queries.FirstOrDefaultAsync(q => q.Id == queryId && q.FarmerId == UserId && q.Status == "Answered");
             if (query == null) return NotFound();
 
             var existing = await _db.Feedbacks.FirstOrDefaultAsync(f => f.QueryId == queryId);

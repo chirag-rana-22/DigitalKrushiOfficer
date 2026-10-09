@@ -2,8 +2,8 @@
 @{ ViewData["Title"] = "Edit Profile"; ViewData["ActiveMenu"] = "Profile"; }
 <div class="page-header"><h1>✏ Edit Profile</h1><p>Update your farming account information</p></div>
 <div class="card p-4" style="max-width:680px;">
-    <form asp-action="EditProfile" method="post">
-        @Html.AntiForgeryToken()
+    <form asp-action="EditProfile" method="post" asp-antiforgery="true">
+
         <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3"></div>
         <h6 style="font-weight:700;color:var(--green);margin-bottom:14px;">👤 Personal Information</h6>
         <div class="grid-2">
@@ -52,8 +52,8 @@
 @section Scripts {
 <script src="/js/gujarat-location.js"></script>
 <script>
-const preDistrict = '@Html.Raw(Model?.District ?? "")';
-const preVillage  = '@Html.Raw(Model?.Village  ?? "")';
+const preDistrict = @Json.Serialize(Model?.District ?? "");
+const preVillage  = @Json.Serialize(Model?.Village  ?? "");
 document.addEventListener('DOMContentLoaded', async function () {
     await initGujaratLocation('fp-district', 'fp-village', preDistrict, preVillage);
 });

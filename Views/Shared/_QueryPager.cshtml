@@ -1,0 +1,7 @@
+@{ int page = ViewBag.Page ?? 1; bool hasNext = ViewBag.HasNext ?? false; }
+<nav aria-label="Question pages" class="d-flex align-items-center gap-3 mt-4">
+@if(page>1){<a asp-route-page="@(page-1)" asp-route-search="@ViewBag.Search" asp-route-status="@ViewBag.StatusFilter" class="btn-outline-green">Previous</a>}
+<span>Page @(page) · up to 50 questions</span>
+@if(hasNext){<a asp-route-page="@(page+1)" asp-route-search="@ViewBag.Search" asp-route-status="@ViewBag.StatusFilter" class="btn-outline-green">Next</a>}
+</nav>
+

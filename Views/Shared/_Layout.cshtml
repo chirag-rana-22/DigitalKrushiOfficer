@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-advisory-language="@User.FindFirst("Language")?.Value">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,14 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/refined.css" asp-append-version="true" />
 </head>
 <body>
+@Html.AntiForgeryToken()
+<a href="#main" class="skip-link">Skip to content</a>
 
 @if (User.Identity?.IsAuthenticated == true && ViewData["HideLayout"] == null)
 {
     var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
     var userName = User.Identity.Name ?? "User";
-    var initials = string.Join("", userName.Split(' ').Take(2).Select(w => w[0].ToString().ToUpper()));
+    var initials = string.Join("", userName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w[0].ToString().ToUpper()));
 
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
@@ -64,11 +67,14 @@
                 <a href="/Admin/Schemes" class="@(ViewData["ActiveMenu"]?.ToString() == "Schemes" ? "active" : "")"><span class="icon">📜</span> Schemes</a>
                 <a href="/Admin/Diseases" class="@(ViewData["ActiveMenu"]?.ToString() == "Diseases" ? "active" : "")"><span class="icon">🔬</span> Disease Dataset</a>
                 <span class="nav-section">Reports</span>
+                <a href="/Admin/ReviewQueue"><span class="icon">↗</span> Review queue</a>
+                <a href="/Admin/AssignFarmerToOfficer"><span class="icon">↗</span> Farmer assignments</a>
                 <a href="/Admin/Queries" class="@(ViewData["ActiveMenu"]?.ToString() == "Queries" ? "active" : "")"><span class="icon">💬</span> All Queries</a>
                 <a href="/Admin/Feedback" class="@(ViewData["ActiveMenu"]?.ToString() == "Feedback" ? "active" : "")"><span class="icon">⭐</span> Feedback</a>
             }
         </nav>
         <div class="sidebar-footer">
+            <a href="/Account/ChangePassword" style="color:#d8e9ba;font-size:.75rem">Change password</a>
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar">@initials</div>
                 <div class="sidebar-user-info">
@@ -76,8 +82,8 @@
                     <small>@role</small>
                 </div>
             </div>
-            <form asp-controller="Account" asp-action="Logout" method="post" style="margin-top:12px;">
-                @Html.AntiForgeryToken()
+            <form asp-controller="Account" asp-action="Logout" method="post" style="margin-top:12px;" asp-antiforgery="true">
+
                 <button type="submit" style="width:100%;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px;cursor:pointer;font-size:0.8rem;font-family:Poppins,sans-serif;">
                     🚪 Logout
                 </button>
@@ -86,10 +92,11 @@
     </aside>
 
     <!-- Mobile Toggle -->
-    <button id="sidebarToggle" onclick="document.getElementById('sidebar').classList.toggle('open')"
+    <button id="sidebarToggle" aria-label="Toggle navigation" aria-controls="sidebar" aria-expanded="false"
         style="position:fixed;top:16px;left:16px;z-index:1100;background:var(--green);color:white;border:none;width:40px;height:40px;border-radius:8px;font-size:1.2rem;cursor:pointer;display:none;">☰</button>
 
-    <div class="main-content">
+    <main id="main" class="main-content">
+        <div class="workspace-topbar"><strong>YOUR FIELD. YOUR NEXT CHAPTER.</strong><span>@role workspace · <a href="/Home/Privacy">Privacy</a></span></div>
         @if (TempData["Success"] != null)
         {
             <div class="alert-banner success mb-3">✅ @TempData["Success"]</div>
@@ -103,7 +110,7 @@
             <div class="alert-banner warning mb-3">⚠ @TempData["Warning"]</div>
         }
         @RenderBody()
-    </div>
+    </main>
 
     @if (role == "Farmer")
     {

@@ -33,8 +33,8 @@
                         <td style="font-size:0.8rem;color:var(--text-gray);">@f.CreatedDate.ToString("dd MMM yyyy")</td>
                         <td><span class="badge @(f.IsActive?"badge-green":"badge-red")">@(f.IsActive?"Active":"Inactive")</span></td>
                         <td>
-                            <form asp-action="ToggleFarmerStatus" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
+                            <form asp-action="ToggleFarmerStatus" method="post" style="display:inline;" asp-antiforgery="true">
+
                                 <input type="hidden" name="id" value="@f.Id" />
                                 <button type="submit" class="@(f.IsActive?"btn-red":"btn-primary-green")" style="padding:6px 14px;font-size:0.78rem;">
                                     @(f.IsActive?"Deactivate":"Activate")

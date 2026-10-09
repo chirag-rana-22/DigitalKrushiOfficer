@@ -22,7 +22,7 @@ namespace Digital_Krushi_Officer.Controllers
                 TotalFarmers = await _db.Users.CountAsync(u => u.Role == "Farmer" && u.IsActive),
                 TotalOfficers = await _db.Users.CountAsync(u => u.Role == "Officer" && u.IsActive),
                 TotalQueries = await _db.Queries.CountAsync(),
-                PendingQueries = await _db.Queries.CountAsync(q => q.Status == "Pending"),
+                PendingQueries = await _db.Queries.CountAsync(q => q.Status != "Answered" && q.Status != "Closed"),
                 PendingEscalations = await _db.Escalations.CountAsync(e => e.Status == "Pending"),
                 SolvedEscalations = await _db.Escalations.CountAsync(e => e.Status == "Solved"),
                 TotalFeedback = await _db.Feedbacks.CountAsync(),
@@ -51,7 +51,7 @@ namespace Digital_Krushi_Officer.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleFarmerStatus(int id)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == "Farmer");
             if (user != null) { user.IsActive = !user.IsActive; user.UpdatedDate = DateTime.Now; await _db.SaveChangesAsync(); }
             return RedirectToAction("Farmers");
         }
@@ -119,7 +119,7 @@ namespace Digital_Krushi_Officer.Controllers
             var farmer = await _db.Users.FindAsync(farmerId);
             var officer = await _db.Users.FindAsync(officerId);
 
-            if (farmer?.Role != "Farmer" || officer?.Role != "Officer")
+            if (farmer?.Role != "Farmer" || officer?.Role != "Officer" || !farmer.IsActive || !officer.IsActive || !officer.IsEmailVerified || remarks?.Length > 500)
                 return BadRequest("Invalid farmer or officer");
 
             // Remove previous assignment if exists
@@ -133,7 +133,9 @@ namespace Digital_Krushi_Officer.Controllers
             }
 
             // Create new assignment
-            var assignment = new TblFarmerOfficerAssignment
+            var assignment = await _db.FarmerOfficerAssignments.FirstOrDefaultAsync(a => a.FarmerId == farmerId && a.OfficerId == officerId);
+            if (assignment != null) { assignment.IsActive = true; assignment.Remarks = remarks; assignment.UpdatedDate = DateTime.Now; }
+            else assignment = new TblFarmerOfficerAssignment
             {
                 FarmerId = farmerId,
                 OfficerId = officerId,
@@ -144,7 +146,7 @@ namespace Digital_Krushi_Officer.Controllers
                 CreatedDate = DateTime.Now
             };
 
-            _db.FarmerOfficerAssignments.Add(assignment);
+            if (assignment.Id == 0) _db.FarmerOfficerAssignments.Add(assignment);
             await _db.SaveChangesAsync();
 
             TempData["Success"] = $"Farmer {farmer.Name} assigned to Officer {officer.Name}";
@@ -201,7 +203,7 @@ namespace Digital_Krushi_Officer.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleOfficerStatus(int id)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == "Officer" && u.IsEmailVerified);
             if (user != null) { user.IsActive = !user.IsActive; user.UpdatedDate = DateTime.Now; await _db.SaveChangesAsync(); }
             return RedirectToAction("Officers");
         }
@@ -319,6 +321,7 @@ namespace Digital_Krushi_Officer.Controllers
         public IActionResult AddDisease() => View(new TblDiseaseDataset());
 
         [HttpPost]
+        [RequestSizeLimit(6 * 1024 * 1024)]
         public async Task<IActionResult> AddDisease(TblDiseaseDataset model, IFormFile? DiseaseImage)
         {
             if (!ModelState.IsValid) return View(model);
@@ -326,16 +329,10 @@ namespace Digital_Krushi_Officer.Controllers
             // Handle image upload
             if (DiseaseImage != null && DiseaseImage.Length > 0)
             {
-                var uploadFolder = Path.Combine(_env.WebRootPath, "uploads", "diseases");
-                Directory.CreateDirectory(uploadFolder);
-
-                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(DiseaseImage.FileName)}";
-                var filePath = Path.Combine(uploadFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                    await DiseaseImage.CopyToAsync(stream);
-
-                model.ReferenceImagePath = $"/uploads/diseases/{fileName}";
+                try {
+                    var saved = await new Digital_Krushi_Officer.Services.ImageUploadService(_env).SaveAsync(DiseaseImage, true);
+                    model.ReferenceImagePath = "/uploads/diseases/" + saved.FileName;
+                } catch (ArgumentException ex) { ModelState.AddModelError("", ex.Message); return View(model); }
             }
 
             model.CreatedDate = DateTime.Now;
@@ -391,12 +388,30 @@ namespace Digital_Krushi_Officer.Controllers
         }
 
         // --- Queries ---
-        public async Task<IActionResult> Queries(string? status)
+
+        public async Task<IActionResult> Queries(string? status, string? search, int page = 1)
         {
-            var q = _db.Queries.Include(q => q.Farmer).Include(q => q.AIResponse).AsQueryable();
+            page = Math.Clamp(page, 1, 10000);
+            var q = _db.Queries.AsNoTracking().Include(q => q.Farmer).Include(q => q.AIResponse).AsQueryable();
             if (!string.IsNullOrEmpty(status)) q = q.Where(x => x.Status == status);
-            ViewBag.StatusFilter = status;
-            return View(await q.OrderByDescending(x => x.CreatedDate).ToListAsync());
+            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(x => x.QueryText != null && x.QueryText.Contains(search));
+            var items = await q.OrderByDescending(x => x.CreatedDate).ThenByDescending(x => x.Id).Skip((page - 1) * 50).Take(51).ToListAsync();
+            ViewBag.StatusFilter = status; ViewBag.Search = search; ViewBag.Page = page; ViewBag.HasNext = items.Count > 50;
+            return View(items.Take(50).ToList());
+        }
+
+        public async Task<IActionResult> ReviewQueue() {
+            ViewBag.Officers = await _db.Users.Where(u => u.Role == "Officer" && u.IsActive && u.IsEmailVerified).OrderBy(u => u.Name).ToListAsync();
+            return View(await _db.Queries.Include(q => q.Farmer).Include(q => q.Escalation).Where(q => q.Status != "Answered" && q.Status != "Closed").OrderBy(q => q.CreatedDate).ToListAsync());
+        }
+        [HttpPost]
+        public async Task<IActionResult> AssignQuery(int queryId, int officerId) {
+            var query = await _db.Queries.Include(q => q.Escalation).SingleOrDefaultAsync(q => q.Id == queryId && q.Status != "Answered" && q.Status != "Closed");
+            if (query == null || !await _db.Users.AnyAsync(u => u.Id == officerId && u.Role == "Officer" && u.IsActive && u.IsEmailVerified)) return BadRequest("Choose an active verified officer and an open query.");
+            query.Escalation ??= new TblEscalation { QueryId = queryId };
+            query.Escalation.OfficerId = officerId; query.Escalation.AssignedDate = DateTime.Now; query.Escalation.Status = "Pending";
+            query.Status = "PendingApproval"; await _db.SaveChangesAsync();
+            TempData["Success"] = "Query assigned for review."; return RedirectToAction(nameof(ReviewQueue));
         }
 
         // --- Analytics ---

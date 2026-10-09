@@ -52,14 +52,14 @@
                             <h4>AI Answer:</h4>
                             <div class="answer-preview"
                                  style="background:#f5f5f5;padding:12px;border-radius:8px;max-height:200px;overflow-y:auto;font-size:0.9rem;">
-                                @Html.Raw(response.AIAnswer?.Replace("\n", "<br>"))
+                                @response.AIAnswer
                             </div>
                         </div>
 
                         <div class="response-info">
                             <div class="info-row">
                                 <span>🎯 Confidence:</span>
-                                <strong>@(response.ConfidenceScore?.ToString("P0"))</strong>
+                                <strong>@(response.ConfidenceScore?.ToString("0") ?? "Not measured")</strong>
                             </div>
                             <div class="info-row">
                                 <span>⏱️ Response Time:</span>
