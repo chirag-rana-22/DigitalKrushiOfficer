@@ -3,7 +3,7 @@
     ViewData["Title"] = "Officer Replies";
     ViewData["ActiveMenu"] = "OfficerReplies";
     var total  = Model.Count;
-    var solved = Model.Count(q => q.Escalation?.Status == "Solved");
+    var solved = Model.Count(q => q.Status == "Answered" || q.Escalation?.Status == "Solved");
     var avgRating = Model.Any(q => q.Feedbacks.Any())
         ? Model.Where(q => q.Feedbacks.Any())
                .Average(q => (double)(q.Feedbacks.First().Rating ?? 0))
@@ -69,14 +69,14 @@
             border-radius:50%; display:flex; align-items:center; justify-content:center;
             font-size:1rem; flex-shrink:0; box-shadow:0 2px 6px rgba(245,127,23,.3); }
 .r-bubble { background:#FFFDE7; border:1px solid #FFE082; border-radius:16px 16px 16px 4px;
-            padding:12px 16px; max-width:78%; font-size:0.88rem; line-height:1.7; color:#333; }
+            padding:12px 16px; max-width:100%; overflow-wrap:anywhere; font-size:0.88rem; line-height:1.7; color:#333; }
 .r-label  { font-size:0.68rem; font-weight:700; letter-spacing:.5px;
             color:#F57F17; margin-bottom:5px; }
 .r-officer-name { font-size:0.72rem; color:#999; font-weight:400; margin-left:6px; }
 .r-ts     { font-size:0.67rem; color:#bbb; text-align:right; margin-top:6px; }
 
 /* Feedback row */
-.fb-row   { display:flex; gap:4px; align-items:center; margin-top:6px; padding-left:46px; }
+.fb-row   { display:flex; gap:4px; align-items:center; flex-wrap:wrap; margin-top:6px; }
 .fb-label { font-size:0.72rem; color:#999; margin-right:4px; }
 .fb-row button { background:none; border:none; font-size:1rem; cursor:pointer;
                  padding:2px; transition:transform .15s; }
@@ -127,6 +127,8 @@ else
     @foreach (var q in Model)
     {
         var esc      = q.Escalation;
+        var reply = Digital_Krushi_Officer.Services.AdvisoryPolicy.IsPublished(q.AIResponse) ? q.AIResponse!.AIAnswer : esc?.OfficerReply;
+        var repliedAt = q.AIResponse?.ApprovedDate ?? esc?.ResolvedDate;
         var typeIcon = q.QueryType == "Image" ? "📷" : q.QueryType == "Voice" ? "🎤" : "💬";
         var typeCls  = q.QueryType == "Image" ? "type-image" : q.QueryType == "Voice" ? "type-voice" : "type-text";
         var fb       = q.Feedbacks.FirstOrDefault();
@@ -136,7 +138,7 @@ else
             <div class="thread-meta">
                 <div style="display:flex;gap:8px;align-items:center;">
                     <span class="thread-type @typeCls">@typeIcon @q.QueryType</span>
-                    @if (esc?.Status == "Solved")
+                    @if (q.Status == "Answered" || esc?.Status == "Solved")
                     {
                         <span class="thread-status status-solved">✅ Solved</span>
                     }
@@ -175,10 +177,10 @@ else
                                     <span class="r-officer-name">— @esc.Officer.Name</span>
                                 }
                             </div>
-                            <div style="white-space:pre-wrap;">@esc?.OfficerReply</div>
-                            @if (esc?.ResolvedDate != null)
+                            <div style="white-space:pre-wrap;">@reply</div>
+                            @if (repliedAt != null)
                             {
-                                <div class="r-ts">Replied on @esc.ResolvedDate.Value.ToString("dd MMM yyyy, hh:mm tt")</div>
+                                <div class="r-ts">Replied on @repliedAt.Value.ToString("dd MMM yyyy, hh:mm tt")</div>
                             }
                         </div>
 

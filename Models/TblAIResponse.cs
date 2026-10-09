@@ -15,7 +15,8 @@ namespace Digital_Krushi_Officer.Models
         Pending = 0,
         Approved = 1,
         Rejected = 2,
-        Modified = 3
+        Modified = 3,
+        AIAnswered = 4
     }
 
     [Table("TblAIResponse")]

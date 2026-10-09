@@ -18,12 +18,13 @@ public class TestApp : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection connection = new("Data Source=:memory:");
     public readonly MailFake Mail = new();
+    public readonly AiFake Ai = new();
     protected override void ConfigureWebHost(IWebHostBuilder builder) {
         connection.Open(); builder.UseEnvironment("Testing");
         builder.ConfigureServices(s => {
             s.RemoveAll<DbContextOptions<AppDbContext>>(); s.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
             s.AddDbContext<AppDbContext>(o => o.UseSqlite(connection));
-            s.RemoveAll<IAIService>(); s.AddSingleton<IAIService>(new AiFake());
+            s.RemoveAll<IAIService>(); s.AddSingleton<IAIService>(Ai);
             s.RemoveAll<IEmailService>(); s.AddSingleton<IEmailService>(Mail);
             s.RemoveAll<IWeatherService>(); s.AddSingleton<IWeatherService>(new WeatherFake());
         });
@@ -58,7 +59,8 @@ public class TestApp : WebApplicationFactory<Program>
     protected override void Dispose(bool disposing) { base.Dispose(disposing); if(disposing) connection.Dispose(); }
 }
 public class AiFake : IAIService {
-    public Task<AIResult> GenerateAsync(string q,string l,byte[]? image=null,CancellationToken ct=default) => Task.FromResult(new AIResult("<script>alert('unsafe')</script> draft advice",true,"Fake",5));
+    public AIResult Result { get; set; } = new("<script>alert('unsafe')</script> draft advice",true,"Fake",5,true,"Uncertain diagnosis", Digital_Krushi_Officer.Models.ComplexityLevel.Complex);
+    public Task<AIResult> GenerateAsync(string q,string l,byte[]? image=null,CancellationToken ct=default) => Task.FromResult(Result);
 }
 public class WeatherFake : IWeatherService { public Task<WeatherViewModel?> GetWeatherAsync(string d,string v="") => Task.FromResult<WeatherViewModel?>(null); }
 public class MailFake : IEmailService {
@@ -106,7 +108,10 @@ public class SecurityTests
         using(var scope=app.Services.CreateScope()){var db=scope.ServiceProvider.GetRequiredService<AppDbContext>();Assert.Equal("Solved",(await db.Escalations.SingleAsync()).Status);Assert.Equal("Answered",(await db.Queries.SingleAsync()).Status);}
     }
     [Fact] public async Task UnassignedQueryCanBeRoutedByAdmin() {
-        using var app=new TestApp(); await app.Seed(); using var farmer=await app.Login("otherfarmer@test.local"); await app.Ask(farmer);
+        using var app=new TestApp(); await app.Seed(); using var farmer=await app.Login("otherfarmer@test.local");
+        using(var s=app.Services.CreateScope()){await s.ServiceProvider.GetRequiredService<AppDbContext>().Users.Where(u=>u.Role=="Officer").ExecuteUpdateAsync(x=>x.SetProperty(u=>u.IsActive,false));}
+        await app.Ask(farmer);
+        using(var s=app.Services.CreateScope()){await s.ServiceProvider.GetRequiredService<AppDbContext>().Users.Where(u=>u.Id==11).ExecuteUpdateAsync(x=>x.SetProperty(u=>u.IsActive,true));}
         int id; using(var scope=app.Services.CreateScope()){var q=await scope.ServiceProvider.GetRequiredService<AppDbContext>().Queries.SingleAsync();Assert.Equal("Unassigned",q.Status);id=q.Id;}
         using var admin=await app.Login("admin@digitalkrushi.com"); var r=await app.Post(admin,"/Admin/AssignQuery",new(){{"queryId",id.ToString()},{"officerId","11"}}); Assert.Equal(HttpStatusCode.Redirect,r.StatusCode);
         using var officer=await app.Login("officer@test.local"); Assert.Contains("draft advice",await officer.GetStringAsync("/Officer/PendingReviews"));

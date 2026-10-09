@@ -10,12 +10,13 @@
     <div><h1>📜 Government Schemes</h1><p>Agriculture subsidies, loans, and insurance for farmers</p></div>
 </div>
 
+<div class="card p-3 mb-3"><p class="mb-0">Explore scheme information and official links. Eligibility and application windows vary by scheme, state and season. Check the official portal before applying.</p></div>
 <!-- Category Filter -->
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
     <a href="/Scheme/Index" class="@(currentCat == null ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">All Schemes</a>
     @foreach (var cat in categories.Where(c => c != null))
     {
-        <a href="/Scheme/Index?category=@cat" class="@(currentCat == cat ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">
+        <a asp-controller="Scheme" asp-action="Index" asp-route-category="@cat" class="@(currentCat == cat ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">
             @(catIcons.ContainsKey(cat!) ? catIcons[cat!] : "📌") @cat
         </a>
     }
@@ -34,10 +35,10 @@ else
             <div class="card p-4">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                     <div style="width:48px;height:48px;border-radius:12px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">
-                        @(catIcons.ContainsKey(s.Category ?? "") ? catIcons[s.Category!] : "📌")
+                        @(catIcons.ContainsKey(s.Category ?? "") ? catIcons[s.Category ?? ""] : "📌")
                     </div>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                        <span class="badge badge-green">@s.Status</span>
+                        <span class="badge badge-green">@(s.LastDate == null ? "Check availability" : s.Status)</span>
                         @if (s.Category != null) { <span class="badge badge-blue">@s.Category</span> }
                         @if (isExpiringSoon) { <span class="badge badge-red">Expiring Soon!</span> }
                     </div>
@@ -50,7 +51,7 @@ else
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div style="font-size:0.78rem;color:var(--text-gray);">
-                        📅 Last Date: <strong style="color:@(isExpiringSoon ? "var(--red)" : "var(--text-dark)");">@(s.LastDate?.ToString("dd MMM yyyy") ?? "Open")</strong>
+                        📅 Last Date: <strong style="color:@(isExpiringSoon ? "var(--red)" : "var(--text-dark)");">@(s.LastDate?.ToString("dd MMM yyyy") ?? "Check official portal")</strong>
                     </div>
                     <a href="/Scheme/Detail/@s.Id" class="btn-outline-green" style="padding:7px 16px;font-size:0.8rem;text-decoration:none;">Details →</a>
                 </div>

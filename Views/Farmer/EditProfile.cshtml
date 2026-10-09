@@ -4,7 +4,7 @@
 <div class="card p-4" style="max-width:680px;">
     <form asp-action="EditProfile" method="post" asp-antiforgery="true">
 
-        <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3"></div>
+        <div asp-validation-summary="All" class="alert-banner danger mb-3"></div>
         <h6 style="font-weight:700;color:var(--green);margin-bottom:14px;">👤 Personal Information</h6>
         <div class="grid-2">
             <div class="form-group"><label class="form-label">Full Name</label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="validation-msg"></span></div>

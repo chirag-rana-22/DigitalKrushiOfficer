@@ -44,7 +44,7 @@ else
                         @if (Digital_Krushi_Officer.Services.AdvisoryPolicy.IsPublished(q.AIResponse))
                         {
                             <div style="background:#F8FFF8;border-left:3px solid #2E7D32;border-radius:0 8px 8px 0;padding:12px;margin-bottom:8px;">
-                                <div style="font-size:0.72rem;font-weight:700;color:#2E7D32;margin-bottom:6px;">🤖 AI RESPONSE · Officer reviewed</div>
+                                <div style="font-size:0.72rem;font-weight:700;color:#2E7D32;margin-bottom:6px;">@(q.AIResponse!.ApprovalStatus == Digital_Krushi_Officer.Models.ApprovalStatus.AIAnswered ? "🤖 AI ANSWER" : "👮 OFFICER-REVIEWED ANSWER")</div>
                                 <div style="font-size:0.85rem;color:#424242;line-height:1.6;white-space:pre-wrap;">@(q.AIResponse!.AIAnswer?.Length > 300 ? q.AIResponse!.AIAnswer[..300] + "..." : q.AIResponse!.AIAnswer)</div>
                             </div>
                         }

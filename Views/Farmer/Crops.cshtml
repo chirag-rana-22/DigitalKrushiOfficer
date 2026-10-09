@@ -5,7 +5,7 @@
     var allCrops = ViewBag.AllCrops as List<Digital_Krushi_Officer.Models.TblCrop> ?? new();
 }
 <div class="page-header d-flex justify-between align-center">
-    <div><h1>🌱 My Crops</h1><p>Manage your crop portfolio</p></div>
+    <div><h1>🌱 My Crops</h1><p>Manage your crop portfolio · @allCrops.Count crop types available</p></div>
     <button onclick="document.getElementById('addCropModal').style.display='flex'" class="btn-primary-green">➕ Add Crop</button>
 </div>
 
@@ -14,7 +14,7 @@
     <div class="card p-5 text-center">
         <div style="font-size:4rem;margin-bottom:16px;">🌾</div>
         <h4 style="font-weight:700;">No crops added yet</h4>
-        <p style="color:var(--text-gray);">Start tracking your crops to get personalized advice</p>
+        <p style="color:var(--text-gray);">Choose a crop from the catalog and enter your own planting details to start tracking it.</p>
         <button onclick="document.getElementById('addCropModal').style.display='flex'" class="btn-primary-green" style="margin-top:16px;display:inline-flex;">➕ Add Your First Crop</button>
     </div>
 }

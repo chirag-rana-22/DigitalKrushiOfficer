@@ -9,7 +9,7 @@
         event.preventDefault(); if (send.disabled) return;
         if (!input.value.trim() && !photo.files.length) { status.textContent = 'Add a question or photo first.'; input.focus(); return; }
         if (photo.files[0]?.size > 5 * 1024 * 1024) { status.textContent = 'Choose a photo under 5 MB.'; return; }
-        send.disabled = true; status.textContent = 'Preparing your question for review…';
+        send.disabled = true; status.textContent = 'AI is working on your question…';
         try {
             let url = '/Chat/Ask', body, headers = { RequestVerificationToken: token() };
             if (photo.files.length) { url = '/Chat/UploadImage'; body = new FormData(); body.append('image', photo.files[0]); body.append('userPrompt', input.value); }
@@ -28,7 +28,7 @@
     if (!Recognition) { voice.disabled = true; voice.title = 'Voice input is not supported in this browser. You can type instead.'; }
     else {
         const recognition = new Recognition(); recognition.lang = document.documentElement.dataset.advisoryLanguage === 'Hindi' ? 'hi-IN' : document.documentElement.dataset.advisoryLanguage === 'English' ? 'en-IN' : 'gu-IN';
-        recognition.onresult = event => { input.value = event.results[0][0].transcript.slice(0, 4000); fromVoice = true; status.textContent = 'Check the transcript, then send for review.'; };
+        recognition.onresult = event => { input.value = event.results[0][0].transcript.slice(0, 4000); fromVoice = true; status.textContent = 'Check the transcript, then ask AI.'; };
         recognition.onerror = () => { status.textContent = 'Voice input was unavailable. Check microphone access or type your question.'; };
         recognition.onend = () => { voice.disabled = false; voice.textContent = 'Voice input'; };
         voice.addEventListener('click', () => { try { recognition.start(); voice.disabled = true; voice.textContent = 'Listening…'; } catch { status.textContent = 'Voice input is already active.'; } });

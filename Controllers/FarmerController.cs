@@ -108,7 +108,7 @@ namespace Digital_Krushi_Officer.Controllers
         {
             var crops = await _db.FarmerCrops.Where(c => c.FarmerId == UserId)
                 .Include(c => c.Crop).OrderByDescending(c => c.CreatedDate).ToListAsync();
-            ViewBag.AllCrops = await _db.Crops.Where(c => c.IsActive).ToListAsync();
+            ViewBag.AllCrops = await _db.Crops.Where(c => c.IsActive).OrderBy(c => c.CropName).ToListAsync();
             return View(crops);
         }
 
@@ -138,7 +138,7 @@ namespace Digital_Krushi_Officer.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCrop(int cropId, decimal? landArea, DateTime? sowingDate, DateTime? harvestDate)
         {
-            if (!await _db.Crops.AnyAsync(c => c.Id == cropId && c.IsActive) || landArea <= 0 || (sowingDate != null && harvestDate < sowingDate)) return BadRequest("Choose an active crop, positive land area and valid dates.");
+            if (!ModelState.IsValid || !await _db.Crops.AnyAsync(c => c.Id == cropId && c.IsActive) || landArea <= 0 || landArea > 1000000 || (sowingDate != null && harvestDate < sowingDate)) return BadRequest("Choose an active crop, positive land area and valid dates.");
             _db.FarmerCrops.Add(new TblFarmerCrop
             {
                 FarmerId = UserId, CropId = cropId,
@@ -184,7 +184,9 @@ namespace Digital_Krushi_Officer.Controllers
         public async Task<IActionResult> OfficerReplies()
         {
             var queries = await _db.Queries
-                .Where(q => q.FarmerId == UserId && q.Escalation != null && q.Escalation.OfficerReply != null)
+                .Where(q => q.FarmerId == UserId &&
+                    ((q.Escalation != null && q.Escalation.OfficerReply != null) ||
+                     (q.AIResponse != null && (q.AIResponse.ApprovalStatus == ApprovalStatus.Approved || q.AIResponse.ApprovalStatus == ApprovalStatus.Modified))))
                 .Include(q => q.AIResponse)
                 .Include(q => q.Escalation).ThenInclude(e => e!.Officer)
                 .Include(q => q.Feedbacks)

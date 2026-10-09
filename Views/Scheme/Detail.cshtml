@@ -20,8 +20,8 @@
         @if (Uri.TryCreate(Model.DocumentUrl, UriKind.Absolute, out var documentUri) && (documentUri.Scheme == "https" || documentUri.Scheme == "http"))
         {
             <div class="card p-4">
-                <h5 style="font-weight:700;margin-bottom:14px;">📄 Documents</h5>
-                <a href="@Model.DocumentUrl" target="_blank" rel="noopener noreferrer" class="btn-primary-green" style="display:inline-flex;">📥 Download Scheme PDF</a>
+                <h5 style="font-weight:700;margin-bottom:14px;">Official information / document</h5>
+                <a href="@Model.DocumentUrl" target="_blank" rel="noopener noreferrer" class="btn-primary-green" style="display:inline-flex;">Open official information ↗</a>
             </div>
         }
     </div>
@@ -29,19 +29,17 @@
         <div class="card p-4 mb-3">
             <div style="display:flex;flex-direction:column;gap:14px;">
                 <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">CATEGORY</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;">@Model.Category</div></div>
-                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">STATUS</div><span class="badge badge-green mt-1">@Model.Status</span></div>
+                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">STATUS</div><span class="badge badge-green mt-1">@(Model.LastDate == null ? "Check availability" : Model.Status)</span></div>
                 <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">START DATE</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;">@(Model.StartDate?.ToString("dd MMM yyyy") ?? "—")</div></div>
-                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">LAST DATE</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;color:var(--red);">@(Model.LastDate?.ToString("dd MMM yyyy") ?? "Open")</div></div>
+                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">LAST DATE</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;color:var(--red);">@(Model.LastDate?.ToString("dd MMM yyyy") ?? "Check official portal")</div></div>
             </div>
         </div>
         <div class="card p-4" style="background:#E8F5E9;">
             <h6 style="font-weight:700;color:#2E7D32;margin-bottom:10px;">💡 How to Apply?</h6>
             <ol style="font-size:0.82rem;color:#424242;line-height:2;padding-left:18px;margin:0;">
-                <li>Visit nearest Agriculture Office</li>
-                <li>Carry land documents & Aadhaar</li>
-                <li>Fill the application form</li>
-                <li>Submit with required proofs</li>
-                <li>Track status online</li>
+                <li>Read the eligibility and current application window on the official portal.</li>
+                <li>Follow that scheme's document and application instructions.</li>
+                <li>For local availability, contact the responsible department or participating bank.</li>
             </ol>
         </div>
     </div>

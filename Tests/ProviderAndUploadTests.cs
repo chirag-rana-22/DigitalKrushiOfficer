@@ -18,7 +18,8 @@ public class ClientFactory(HttpMessageHandler handler):IHttpClientFactory {publi
 public class ProviderAndUploadTests {
     [Fact] public async Task ImageBytesActuallyReachGeminiRequest() {
         using var app=new TestApp();await app.Seed();using var scope=app.Services.CreateScope();
-        var handler=new ProviderHandler("{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"Observed leaf discoloration\"}]}}]}");
+        var assessment=JsonSerializer.Serialize(new { answer="Observed leaf discoloration", requiresOfficer=false, uncertain=false, reason="", complexity="Simple", imageAssessment="Clear" });
+        var handler=new ProviderHandler(JsonSerializer.Serialize(new { candidates=new[] { new { finishReason="STOP", content=new { parts=new[] { new { text=assessment } } } } } }));
         var config=new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string,string?>{{"AISettings:GeminiApiKey","test-key"}}).Build();
         var service=new AIService(config,NullLogger<AIService>.Instance,new ClientFactory(handler),scope.ServiceProvider.GetRequiredService<AppDbContext>());
         var bytes=new byte[]{1,2,3,4};var result=await service.GenerateAsync("Inspect the photo","Hindi",bytes);

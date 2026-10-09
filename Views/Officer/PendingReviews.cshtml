@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Pending AI Reviews";
     ViewData["ActiveMenu"] = "PendingReviews";
-    var pending = Model?.Count(r => r.ApprovalStatus == ApprovalStatus.Pending) ?? 0;
+    var pending = Model?.Count ?? 0;
 }
 
 <div class="content-wrapper">
@@ -14,7 +14,7 @@
     </div>
 
     <div class="alert-info" style="margin-bottom:20px;">
-        <strong>📋 pending</strong> - Complex questions awaiting your expert review
+        <strong>📋 @pending pending</strong> - Uncertain or complex questions needing your help
     </div>
 
     @if (Model == null || Model.Count == 0)
@@ -28,7 +28,7 @@
     else
     {
         <div class="reviews-grid">
-            @foreach (var response in Model.Where(r => r.ApprovalStatus == ApprovalStatus.Pending).OrderByDescending(r =>
+            @foreach (var response in Model.Where(r => r.ApprovalStatus == ApprovalStatus.Pending || r.ApprovalStatus == ApprovalStatus.Rejected).OrderByDescending(r =>
         r.CreatedDate))
             {
                 var farmer = response.Query?.Farmer;
@@ -49,7 +49,8 @@
 
                     <div class="review-body">
                         <div class="ai-answer">
-                            <h4>AI Answer:</h4>
+                            <h4>AI assessment for review:</h4>
+                            <p><strong>Reason for escalation:</strong> @response.EscalationReason</p>
                             <div class="answer-preview"
                                  style="background:#f5f5f5;padding:12px;border-radius:8px;max-height:200px;overflow-y:auto;font-size:0.9rem;">
                                 @response.AIAnswer

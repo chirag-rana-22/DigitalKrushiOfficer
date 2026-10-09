@@ -17,10 +17,16 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
         return View(new ChatViewModel { Messages = queries.AsEnumerable().Reverse().Select(q => new ChatMessageViewModel {
             QueryId=q.Id, QueryText=q.QueryText, QueryType=q.QueryType ?? "Text", ImagePath=q.ImagePath == null ? null : Url.Action("QueryImage", "Media", new { id=q.Id }),
             AIAnswer=AdvisoryPolicy.IsPublished(q.AIResponse) ? q.AIResponse!.AIAnswer : null, Status=q.Status, CreatedDate=q.CreatedDate,
-            OfficerReply=q.Escalation?.OfficerReply, ApprovalStatus=q.AIResponse?.ApprovalStatus.ToString() ?? "Pending", FeedbackRating=q.Feedbacks.FirstOrDefault()?.Rating
+            OfficerReply=q.Escalation?.OfficerReply, IsEscalated=q.AIResponse?.IsEscalated ?? false, ApprovalStatus=q.AIResponse?.ApprovalStatus.ToString() ?? "Pending", FeedbackRating=q.Feedbacks.FirstOrDefault()?.Rating
         }).ToList() });
     }
-    private IActionResult Saved(TblQuery q) => Json(new { success=true, queryId=q.Id, answer=(string?)null, analysis=(string?)null, status=q.Status, approvalStatus="Pending", isEscalated=true, message=AdvisoryPolicy.PendingMessage(q.Status) });
+    private IActionResult Saved(TblQuery q) => Json(new {
+        success=true, queryId=q.Id,
+        answer=AdvisoryPolicy.IsPublished(q.AIResponse) ? q.AIResponse!.AIAnswer : null,
+        status=q.Status, approvalStatus=q.AIResponse?.ApprovalStatus.ToString(),
+        isEscalated=q.AIResponse?.IsEscalated ?? false,
+        message=q.Status == "Answered" ? "AI answered your question." : AdvisoryPolicy.PendingMessage(q.Status)
+    });
     [HttpPost, EnableRateLimiting("advisory")]
     public async Task<IActionResult> Ask([FromBody] AskRequest? request) {
         if (request == null || string.IsNullOrWhiteSpace(request.QueryText) || request.QueryText.Length > 4000) return BadRequest(new { success=false, message="Enter a question of 1–4000 characters." });

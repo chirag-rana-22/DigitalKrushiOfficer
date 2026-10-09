@@ -23,9 +23,9 @@ Do not import the legacy AutoCleanup SQL file over an existing database. Back up
 
 - Farmers can register and verify an email code.
 - Officers must verify email and then be activated by an administrator.
-- Admin → Farmer assignments chooses each farmer's officer.
-- All text, photo and voice-transcript advice is saved as a draft for review. Farmers see only approved/edited answers.
-- Queries without an assigned active verified officer appear in Admin → Review queue.
+- Admin → Farmer assignments optionally sets a preferred officer for a farmer.
+- Normal text, clear-photo and voice-transcript questions receive an immediate AI answer. These use AIAnswered status and do not create an officer task.
+- Uncertain diagnosis, unclear images, complex cases and AI failures are escalated automatically. Prefer an existing active verified officer assignment; otherwise choose a district match, then lowest open workload and officer ID. Only when no active verified officer is available does the query remain Unassigned for admin intervention.
 - The assigned officer can approve, mark for revision, edit and publish, or reply directly. Marking for revision does not pretend that AI automatically regenerates an answer.
 - Query history supports text search, status filters and 50-record pages.
 
