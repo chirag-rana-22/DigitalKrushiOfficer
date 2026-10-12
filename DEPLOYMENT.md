@@ -1,5 +1,7 @@
 # Deployment handoff
 
+For the current free Render + Aiven + Supabase + Brevo demo workflow, see [FREE_DEPLOYMENT.md](FREE_DEPLOYMENT.md). Cloud accounts and live validation are still required; configuration files alone do not constitute deployment.
+
 This project has been hardened and tested locally. Do not interpret a successful build as certification that every future bug or deployment-specific issue has been eliminated.
 
 ## Required owner/deployment inputs

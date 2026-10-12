@@ -17,11 +17,13 @@ namespace Digital_Krushi_Officer.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _config;
+        private readonly IHttpClientFactory _clients;
         private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration config, ILogger<EmailService> logger)
+        public EmailService(IConfiguration config, ILogger<EmailService> logger, IHttpClientFactory clients)
         {
             _config = config;
+            _clients = clients;
             _logger = logger;
         }
 
@@ -29,6 +31,23 @@ namespace Digital_Krushi_Officer.Services
         {
             try
             {
+                var provider = _config["Email:Provider"] ?? "Smtp";
+                if (provider.Equals("Brevo", StringComparison.OrdinalIgnoreCase)) {
+                    var key = _config["Email:Brevo:ApiKey"];
+                    var sender = _config["Email:FromEmail"];
+                    if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(sender)) return "Email delivery is not configured.";
+                    using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email");
+                    request.Headers.Add("api-key", key);
+                    request.Content = JsonContent.Create(new {
+                        sender = new { email = sender, name = _config["Email:FromName"] ?? "Digital Krushi Officer" },
+                        to = new[] { new { email = toEmail, name = toName } }, subject, htmlContent = htmlBody
+                    });
+                    using var response = await _clients.CreateClient("email-api").SendAsync(request);
+                    if (response.IsSuccessStatusCode) return null;
+                    _logger.LogWarning("Email API rejected delivery with status {Status}", (int)response.StatusCode);
+                    return "Email delivery is temporarily unavailable. Please try again later.";
+                }
+                if (!provider.Equals("Smtp", StringComparison.OrdinalIgnoreCase)) return "Email delivery is not configured.";
                 var s        = _config.GetSection("SmtpSettings");
                 var host     = s["Host"]     ?? "smtp.gmail.com";
                 var portStr  = s["Port"]     ?? "587";
@@ -74,7 +93,7 @@ namespace Digital_Krushi_Officer.Services
                 var inner  = ex.InnerException?.Message ?? "";
                 var errMsg = string.IsNullOrEmpty(inner) ? ex.Message : $"{ex.Message} — Inner: {inner}";
                 _logger.LogError(ex, "❌ Email FAILED to {Email} | Error: {Error}", toEmail, errMsg);
-                return errMsg;
+                return "Email delivery is temporarily unavailable. Please try again later.";
             }
         }
 

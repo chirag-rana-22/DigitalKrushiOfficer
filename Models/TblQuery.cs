@@ -22,6 +22,8 @@ namespace Digital_Krushi_Officer.Models
         [MaxLength(300)]
         public string? ImagePath { get; set; }
 
+        public string? ImagePathsJson { get; set; }
+
         [MaxLength(300)]
         public string? VoicePath { get; set; }
 

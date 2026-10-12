@@ -30,10 +30,7 @@
                         <span class="badge @(Model.Status=="Solved"?"badge-green":Model.Status=="InProgress"?"badge-blue":"badge-yellow")">@Model.Status</span>
                     </div>
                 </div>
-                @if (Model.Query?.ImagePath != null)
-                {
-                    <img src="@Url.Action("QueryImage", "Media", new { id = Model.Query.Id })" style="max-width:100%;border-radius:10px;margin-bottom:14px;" />
-                }
+                @if(Model.Query != null) { <partial name="_QueryImages" model="Model.Query" /> }
                 <div style="background:#F8F9FA;border-radius:10px;padding:16px;font-size:0.9rem;line-height:1.7;">
                     @Model.Query?.QueryText
                 </div>
@@ -58,25 +55,19 @@
                 <h5 style="font-weight:700;margin-bottom:16px;">✍ Your Expert Reply</h5>
                 <form asp-action="Reply" method="post" asp-antiforgery="true">
 
+                    <div asp-validation-summary="All" class="text-danger mb-3" role="alert"></div>
                     <input type="hidden" name="EscalationId" value="@Model.Id" />
                     <div class="form-group">
                         <label class="form-label">Reply to Farmer</label>
-                        <textarea name="OfficerReply" class="form-control" rows="6" placeholder="Write your expert advice in detail. Be clear and practical." required style="resize:vertical;">@Model.OfficerReply</textarea>
+                        @Html.TextArea("OfficerReply", Model.OfficerReply, new { @class="form-control", rows=6, maxlength=16000, required="required", placeholder="Write your reply. If rejecting, explain why you cannot solve the query.", style="resize:vertical;" })
                     </div>
                     <div class="form-group">
                         <label class="form-label">Update Status</label>
-                        <select name="Status" class="form-control form-select">
-                            @if (Model.Status == "InProgress")
-                            {
-                                <option value="InProgress" selected>In Progress</option>
-                            }
-                            else
-                            {
-                                <option value="InProgress">In Progress</option>
-                            }
-                            <option value="Solved">Mark as Solved</option>
-                            <option value="Rejected">Reject (Unable to solve)</option>
-                        </select>
+                        @Html.DropDownList("Status", new[] {
+                            new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("In Progress", "InProgress", Model.Status == "InProgress" || Model.Status == "Pending"),
+                            new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Mark as Solved", "Solved"),
+                            new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Reject (Unable to solve)", "Rejected")
+                        }, new { @class="form-control form-select" })
                     </div>
                     <div style="display:flex;gap:10px;">
                         <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">📨 Send Reply to Farmer</button>
@@ -88,11 +79,11 @@
         else if (Model.OfficerReply != null)
         {
             <div class="card p-4">
-                <h5 style="font-weight:700;margin-bottom:12px;color:var(--green);">✅ Your Reply (Sent)</h5>
+                <h5 style="font-weight:700;margin-bottom:12px;color:var(--green);">@(Model.Status == "Rejected" ? "Query rejected — reason sent" : "Your Reply (Sent)")</h5>
                 <div style="background:#E8F5E9;border-radius:10px;padding:16px;font-size:0.875rem;line-height:1.7;">@Model.OfficerReply</div>
                 @if (Model.ResolvedDate != null)
                 {
-                    <div style="margin-top:10px;color:var(--text-gray);font-size:0.8rem;">Resolved: @Model.ResolvedDate?.ToString("dd MMM yyyy, hh:mm tt")</div>
+                    <div style="margin-top:10px;color:var(--text-gray);font-size:0.8rem;">@(Model.Status == "Rejected" ? "Closed" : "Resolved"): @Model.ResolvedDate?.ToString("dd MMM yyyy, hh:mm tt")</div>
                 }
             </div>
         }
@@ -134,3 +125,5 @@
         </div>
     </div>
 </div>
+
+<partial name="_OfficerConversationContext" model="(IReadOnlyList<Digital_Krushi_Officer.Models.TblQuery>)(ViewBag.ConversationContext ?? new List<Digital_Krushi_Officer.Models.TblQuery>())" />

@@ -74,13 +74,13 @@ namespace Digital_Krushi_Officer.Controllers
                 .FirstOrDefaultAsync(e => e.Id == id && e.OfficerId == UserId);
 
             if (esc == null) return NotFound();
+            await LoadConversationContext(esc.Query!);
             return View(esc);
         }
 
         [HttpPost]
         public async Task<IActionResult> Reply(EscalationReplyViewModel model)
         {
-            if (!ModelState.IsValid || model.Status is not ("Solved" or "InProgress")) return BadRequest("Enter a valid reply and status.");
             var esc = await _db.Escalations
                 .Include(e => e.Query).ThenInclude(q => q!.Farmer)
                 .Include(e => e.Query).ThenInclude(q => q!.AIResponse)
@@ -88,14 +88,26 @@ namespace Digital_Krushi_Officer.Controllers
 
             if (esc == null) return NotFound();
 
-            esc.OfficerReply = model.OfficerReply;
+            if (esc.Status is not ("Pending" or "InProgress")) {
+                TempData["Warning"] = "This query has already been closed. Refresh the list to see its current status.";
+                return RedirectToAction(nameof(EscalationDetail), new { id = esc.Id });
+            }
+            if (model.Status is not ("Solved" or "InProgress" or "Rejected"))
+                ModelState.AddModelError(nameof(model.Status), "Choose In Progress, Solved or Rejected.");
+            if (string.IsNullOrWhiteSpace(model.OfficerReply))
+                ModelState.AddModelError(nameof(model.OfficerReply), "Enter a reply or a reason explaining why you cannot solve this query.");
+            if (!ModelState.IsValid) { await LoadConversationContext(esc.Query!); return View("EscalationDetail", esc); }
+
+            esc.OfficerReply = model.OfficerReply.Trim();
             esc.Status = model.Status;
-            esc.ResolvedDate = model.Status == "Solved" ? DateTime.Now : null;
+            esc.ResolvedDate = model.Status is "Solved" or "Rejected" ? DateTime.Now : null;
             esc.UpdatedDate = DateTime.Now;
 
             if (esc.Query != null)
             {
-                esc.Query.Status = model.Status == "Solved" ? "Answered" : "Escalated";
+                esc.Query.Status = model.Status == "Solved" ? "Answered" : model.Status == "Rejected" ? "Rejected" : "Escalated";
+                if (model.Status == "Rejected" && esc.Query.AIResponse != null)
+                    esc.Query.AIResponse.ApprovalStatus = ApprovalStatus.Rejected;
                 if (model.Status == "Solved" && esc.Query.AIResponse != null) QueryWorkflow.Publish(esc.Query.AIResponse, UserId, "Officer replied directly", model.OfficerReply);
                 esc.Query.UpdatedDate = DateTime.Now;
             }
@@ -107,7 +119,7 @@ namespace Digital_Krushi_Officer.Controllers
             if (farmer != null && officer != null)
                 await _email.SendOfficerReplyNotificationAsync(farmer.Email, farmer.Name, officer.Name, model.OfficerReply);
 
-            TempData["Success"] = "Reply sent to farmer!";
+            TempData["Success"] = model.Status == "Rejected" ? "Query rejected. Your reason has been sent to the farmer." : "Reply sent to farmer!";
             return RedirectToAction("Escalations");
         }
 
@@ -164,19 +176,28 @@ namespace Digital_Krushi_Officer.Controllers
             return RedirectToAction("Profile");
         }
 
+        private async Task LoadConversationContext(TblQuery query) {
+            var root = query.ParentQueryId ?? query.Id;
+            ViewBag.ConversationContext = await _db.Queries.AsNoTracking()
+                .Where(q => q.FarmerId == query.FarmerId && q.Id < query.Id && (q.Id == root || q.ParentQueryId == root))
+                .Include(q => q.AIResponse).Include(q => q.Escalation).OrderBy(q => q.Id).ToListAsync();
+        }
+
         // ── AI Response Review Actions ──
 
         private IQueryable<TblAIResponse> AssignedResponses() => _db.AIResponses
             .Include(r => r.Query).ThenInclude(q => q!.Escalation)
             .Include(r => r.Query).ThenInclude(q => q!.Farmer)
-            .Where(r => r.Query != null && r.Query.Escalation != null && r.Query.Escalation.OfficerId == UserId);
+            .Where(r => r.Query != null && r.Query.Escalation != null && r.Query.Escalation.OfficerId == UserId && r.Query.Escalation.Status != "Rejected");
         public async Task<IActionResult> PendingReviews() {
             ViewBag.ActiveMenu = "PendingReviews";
             return View(await AssignedResponses().Where(r => r.ApprovalStatus == ApprovalStatus.Pending || r.ApprovalStatus == ApprovalStatus.Rejected).OrderBy(r => r.CreatedDate).ToListAsync());
         }
         public async Task<IActionResult> ReviewResponse(int id) {
             var response = await AssignedResponses().FirstOrDefaultAsync(r => r.Id == id);
-            return response == null ? NotFound() : View(response);
+            if (response == null) return NotFound();
+            await LoadConversationContext(response.Query!);
+            return View(response);
         }
         [HttpPost]
         public async Task<IActionResult> ApproveResponse(int id, string? officerNotes) {

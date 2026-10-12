@@ -3,3 +3,10 @@ body{background:var(--bg);color:var(--text-dark);font-family:'Poppins',system-ui
 @media(max-width:1000px){.new-hero{gap:28px}.hero-visual{min-height:520px}.feature-grid{gap:12px}.feature-grid article{padding:22px}}
 @media(max-width:768px){.main-content{padding:80px 18px 24px}.workspace-topbar{font-size:.68rem}.public-nav{padding:20px 6%}.public-nav>div{gap:12px}.public-nav>div>a:first-child{display:none}.public-nav .btn-primary-green{padding:9px 12px}.wordmark small{display:none}.new-hero{grid-template-columns:1fr;padding:35px 6% 45px}.hero-visual{min-height:460px;border-radius:65px 18px 18px}.hero-copy h1{font-size:3.2rem}.hero-copy>p{font-size:.9rem}.hero-actions{gap:16px}.feature-section{padding:40px 6%}.feature-grid{grid-template-columns:1fr}.human-section{padding:30px;margin:10px 6% 45px}.conversation{padding:18px;max-height:55vh}.composer{padding:18px}.question-bubble{margin-left:4%}.chat-toolbar{padding:14px;font-size:.65rem}.composer-actions #sendButton{width:100%}.sidebar.open{box-shadow:0 0 0 100vmax #142b2566}.auth-card{padding:28px 22px}.public-footer{padding:24px 6%}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Main navigation can be hidden independently of conversation history. */
+#sidebarToggle{position:fixed;top:24px;left:204px;z-index:1100;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #ffffff30;border-radius:10px;background:#246747;color:#fff;cursor:pointer;transition:left .2s ease}
+#sidebarToggle:hover{background:#315e44}
+@media(min-width:769px){body.navigation-collapsed>.sidebar{transform:translateX(-100%);visibility:hidden}body.navigation-collapsed>.main-content{margin-left:56px}body.navigation-collapsed>#sidebarToggle{left:8px}}
+@media(max-width:768px){#sidebarToggle{top:16px;left:16px}body:has(.sidebar.open)>#sidebarToggle{left:204px}.sidebar:not(.open){visibility:hidden}.sidebar.open{visibility:visible}}
+@media(prefers-reduced-motion:reduce){#sidebarToggle,.sidebar,.main-content{transition:none}}

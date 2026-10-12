@@ -91,11 +91,11 @@
         </div>
     </aside>
 
-    <!-- Mobile Toggle -->
-    <button id="sidebarToggle" aria-label="Toggle navigation" aria-controls="sidebar" aria-expanded="false"
-        style="position:fixed;top:16px;left:16px;z-index:1100;background:var(--green);color:white;border:none;width:40px;height:40px;border-radius:8px;font-size:1.2rem;cursor:pointer;display:none;">☰</button>
+    <button id="sidebarToggle" type="button" aria-label="Hide navigation" title="Hide navigation" aria-controls="sidebar" aria-expanded="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+    </button>
 
-    <main id="main" class="main-content">
+    <main id="main" class="main-content @(Equals(ViewData["ChatWorkspace"], true) ? "chat-main" : "")">
         <div class="workspace-topbar"><strong>YOUR FIELD. YOUR NEXT CHAPTER.</strong><span>@role workspace · <a href="/Home/Privacy">Privacy</a></span></div>
         @if (TempData["Success"] != null)
         {
@@ -126,8 +126,6 @@ else
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 
-<style>
-@@media(max-width:768px){ #sidebarToggle{display:flex!important;align-items:center;justify-content:center;} }
-</style>
+
 </body>
 </html>

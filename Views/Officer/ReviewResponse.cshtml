@@ -43,12 +43,7 @@
             <div class="info-card query-info">
                 <h3>❓ Farmer's Question</h3>
                 <div class="query-text">@query?.QueryText</div>
-                @if (query?.ImagePath != null)
-                {
-                    <a href="@Url.Action("QueryImage", "Media", new { id = query.Id })" target="_blank" rel="noopener">
-                        <img src="@Url.Action("QueryImage", "Media", new { id = query.Id })" alt="Crop photo submitted by the farmer; open for full-size review" style="max-width:100%;max-height:420px;object-fit:contain;border-radius:12px;margin-top:16px;" />
-                    </a>
-                }
+                @if(query != null) { <partial name="_QueryImages" model="query" /> }
 
                 <div class="query-meta">
                     <small>Asked on: @query?.CreatedDate.ToString("dd MMM yyyy HH:mm")</small>
@@ -398,3 +393,5 @@
         }
     }
 </style>
+
+<partial name="_OfficerConversationContext" model="(IReadOnlyList<Digital_Krushi_Officer.Models.TblQuery>)(ViewBag.ConversationContext ?? new List<Digital_Krushi_Officer.Models.TblQuery>())" />

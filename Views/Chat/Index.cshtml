@@ -1,12 +1,43 @@
 @model Digital_Krushi_Officer.Models.ViewModels.ChatViewModel
-@{ ViewData["Title"]="Ask your farming question"; ViewData["ActiveMenu"]="Chat"; }
-<div class="page-header"><span class="eyebrow">YOUR FARMING CONVERSATION</span><h1>A clearer next step.</h1><p>Ask in Gujarati, Hindi or English. Get answers directly from AI. Difficult questions and unclear crop photos are automatically sent to a Krushi Officer.</p></div>
-<div class="chat-shell"><div class="chat-toolbar"><span class="status-dot"></span> Private advisory workspace <a href="/Farmer/QueryHistory">All questions ↗</a></div>
-<div id="messages" class="conversation" aria-live="polite">
-@if(!Model.Messages.Any()) { <div class="chat-welcome"><span class="eyebrow">LET'S START WITH YOUR FIELD</span><h2>What would you like help with?</h2><p>Include your crop, location, growth stage and what you have noticed.</p><div class="quick-questions"><button type="button" data-question="What details should I record about my crop before asking for advice?">Prepare a crop question</button><button type="button" data-question="How can I monitor changes in my crop leaves?">Observe crop symptoms</button></div></div> }
-@foreach(var message in Model.Messages) { <article class="conversation-item"><div class="question-bubble"><small>You · @message.CreatedDate.ToString("dd MMM, HH:mm")</small><p>@message.QueryText</p>@if(message.ImagePath!=null){<img src="@message.ImagePath" alt="Your crop photo" loading="lazy" />}</div><div class="answer-bubble"><span class="badge badge-green">@(message.ApprovalStatus == "AIAnswered" ? "AI answer" : message.Status == "Answered" ? "Officer reviewed" : message.Status == "PendingApproval" ? "Sent to officer" : message.Status)</span><p class="answer-text">@(message.AIAnswer ?? Digital_Krushi_Officer.Services.AdvisoryPolicy.PendingMessage(message.Status))</p>@if(message.OfficerReply!=null && message.OfficerReply!=message.AIAnswer){<h4>Officer reply</h4><p class="answer-text">@message.OfficerReply</p>}@if(message.Status=="Answered"){<div class="rating" data-query="@message.QueryId"><span>Was this helpful?</span>@for(var i=1;i<=5;i++){<button type="button" data-rating="@i" aria-label="Rate @i out of 5">@(message.FeedbackRating>=i ? "★" : "☆")</button>}</div>}</div></article> }
+@{ ViewData["Title"]="Krushi AI Chat"; ViewData["ActiveMenu"]="Chat"; ViewData["ChatWorkspace"]=true; }
+@section Styles { <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" /> }
+<div class="chat-workspace" id="chatWorkspace" data-conversation-id="@Model.ConversationId">
+    <aside class="chat-history" id="chatHistory" aria-label="Conversation history">
+        <div class="history-heading"><strong>Your conversations</strong><button id="closeHistory" type="button" class="chat-icon-button" aria-label="Close chat history">×</button></div>
+        <a href="/Chat/Index?newChat=true" id="newChatLink" class="new-chat-link"><span>＋</span> New chat</a>
+        <label class="history-search"><span class="visually-hidden">Search conversations</span><input id="historySearch" type="search" placeholder="Search chats…" maxlength="200" autocomplete="off" /></label>
+        <p class="history-caption">Recent chats · search to find older</p>
+        <nav id="conversationList" class="conversation-list" aria-label="Saved chats">
+            @foreach(var chat in Model.Conversations) {
+                <a href="/Chat/Index?conversationId=@chat.Id" data-conversation="@chat.Id" class="@(Model.ConversationId==chat.Id?"selected":"")" aria-current="@(Model.ConversationId==chat.Id?"page":null)"><span>@chat.Title</span><small>@chat.UpdatedAt.ToString("dd MMM")</small></a>
+            }
+            @if(!Model.Conversations.Any()) { <p class="history-empty">Your conversations will appear here after your first message.</p> }
+        </nav>
+        <div class="history-footer"><span class="chat-online-dot"></span> Private to your account</div>
+    </aside>
+    <button class="history-backdrop" id="historyBackdrop" type="button" aria-label="Close conversation history"></button>
+    <section class="chat-panel" aria-label="AI conversation">
+        <header class="thread-header"><div class="thread-identity"><button type="button" id="historyToggle" class="chat-icon-button" aria-label="Open conversation history" aria-controls="chatHistory" aria-expanded="false">☷</button><div><h1>Krushi <span>AI</span></h1><p>Your farming companion</p></div></div><span class="thread-mode"><span class="chat-online-dot"></span> AI first · Expert help when needed</span></header>
+        <div id="messages" class="thread-messages" tabindex="0" aria-label="Messages">
+            <button id="loadOlder" class="load-older" type="button" hidden="@(!Model.HasOlderMessages)">Load earlier messages</button>
+            @if(!Model.Messages.Any()) {
+                <div class="thread-welcome" id="chatWelcome"><div class="welcome-mark" aria-hidden="true">✳</div><span class="eyebrow">A LITTLE HELP FOR YOUR NEXT HARVEST</span><h2>What's happening<br>in your field?</h2><p>Ask a question, share crop and soil photos, or continue a conversation. I’ll help you find the next step.</p><div class="chat-suggestions"><button type="button" data-question="What should I check before watering my crop?">Watering & soil <span>↗</span></button><button type="button" data-question="What photos should I take to understand changes in my crop leaves?">Crop health <span>↗</span></button><button type="button" data-question="Explain the farming schemes available in the catalog.">Government schemes <span>↗</span></button></div></div>
+            }
+            @foreach(var message in Model.Messages) { <partial name="_ChatMessage" model="message" /> }
+        </div>
+        <div class="composer-wrap">
+            <button id="jumpLatest" class="jump-latest" type="button" hidden>↓ Latest message</button>
+            <form id="questionForm" class="chat-composer">
+                <div id="photoPreviews" class="photo-previews" aria-label="Selected photos"></div>
+                <label for="questionText" class="visually-hidden">Your question</label>
+                <textarea id="questionText" name="question" rows="1" maxlength="4000" placeholder="Ask about your crops, soil or farm…"></textarea>
+                <div class="compose-toolbar"><div class="compose-tools"><button type="button" id="attachPhotos" class="attach-photos" aria-label="Attach crop or soil photos"><span aria-hidden="true">＋</span><span>Photos</span></button><input id="cropPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden /><button type="button" id="voiceButton" class="chat-icon-button" aria-label="Use voice input" title="Voice input">♩</button><span id="photoLabel" class="attachment-count"></span></div><button type="submit" id="sendButton" class="send-message" aria-label="Send message"><span class="send-label">Send</span><span aria-hidden="true">↑</span></button></div>
+                <p id="chatStatus" class="compose-status" role="status" aria-live="polite"></p>
+            </form>
+            <div class="composer-note"><span>Up to 20 photos · 5 MB each · 25 MB total. Paste or drop images.</span><span>Enter to send · Shift + Enter for a new line</span></div>
+            <p class="chat-disclaimer">AI answers everyday questions. Uncertain cases go to a Krushi Officer. <a href="/Home/Privacy">Privacy</a></p>
+        </div>
+    </section>
 </div>
-<form id="questionForm" class="composer"><label for="questionText">Your question</label><textarea id="questionText" name="question" rows="3" maxlength="4000" placeholder="Tell us about your crop…"></textarea><div class="composer-actions"><label class="upload-button" for="cropPhoto">＋ Crop photo<input id="cropPhoto" type="file" accept="image/jpeg,image/png,image/webp" /></label><button type="button" id="voiceButton" class="btn-outline-green">Voice input</button><span id="photoLabel" class="text-muted"></span><button type="submit" id="sendButton" class="btn-primary-green">Ask AI ↗</button></div><small>Photos up to 5 MB. Check a voice transcript before sending. <a href="/Home/Privacy">How your data is used</a></small><p id="chatStatus" role="status"></p></form>
 @Html.AntiForgeryToken()
-</div>
 @section Scripts { <script src="~/js/chat.js" asp-append-version="true"></script> }

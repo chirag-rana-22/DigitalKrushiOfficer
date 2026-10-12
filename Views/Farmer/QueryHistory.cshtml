@@ -35,10 +35,7 @@ else
                             <span class="badge badge-gray">@q.QueryLanguage</span>
                             <span style="color:var(--text-gray);font-size:0.78rem;margin-left:auto;">@q.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</span>
                         </div>
-                        @if (q.QueryType == "Image" && q.ImagePath != null)
-                        {
-                            <img src="@Url.Action("QueryImage", "Media", new { id = q.Id })" style="width:80px;height:60px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block;" />
-                        }
+                        <partial name="_QueryImages" model="q" />
                         <div style="font-weight:600;font-size:0.9rem;margin-bottom:8px;">@q.QueryText</div>
 
                         @if (Digital_Krushi_Officer.Services.AdvisoryPolicy.IsPublished(q.AIResponse))

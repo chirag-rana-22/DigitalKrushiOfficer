@@ -7,6 +7,7 @@ namespace Digital_Krushi_Officer.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        public DbSet<ProtectionKey> ProtectionKeys { get; set; }
         public DbSet<TblUser> Users { get; set; }
         public DbSet<TblFarmerDetails> FarmerDetails { get; set; }
         public DbSet<TblOfficerDetails> OfficerDetails { get; set; }
@@ -70,6 +71,7 @@ namespace Digital_Krushi_Officer.Data
             // TblQuery
             modelBuilder.Entity<TblQuery>(entity =>
             {
+                entity.HasIndex(q => new { q.FarmerId, q.ParentQueryId, q.CreatedDate });
                 entity.HasOne(q => q.Farmer)
                       .WithMany(u => u.Queries)
                       .HasForeignKey(q => q.FarmerId)

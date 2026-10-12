@@ -29,6 +29,9 @@ namespace Digital_Krushi_Officer.Models
 
         public string? AIAnswer { get; set; }
 
+        [MaxLength(3000)]
+        public string? PublicSummary { get; set; }
+
         [Column(TypeName = "decimal(5,2)")]
         public decimal? ConfidenceScore { get; set; }
 

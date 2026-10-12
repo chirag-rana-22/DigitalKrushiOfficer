@@ -48,6 +48,7 @@
 .thread-status { font-size:0.72rem; font-weight:700; padding:3px 10px;
                  border-radius:20px; }
 .status-solved { background:#E8F5E9; color:#2E7D32; }
+.status-rejected { background:#FDECEC; color:#A52B2B; }
 .status-inprog { background:#E3F2FD; color:#1565C0; }
 
 /* ── Conversation body ── */
@@ -142,6 +143,10 @@ else
                     {
                         <span class="thread-status status-solved">✅ Solved</span>
                     }
+                    else if (q.Status == "Rejected" || esc?.Status == "Rejected")
+                    {
+                        <span class="thread-status status-rejected">Rejected</span>
+                    }
                     else
                     {
                         <span class="thread-status status-inprog">🔄 In Progress</span>
@@ -156,10 +161,7 @@ else
                 <div class="q-row">
                     <div class="q-bubble">
                         <div class="q-label">👨‍🌾 YOUR QUESTION</div>
-                        @if (q.QueryType == "Image" && q.ImagePath != null)
-                        {
-                            <img src="@Url.Action("QueryImage", "Media", new { id = q.Id })" alt="Crop image" />
-                        }
+                        <partial name="_QueryImages" model="q" />
                         <div>@q.QueryText</div>
                         <div class="q-ts">@q.CreatedDate.ToString("hh:mm tt")</div>
                     </div>

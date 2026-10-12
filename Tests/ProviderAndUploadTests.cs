@@ -12,7 +12,8 @@ using SkiaSharp;
 using Xunit;
 public class ProviderHandler(string body, HttpStatusCode status = HttpStatusCode.OK) : HttpMessageHandler {
     public string? RequestBody;
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct){RequestBody=request.Content==null?null:await request.Content.ReadAsStringAsync(ct);return new(status){Content=new StringContent(body)};}
+    public int RequestCount;
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct){RequestCount++;RequestBody=request.Content==null?null:await request.Content.ReadAsStringAsync(ct);return new(status){Content=new StringContent(body)};}
 }
 public class ClientFactory(HttpMessageHandler handler):IHttpClientFactory {public HttpClient CreateClient(string name)=>new(handler,false);}
 public class ProviderAndUploadTests {
@@ -22,9 +23,11 @@ public class ProviderAndUploadTests {
         var handler=new ProviderHandler(JsonSerializer.Serialize(new { candidates=new[] { new { finishReason="STOP", content=new { parts=new[] { new { text=assessment } } } } } }));
         var config=new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string,string?>{{"AISettings:GeminiApiKey","test-key"}}).Build();
         var service=new AIService(config,NullLogger<AIService>.Instance,new ClientFactory(handler),scope.ServiceProvider.GetRequiredService<AppDbContext>());
-        var bytes=new byte[]{1,2,3,4};var result=await service.GenerateAsync("Inspect the photo","Hindi",bytes);
+        var bytes=new byte[]{1,2,3,4};var result=await service.GenerateAsync("Inspect the photo","Hindi",bytes,additionalImages:new[]{new byte[]{5,6,7}},history:new[]{new AIConversationTurn("My crop is cotton","Cotton noted")});
         Assert.True(result.Available);using var json=JsonDocument.Parse(handler.RequestBody!);
-        var image=json.RootElement.GetProperty("contents")[0].GetProperty("parts")[1].GetProperty("inline_data");
+        var contents=json.RootElement.GetProperty("contents");Assert.Equal(3,contents.GetArrayLength());Assert.Equal("user",contents[0].GetProperty("role").GetString());Assert.Equal("model",contents[1].GetProperty("role").GetString());Assert.Equal("My crop is cotton",contents[0].GetProperty("parts")[0].GetProperty("text").GetString());
+        Assert.Equal(new byte[]{5,6,7},Convert.FromBase64String(contents[2].GetProperty("parts")[2].GetProperty("inline_data").GetProperty("data").GetString()!));
+        var image=contents[2].GetProperty("parts")[1].GetProperty("inline_data");
         Assert.Equal("image/jpeg",image.GetProperty("mime_type").GetString());Assert.Equal(bytes,Convert.FromBase64String(image.GetProperty("data").GetString()!));
     }
     [Theory] [InlineData(429)] [InlineData(500)] [InlineData(401)]

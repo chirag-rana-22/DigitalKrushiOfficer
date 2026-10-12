@@ -78,6 +78,6 @@ public class AiFirstWorkflowTests {
         using var app=new TestApp();await app.Seed();using var scope=app.Services.CreateScope();
         var body=JsonSerializer.Serialize(new{candidates=new[]{new{finishReason,content=new{parts=new[]{new{text=assessment}}}}}});
         var config=new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string,string?>{{"AISettings:GeminiApiKey","test"}}).Build();var ai=new AIService(config,NullLogger<AIService>.Instance,new ClientFactory(new ProviderHandler(body)),scope.ServiceProvider.GetRequiredService<AppDbContext>());
-        var result=await ai.GenerateAsync("test","English");Assert.False(result.Available);Assert.True(result.RequiresOfficerReview);
+        var result=await ai.GenerateAsync("test","English");Assert.False(result.Available);Assert.False(result.RequiresOfficerReview);Assert.True(result.RetryableFailure);
     }
 }

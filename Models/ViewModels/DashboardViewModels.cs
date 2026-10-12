@@ -60,8 +60,16 @@ namespace Digital_Krushi_Officer.Models.ViewModels
         public DateTime ForecastAt { get; set; }
     }
 
+    public class ChatHistoryItemViewModel {
+        public int Id { get; set; }
+        public string Title { get; set; } = "New conversation";
+        public DateTime UpdatedAt { get; set; }
+    }
     public class ChatViewModel
     {
+        public int? ConversationId { get; set; }
+        public bool HasOlderMessages { get; set; }
+        public List<ChatHistoryItemViewModel> Conversations { get; set; } = new();
         public List<ChatMessageViewModel> Messages { get; set; } = new();
         public string? CurrentQueryText { get; set; }
     }
@@ -71,8 +79,10 @@ namespace Digital_Krushi_Officer.Models.ViewModels
         public int QueryId { get; set; }
         public string? QueryText { get; set; }
         public string? AIAnswer { get; set; }
+        public string? PublicSummary { get; set; }
         public string QueryType { get; set; } = "Text";
         public string? ImagePath { get; set; }
+        public List<string> ImageUrls { get; set; } = new();
         public decimal? ConfidenceScore { get; set; }
         public string Status { get; set; } = "Pending";
         public DateTime CreatedDate { get; set; }

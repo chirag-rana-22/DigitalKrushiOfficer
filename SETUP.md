@@ -25,7 +25,7 @@ Do not import the legacy AutoCleanup SQL file over an existing database. Back up
 - Officers must verify email and then be activated by an administrator.
 - Admin → Farmer assignments optionally sets a preferred officer for a farmer.
 - Normal text, clear-photo and voice-transcript questions receive an immediate AI answer. These use AIAnswered status and do not create an officer task.
-- Uncertain diagnosis, unclear images, complex cases and AI failures are escalated automatically. Prefer an existing active verified officer assignment; otherwise choose a district match, then lowest open workload and officer ID. Only when no active verified officer is available does the query remain Unassigned for admin intervention.
+- Uncertain diagnosis, unclear images and complex cases can be escalated automatically. Temporary AI service/quota failures use RetryNeeded without assigning an officer. Prefer an existing active verified officer assignment; otherwise choose a district match, then lowest open workload and officer ID. Only when no active verified officer is available does a case needing review remain Unassigned for admin intervention.
 - The assigned officer can approve, mark for revision, edit and publish, or reply directly. Marking for revision does not pretend that AI automatically regenerates an answer.
 - Query history supports text search, status filters and 50-record pages.
 
@@ -48,3 +48,5 @@ dotnet list "Digital Krushi Officer.csproj" package --vulnerable --include-trans
 Tests use an isolated SQLite database and fake mail/AI/weather providers, without sending emails or modifying the user's database. The repository includes a GitHub Actions build/test workflow; it has not been executed on GitHub yet.
 
 Private uploads and local backups live under App_Data and are excluded from Git and release output. The `/health/live` route is a liveness endpoint, not a database readiness assertion.
+
+Cloud demo preparation and owner account steps are in [FREE_DEPLOYMENT.md](FREE_DEPLOYMENT.md). Local defaults remain MariaDB, disk photos and SMTP; enable cloud providers only after their private settings and media migration are ready.

@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args.Where(a => a != "--migrate-only" && a != "--copy-media-to-cloud").ToArray());
 builder.Configuration.AddJsonFile("appsettings.Local.json", true, false).AddEnvironmentVariables();
+CloudHosting.Configure(builder);
 builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
-builder.Services.AddDbContext<AppDbContext>(o => o.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), new MariaDbServerVersion(new Version(10,4,32))));
+builder.Services.AddDbContext<AppDbContext>(o => o.UseMySql(CloudHosting.DatabaseConnection(builder.Configuration), CloudHosting.DatabaseVersion(builder.Configuration)));
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(o => {
     o.LoginPath = "/Account/Login"; o.AccessDeniedPath = "/Home/AccessDenied";
     o.ExpireTimeSpan = TimeSpan.FromMinutes(60); o.SlidingExpiration = true;
@@ -32,8 +33,13 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(o => { o.IdleTimeout = TimeSpan.FromMinutes(30); o.Cookie.HttpOnly = true; o.Cookie.IsEssential = true; });
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient("providers", c => c.Timeout = TimeSpan.FromSeconds(40));
+builder.Services.AddHttpClient("storage", c => c.Timeout = TimeSpan.FromSeconds(30)).RemoveAllLoggers();
+builder.Services.AddHttpClient("email-api", c => c.Timeout = TimeSpan.FromSeconds(15)).RemoveAllLoggers();
+builder.Services.AddScoped<IPhotoStorage, PhotoStorage>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAIService, AIService>();
+builder.Services.AddHttpClient("market-prices", c => c.Timeout = TimeSpan.FromSeconds(12)).RemoveAllLoggers();
+builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<OtpService>(); builder.Services.AddScoped<QueryWorkflow>(); builder.Services.AddScoped<ImageUploadService>();
 builder.Services.AddRateLimiter(o => {
@@ -44,6 +50,16 @@ builder.Services.AddRateLimiter(o => {
 });
 builder.Services.AddHealthChecks();
 var app = builder.Build();
+if (args.Contains("--copy-media-to-cloud")) {
+    await MediaMigration.CopyAsync(app.Services);
+    return;
+}
+if (args.Contains("--migrate-only")) {
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
+    return;
+}
+app.UseForwardedHeaders();
 if (!app.Environment.IsEnvironment("Testing")) {
     using var scope = app.Services.CreateScope(); var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Database:ApplyMigrations")) await db.Database.MigrateAsync();

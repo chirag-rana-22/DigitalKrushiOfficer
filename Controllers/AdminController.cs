@@ -12,8 +12,9 @@ namespace Digital_Krushi_Officer.Controllers
     {
         private readonly AppDbContext _db;
         private readonly IWebHostEnvironment _env;
+        private readonly Digital_Krushi_Officer.Services.ImageUploadService _uploads;
 
-        public AdminController(AppDbContext db, IWebHostEnvironment env) { _db = db; _env = env; }
+        public AdminController(AppDbContext db, IWebHostEnvironment env, Digital_Krushi_Officer.Services.ImageUploadService uploads) { _db = db; _env = env; _uploads = uploads; }
 
         public async Task<IActionResult> Index()
         {
@@ -330,7 +331,7 @@ namespace Digital_Krushi_Officer.Controllers
             if (DiseaseImage != null && DiseaseImage.Length > 0)
             {
                 try {
-                    var saved = await new Digital_Krushi_Officer.Services.ImageUploadService(_env).SaveAsync(DiseaseImage, true);
+                    var saved = await _uploads.SaveAsync(DiseaseImage, true);
                     model.ReferenceImagePath = "/uploads/diseases/" + saved.FileName;
                 } catch (ArgumentException ex) { ModelState.AddModelError("", ex.Message); return View(model); }
             }

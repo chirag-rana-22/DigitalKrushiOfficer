@@ -24,3 +24,17 @@ jobs:
 
       - name: Run tests
         run: dotnet test "Tests/Dko.Tests.csproj" --configuration Release --verbosity normal
+
+      - name: Build Linux deployment image
+        run: docker build --tag dko:ci .
+
+      - name: Verify container startup without external services
+        shell: bash
+        run: |
+          docker run --detach --name dko-smoke -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Testing dko:ci
+          trap 'docker logs dko-smoke; docker rm -f dko-smoke' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:8080/health/live; then exit 0; fi
+            sleep 2
+          done
+          exit 1

@@ -64,6 +64,28 @@ namespace Digital_Krushi_Officer.Data.Migrations
                     b.ToTable("OtpChallenge");
                 });
 
+            modelBuilder.Entity("Digital_Krushi_Officer.Models.ProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendlyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Xml")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProtectionKeys");
+                });
+
             modelBuilder.Entity("Digital_Krushi_Officer.Models.TblAIResponse", b =>
                 {
                     b.Property<int>("Id")
@@ -111,6 +133,10 @@ namespace Digital_Krushi_Officer.Data.Migrations
                     b.Property<string>("OfficerNotes")
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("PublicSummary")
+                        .HasMaxLength(3000)
+                        .HasColumnType("varchar(3000)");
 
                     b.Property<int>("QueryId")
                         .HasColumnType("int");
@@ -840,6 +866,9 @@ namespace Digital_Krushi_Officer.Data.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)");
 
+                    b.Property<string>("ImagePathsJson")
+                        .HasColumnType("longtext");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("tinyint(1)");
 
@@ -872,7 +901,7 @@ namespace Digital_Krushi_Officer.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FarmerId");
+                    b.HasIndex("FarmerId", "ParentQueryId", "CreatedDate");
 
                     b.ToTable("TblQuery");
                 });

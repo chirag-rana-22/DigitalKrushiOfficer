@@ -4,11 +4,20 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital_Krushi_Officer.Services;
 public class QueryWorkflow(AppDbContext db, IAIService ai)
 {
-    public async Task<TblQuery> SubmitAsync(int farmerId, string text, string kind, string language, byte[]? image = null, string? imagePath = null) {
-        var result = await ai.GenerateAsync(text, language, image);
-        var needsOfficer = !result.Available || result.RequiresOfficerReview || result.Complexity == ComplexityLevel.Complex;
-        var query = new TblQuery { FarmerId = farmerId, QueryText = text, QueryType = kind, QueryLanguage = language, ImagePath = imagePath, Status = needsOfficer ? "PendingApproval" : "Answered" };
-        query.AIResponse = new TblAIResponse { AIAnswer = result.Answer, AIModel = result.Model, ResponseTimeMs = result.ResponseMs,
+    public async Task<TblQuery> SubmitAsync(int farmerId, string text, string kind, string language, byte[]? image = null, string? imagePath = null, int? conversationId = null, IReadOnlyList<StoredImage>? photos = null) {
+        if (conversationId != null && !await db.Queries.AnyAsync(q => q.Id == conversationId && q.FarmerId == farmerId && q.ParentQueryId == null))
+            throw new ArgumentException("Conversation not found.", nameof(conversationId));
+        var history = new List<AIConversationTurn>();
+        if (conversationId != null) {
+            var previous = await db.Queries.AsNoTracking().Where(q => q.FarmerId == farmerId && (q.Id == conversationId || q.ParentQueryId == conversationId))
+                .Include(q => q.AIResponse).Include(q => q.Escalation).OrderByDescending(q => q.Id).Take(6).ToListAsync();
+            history = previous.AsEnumerable().Reverse().Select(q => new AIConversationTurn(q.QueryText ?? "", AdvisoryPolicy.IsPublished(q.AIResponse) ? q.AIResponse!.AIAnswer ?? "" : q.Escalation?.OfficerReply ?? AdvisoryPolicy.PendingMessage(q.Status), q.Status == "AwaitingDetails")).ToList();
+        }
+        if (photos?.Count > 0) { image=photos[0].Bytes; imagePath="private:"+photos[0].FileName; }
+        var result = await ai.GenerateAsync(text, language, image, additionalImages: photos?.Skip(1).Select(p => p.Bytes).ToList(), history: history);
+        var needsOfficer = !result.RetryableFailure && (!result.Available || result.RequiresOfficerReview || result.Complexity == ComplexityLevel.Complex);
+        var query = new TblQuery { FarmerId = farmerId, QueryText = text, QueryType = kind, QueryLanguage = language, ImagePath = imagePath, ImagePathsJson = photos?.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(photos.Select(p => "private:"+p.FileName)) : null, ParentQueryId = conversationId, Status = result.RetryableFailure ? "RetryNeeded" : needsOfficer ? "PendingApproval" : result.NeedsClarification ? "AwaitingDetails" : "Answered" };
+        query.AIResponse = new TblAIResponse { AIAnswer = result.Answer, PublicSummary = needsOfficer ? result.PublicSummary : null, AIModel = result.Model, ResponseTimeMs = result.ResponseMs,
             ConfidenceScore = null, Language = language, ComplexityLevel = result.Complexity,
             ApprovalStatus = needsOfficer ? ApprovalStatus.Pending : ApprovalStatus.AIAnswered, IsEscalated = needsOfficer,
             EscalationReason = needsOfficer ? (result.ReviewReason ?? "AI could not reliably solve this question; officer assistance is needed.") : null };
@@ -28,7 +37,7 @@ public class QueryWorkflow(AppDbContext db, IAIService ai)
         // Prefer local expertise, then the smallest open queue. Each assignment belongs to this query.
         return await db.Users.Where(u => u.Role == "Officer" && u.IsActive && u.IsEmailVerified)
             .OrderByDescending(u => district != null && district != "" && u.District == district)
-            .ThenBy(u => db.Escalations.Count(e => e.OfficerId == u.Id && e.Status != "Solved" && e.Status != "Closed"))
+            .ThenBy(u => db.Escalations.Count(e => e.OfficerId == u.Id && e.Status != "Solved" && e.Status != "Closed" && e.Status != "Rejected"))
             .ThenBy(u => u.Id).Select(u => (int?)u.Id).FirstOrDefaultAsync();
     }
 
