@@ -79,8 +79,6 @@ else
         <form asp-action="AddCrop" method="post" asp-antiforgery="true">
 
             <div class="form-group">
-                <label class="form-label" for="cropSearch">Find a crop</label>
-                <input type="search" id="cropSearch" class="form-control" placeholder="Search e.g. Tomato, Moong, Mango" />
                 <label class="form-label" for="cropChoice">🌾 Select Crop</label>
                 <select name="cropId" id="cropChoice" class="form-control form-select" required>
                     <option value="">Choose crop...</option>
@@ -118,12 +116,6 @@ else
     </div>
 </div>
 <script>
-    document.getElementById('cropSearch').addEventListener('input', function () {
-        const search = this.value.trim().toLocaleLowerCase();
-        for (const option of document.getElementById('cropChoice').options) {
-            option.hidden = option.value !== '' && option.value !== '-1' && !option.text.toLocaleLowerCase().includes(search);
-        }
-    });
     document.getElementById('cropChoice').addEventListener('change', function () {
         const custom = this.value === '-1';
         const field = document.getElementById('customCropName');
