@@ -59,7 +59,8 @@ if (args.Contains("--migrate-only")) {
     await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
     return;
 }
-app.UseForwardedHeaders();
+if (RenderPublicEdge.Enabled(app.Configuration)) app.Use(next => context => RenderPublicEdge.InvokeAsync(context, next));
+else app.UseForwardedHeaders();
 if (!app.Environment.IsEnvironment("Testing")) {
     using var scope = app.Services.CreateScope(); var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Database:ApplyMigrations")) await db.Database.MigrateAsync();

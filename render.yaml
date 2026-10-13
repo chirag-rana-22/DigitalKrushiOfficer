@@ -13,10 +13,9 @@ services:
         value: 8080
       - key: Hosting__Platform
         value: Render
-      - key: AllowedHosts
-        sync: false
-      - key: Hosting__TrustedProxyNetworks__0
-        sync: false
+      # Only for Free public services. Before a paid/private-network upgrade, review proxy trust again.
+      - key: Hosting__RenderFreePublicEdge
+        value: true
       - key: Database__Provider
         value: MySql
       - key: Database__ServerVersion

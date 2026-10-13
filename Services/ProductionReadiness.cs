@@ -30,7 +30,7 @@ public static class ProductionReadiness
             throw new InvalidOperationException("Render Free requires a configured HTTPS email provider.");
         if (!config.GetValue<bool>("DataProtection:PersistToDatabase"))
             throw new InvalidOperationException("Render requires persistent encrypted Data Protection keys.");
-        if (!(config.GetSection("Hosting:TrustedProxyNetworks").Get<string[]>() ?? []).Any())
+        if (!RenderPublicEdge.Enabled(config) && !(config.GetSection("Hosting:TrustedProxyNetworks").Get<string[]>() ?? []).Any())
             throw new InvalidOperationException("Configure the hosting proxy's verified network CIDRs.");
     }
 }

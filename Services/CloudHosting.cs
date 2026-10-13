@@ -28,6 +28,7 @@ public static class CloudHosting
     public static void Configure(WebApplicationBuilder builder)
     {
         var config = builder.Configuration;
+        RenderPublicEdge.Configure(config);
         builder.Services.Configure<ForwardedHeadersOptions>(o => {
             o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             o.ForwardLimit = 1;
