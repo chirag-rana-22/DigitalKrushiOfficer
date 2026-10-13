@@ -10,7 +10,13 @@ namespace Digital_Krushi_Officer.Models
         public int Id { get; set; }
 
         public int FarmerId { get; set; }
-        public int CropId { get; set; }
+        public int? CropId { get; set; }
+
+        [MaxLength(100)]
+        public string? CustomCropName { get; set; }
+
+        [NotMapped]
+        public string DisplayName => CustomCropName ?? Crop?.CropName ?? "Crop";
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal? LandArea { get; set; }

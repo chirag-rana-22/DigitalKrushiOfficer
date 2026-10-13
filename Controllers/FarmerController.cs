@@ -136,12 +136,17 @@ namespace Digital_Krushi_Officer.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddCrop(int cropId, decimal? landArea, DateTime? sowingDate, DateTime? harvestDate)
+        public async Task<IActionResult> AddCrop(int cropId, decimal? landArea, DateTime? sowingDate, DateTime? harvestDate, string? customCropName)
         {
-            if (!ModelState.IsValid || !await _db.Crops.AnyAsync(c => c.Id == cropId && c.IsActive) || landArea <= 0 || landArea > 1000000 || (sowingDate != null && harvestDate < sowingDate)) return BadRequest("Choose an active crop, positive land area and valid dates.");
+            customCropName = customCropName?.Trim();
+            var validCrop = cropId == -1
+                ? !string.IsNullOrWhiteSpace(customCropName) && customCropName.Length <= 100 && !customCropName.Any(char.IsControl)
+                : await _db.Crops.AnyAsync(c => c.Id == cropId && c.IsActive);
+            if (!ModelState.IsValid || !validCrop || landArea <= 0 || landArea > 1000000 || (sowingDate != null && harvestDate < sowingDate)) return BadRequest("Choose an active crop or enter a crop name (1–100 characters), positive land area and valid dates.");
             _db.FarmerCrops.Add(new TblFarmerCrop
             {
-                FarmerId = UserId, CropId = cropId,
+                FarmerId = UserId, CropId = cropId == -1 ? null : cropId,
+                CustomCropName = cropId == -1 ? customCropName : null,
                 LandArea = landArea, SowingDate = sowingDate,
                 ExpectedHarvestDate = harvestDate, Status = "Growing",
                 CreatedDate = DateTime.Now

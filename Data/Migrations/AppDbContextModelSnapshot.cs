@@ -444,8 +444,12 @@ namespace Digital_Krushi_Officer.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("CropId")
+                    b.Property<int?>("CropId")
                         .HasColumnType("int");
+
+                    b.Property<string>("CustomCropName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<DateTime?>("ExpectedHarvestDate")
                         .HasColumnType("datetime(6)");
@@ -1092,8 +1096,7 @@ namespace Digital_Krushi_Officer.Data.Migrations
                     b.HasOne("Digital_Krushi_Officer.Models.TblCrop", "Crop")
                         .WithMany("FarmerCrops")
                         .HasForeignKey("CropId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Digital_Krushi_Officer.Models.TblUser", "Farmer")
                         .WithMany("FarmerCrops")

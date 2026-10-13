@@ -28,8 +28,8 @@ else
                     <div style="width:48px;height:48px;background:#E8F5E9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🌾</div>
                     <span class="badge @(c.Status=="Growing"?"badge-green":c.Status=="Harvested"?"badge-blue":"badge-red")">@c.Status</span>
                 </div>
-                <h5 style="font-weight:700;margin-bottom:4px;">@c.Crop?.CropName</h5>
-                <p style="color:var(--text-gray);font-size:0.8rem;margin-bottom:14px;">@c.Crop?.Season Season</p>
+                <h5 style="font-weight:700;margin-bottom:4px;">@c.DisplayName</h5>
+                <p style="color:var(--text-gray);font-size:0.8rem;margin-bottom:14px;">@(c.CustomCropName != null ? "Your custom crop" : c.Crop?.Season ?? "Season depends on location and variety")</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
                     <div style="background:#F5F5F5;border-radius:8px;padding:8px;">
                         <div style="font-size:0.7rem;color:var(--text-gray);">Land Area</div>
@@ -79,14 +79,22 @@ else
         <form asp-action="AddCrop" method="post" asp-antiforgery="true">
 
             <div class="form-group">
-                <label class="form-label">🌾 Select Crop</label>
-                <select name="cropId" class="form-control form-select" required>
+                <label class="form-label" for="cropSearch">Find a crop</label>
+                <input type="search" id="cropSearch" class="form-control" placeholder="Search e.g. Tomato, Moong, Mango" />
+                <label class="form-label" for="cropChoice">🌾 Select Crop</label>
+                <select name="cropId" id="cropChoice" class="form-control form-select" required>
                     <option value="">Choose crop...</option>
                     @foreach (var crop in allCrops)
                     {
-                        <option value="@crop.Id">@crop.CropName (@crop.Season)</option>
+                        <option value="@crop.Id">@crop.CropName</option>
                     }
+                    <option value="-1">Other / अपनी फसल जोड़ें</option>
                 </select>
+            </div>
+            <div class="form-group" id="customCropFields" hidden>
+                <label class="form-label" for="customCropName">Your crop name / अपनी फसल का नाम</label>
+                <input name="customCropName" id="customCropName" class="form-control" maxlength="100" placeholder="Enter in English, Hindi or Gujarati" disabled />
+                <small>This name is saved only with your crop record.</small>
             </div>
             <div class="grid-2">
                 <div class="form-group">
@@ -109,3 +117,19 @@ else
         </form>
     </div>
 </div>
+<script>
+    document.getElementById('cropSearch').addEventListener('input', function () {
+        const search = this.value.trim().toLocaleLowerCase();
+        for (const option of document.getElementById('cropChoice').options) {
+            option.hidden = option.value !== '' && option.value !== '-1' && !option.text.toLocaleLowerCase().includes(search);
+        }
+    });
+    document.getElementById('cropChoice').addEventListener('change', function () {
+        const custom = this.value === '-1';
+        const field = document.getElementById('customCropName');
+        document.getElementById('customCropFields').hidden = !custom;
+        field.disabled = !custom;
+        field.required = custom;
+        if (custom) field.focus();
+    });
+</script>

@@ -6,6 +6,32 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 public class FarmerFunctionalTests {
+    [Fact] public async Task CustomCropIsPrivateAndDoesNotChangeSharedCatalog() {
+        using var app = new TestApp(); await app.Seed(); using var c = await app.Login();
+        int count;
+        using (var scope = app.Services.CreateScope()) count = await scope.ServiceProvider.GetRequiredService<AppDbContext>().Crops.CountAsync();
+        var response = await app.Post(c, "/Farmer/AddCrop", new() {{"cropId", "-1"}, {"customCropName", "  મારી ખાસ ફસલ  "}, {"landArea", "1"}});
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        using (var scope = app.Services.CreateScope()) {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var crop = await db.FarmerCrops.SingleAsync();
+            Assert.Null(crop.CropId); Assert.Equal("મારી ખાસ ફસલ", crop.CustomCropName);
+            Assert.Equal(count, await db.Crops.CountAsync());
+        }
+        var html = await c.GetStringAsync("/Farmer/Crops");
+        Assert.Contains("મારી ખાસ ફસલ", System.Net.WebUtility.HtmlDecode(html));
+        using var other = await app.Login("otherfarmer@test.local");
+        Assert.DoesNotContain("મારી ખાસ ફસલ", System.Net.WebUtility.HtmlDecode(await other.GetStringAsync("/Farmer/Crops")));
+    }
+
+    [Theory] [InlineData("")] [InlineData("   ")] [InlineData("invalid\nname")]
+    public async Task InvalidCustomNameIsRejected(string name) {
+        using var app = new TestApp(); await app.Seed(); using var c = await app.Login();
+        Assert.Equal(HttpStatusCode.BadRequest, (await app.Post(c, "/Farmer/AddCrop", new() {{"cropId", "-1"}, {"customCropName", name}})).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await app.Post(c, "/Farmer/AddCrop", new() {{"cropId", "-1"}, {"customCropName", new string('x', 101)}})).StatusCode);
+        using var scope = app.Services.CreateScope();
+        Assert.Empty(await scope.ServiceProvider.GetRequiredService<AppDbContext>().FarmerCrops.ToListAsync());
+    }
     private static async Task<int> Crop(TestApp app) {
         using var scope=app.Services.CreateScope();var db=scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var crop=new TblCrop {CropName="QA Cotton",Season="Kharif"};db.Crops.Add(crop);await db.SaveChangesAsync();return crop.Id;
