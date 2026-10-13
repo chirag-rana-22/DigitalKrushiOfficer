@@ -11,7 +11,7 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", true, false).AddEnvi
 CloudHosting.Configure(builder);
 builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
-builder.Services.AddDbContext<AppDbContext>(o => o.UseMySql(CloudHosting.DatabaseConnection(builder.Configuration), CloudHosting.DatabaseVersion(builder.Configuration)));
+builder.Services.AddDbContext<AppDbContext>(o => o.UseMySql(CloudHosting.DatabaseConnection(builder.Configuration), CloudHosting.DatabaseVersion(builder.Configuration), b => b.EnableRetryOnFailure()));
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(o => {
     o.LoginPath = "/Account/Login"; o.AccessDeniedPath = "/Home/AccessDenied";
     o.ExpireTimeSpan = TimeSpan.FromMinutes(60); o.SlidingExpiration = true;
