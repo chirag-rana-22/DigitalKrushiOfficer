@@ -152,3 +152,18 @@ This setup is a limited demo, not an always-on commercial service guarantee. Liv
 - Powered on the existing Free-1-1gb service without upgrading. Aiven confirmed power-on and reported Rebuilding; recovery was not yet complete at the last check.
 - Stopped the failed loopback-only staging app. The ignored start-private-staging.ps1 script can start it again after database recovery, using cloud runtime credentials and Testing mode on 127.0.0.1:5176 only. Never use this Testing configuration for public Render deployment.
 - Release publish and git diff --check succeeded. No Render service has been deployed. Resume by verifying Aiven Running/TLS connectivity, then let the owner replace the demo admin password through the private staging UI.
+
+## Live deployment checkpoint — 13 October 2026 (supersedes earlier checkpoints)
+
+- Live URL: https://digital-krushi-officer.onrender.com
+- Render service srv-db6ugqc9v7es739s6090: Docker, Free ($0), Singapore, manual deploy. Deployment dep-db6ugr49v7es739s63b0 succeeded from commit dabada0 in 2m30s.
+- Owner authorized storing runtime credentials in Render. All 21 entered environment values were checked privately; migration/admin database credentials were excluded. Aiven CA is mounted as /etc/secrets/aiven-ca.pem with VerifyFull TLS.
+- Owner replaced the cloud demo administrator password through private staging before deployment. Production startup validation succeeded.
+- 126 local tests passed; GitHub CI for dabada0 passed. Initial sandbox test-host connection timed out; the same suite passed outside the sandbox.
+- Public smoke checks passed: /health/live 200, login page 200, HTTP-to-HTTPS 301, HSTS present, anonymous /Admin redirects to login.
+- Existing farmer login succeeded against Aiven. Dashboard loaded live weather. Both migrated crop photos loaded through authenticated media routes from private Supabase storage.
+- A new smoke-test conversation (113) returned a real AI answer and saved history without officer escalation. It answered in the account's Gujarati preference. This is one successful AI request, not a guarantee of available free quota for every request.
+- Brevo provider delivery was verified previously. Registration/reset email flow and a fresh multi-image upload have not been retested on the public deployment.
+- Render Free sleeps after inactivity; the dashboard warns that wake-up can delay requests by 50 seconds or more. No paid upgrade was selected. API quotas still apply.
+- RenderFreePublicEdge is a Render-only setting. Do not add it to the loopback Testing launcher without disabling it there. Before enabling paid/private inbound networking, review and replace the edge trust configuration.
+- Safe screenshots: artifacts/cloud-deployment/render-live.png and live-chat.png (ignored local artifacts).
