@@ -18,6 +18,7 @@
     <button class="history-backdrop" id="historyBackdrop" type="button" aria-label="@Ui.Text("Close conversation history")"></button>
     <section class="chat-panel" aria-label="@Ui.Text("AI conversation")">
         <header class="thread-header">
+            <partial name="_LanguagePicker" />
             <div class="thread-identity">
                 <button type="button" id="historyToggle" class="chat-icon-button" aria-label="@Ui.Text("Open conversation history")" aria-controls="chatHistory" aria-expanded="false">☷</button>
                 <div><h1>Krushi <span>AI</span></h1>
@@ -26,7 +27,6 @@
                     } else { <p>@Ui.Text("Your farming companion")</p> }
                 </div>
             </div>
-            <partial name="_LanguagePicker" />
             <span class="thread-mode"><span class="chat-online-dot"></span>@Ui.Text("AI first · Expert help when needed")</span>
         </header>
         <div id="messages" class="thread-messages" tabindex="0" aria-label="@Ui.Text("Messages")">
