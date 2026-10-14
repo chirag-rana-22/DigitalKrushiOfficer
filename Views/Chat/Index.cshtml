@@ -17,8 +17,17 @@
     </aside>
     <button class="history-backdrop" id="historyBackdrop" type="button" aria-label="Close conversation history"></button>
     <section class="chat-panel" aria-label="AI conversation">
-        <header class="thread-header"><div class="thread-identity"><button type="button" id="historyToggle" class="chat-icon-button" aria-label="Open conversation history" aria-controls="chatHistory" aria-expanded="false">☷</button><div><h1>Krushi <span>AI</span></h1><p>Your farming companion</p></div></div><span class="thread-mode"><span class="chat-online-dot"></span> AI first · Expert help when needed</span></header>
-        @if (ViewBag.CropLabel != null) { <div class="p-3" style="background:#edf5df">🌱 @ViewBag.CropLabel · Details from My Crops are shared with AI for this conversation. <a href="/CropPlan/Index/@ViewBag.FarmerCropId">Crop calendar</a></div> }
+        <header class="thread-header">
+            <div class="thread-identity">
+                <button type="button" id="historyToggle" class="chat-icon-button" aria-label="Open conversation history" aria-controls="chatHistory" aria-expanded="false">☷</button>
+                <div><h1>Krushi <span>AI</span></h1>
+                    @if (ViewBag.CropLabel != null) {
+                        <p><a class="chat-crop-link" href="/CropPlan/Index/@ViewBag.FarmerCropId" title="View crop details" aria-label="View selected crop details: @ViewBag.CropLabel">🌱 @ViewBag.CropLabel</a></p>
+                    } else { <p>Your farming companion</p> }
+                </div>
+            </div>
+            <span class="thread-mode"><span class="chat-online-dot"></span> AI first · Expert help when needed</span>
+        </header>
         <div id="messages" class="thread-messages" tabindex="0" aria-label="Messages">
             <button id="loadOlder" class="load-older" type="button" hidden="@(!Model.HasOlderMessages)">Load earlier messages</button>
             @if(!Model.Messages.Any()) {
