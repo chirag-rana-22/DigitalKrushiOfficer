@@ -1,17 +1,17 @@
 @model List<Digital_Krushi_Officer.Models.TblFeedback>
 @{ ViewData["Title"] = "Feedback"; ViewData["ActiveMenu"] = "Feedback"; }
-<div class="page-header"><h1>⭐ Farmer Feedback</h1><p>AI response ratings from farmers</p></div>
+<div class="page-header"><h1>@Ui.Text("⭐ Farmer Feedback")</h1><p>@Ui.Text("AI response ratings from farmers")</p></div>
 <div class="row g-3 mb-4">
     @{ var avg = Model.Any() ? Model.Where(f=>f.Rating.HasValue).Average(f=>(double?)f.Rating) ?? 0 : 0; }
-    <div class="col-md-3"><div class="stat-card"><div class="stat-icon yellow">⭐</div><div><div class="stat-value">@avg.ToString("0.0")</div><div class="stat-label">Avg Rating</div></div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-icon green">📊</div><div><div class="stat-value">@Model.Count</div><div class="stat-label">Total Feedback</div></div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-icon green">👍</div><div><div class="stat-value">@Model.Count(f=>f.FeedbackType=="Helpful")</div><div class="stat-label">Helpful</div></div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-icon red">👎</div><div><div class="stat-value">@Model.Count(f=>f.FeedbackType=="NotHelpful")</div><div class="stat-label">Not Helpful</div></div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-icon yellow">⭐</div><div><div class="stat-value">@avg.ToString("0.0")</div><div class="stat-label">@Ui.Text("Avg Rating")</div></div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-icon green">📊</div><div><div class="stat-value">@Model.Count</div><div class="stat-label">@Ui.Text("Total Feedback")</div></div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-icon green">👍</div><div><div class="stat-value">@Model.Count(f=>f.FeedbackType=="Helpful")</div><div class="stat-label">@Ui.Text("Helpful")</div></div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-icon red">👎</div><div><div class="stat-value">@Model.Count(f=>f.FeedbackType=="NotHelpful")</div><div class="stat-label">@Ui.Text("Not Helpful")</div></div></div></div>
 </div>
 <div class="card">
     <div style="overflow-x:auto;">
         <table class="data-table">
-            <thead><tr><th>Farmer</th><th>Query</th><th>Rating</th><th>Type</th><th>Comments</th><th>Date</th></tr></thead>
+            <thead><tr><th>@Ui.Text("Farmer")</th><th>@Ui.Text("Query")</th><th>@Ui.Text("Rating")</th><th>@Ui.Text("Type")</th><th>@Ui.Text("Comments")</th><th>@Ui.Text("Date")</th></tr></thead>
             <tbody>
                 @foreach (var f in Model)
                 {
@@ -24,7 +24,7 @@
                         <td style="font-size:0.8rem;color:var(--text-gray);">@f.CreatedDate.ToString("dd MMM")</td>
                     </tr>
                 }
-                @if(!Model.Any()){ <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-gray);">No feedback yet.</td></tr> }
+                @if(!Model.Any()){ <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-gray);">@Ui.Text("No feedback yet.")</td></tr> }
             </tbody>
         </table>
     </div>

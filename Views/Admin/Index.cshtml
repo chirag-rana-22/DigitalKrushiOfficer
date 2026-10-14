@@ -4,8 +4,8 @@
     ViewData["ActiveMenu"] = "Dashboard";
 }
 <div class="page-header">
-    <h1>📊 Admin Dashboard</h1>
-    <p>System overview and analytics</p>
+    <h1>@Ui.Text("📊 Admin Dashboard")</h1>
+    <p>@Ui.Text("System overview and analytics")</p>
 </div>
 
 <!-- Stats Grid -->
@@ -14,28 +14,28 @@
         <div class="stat-icon green">👨‍🌾</div>
         <div>
             <div class="stat-value">@Model.TotalFarmers</div>
-            <div class="stat-label">Total Farmers</div>
+            <div class="stat-label">@Ui.Text("Total Farmers")</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon blue">👮</div>
         <div>
             <div class="stat-value">@Model.TotalOfficers</div>
-            <div class="stat-label">Officers</div>
+            <div class="stat-label">@Ui.Text("Officers")</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon yellow">💬</div>
         <div>
             <div class="stat-value">@Model.TotalQueries</div>
-            <div class="stat-label">Total Queries</div>
+            <div class="stat-label">@Ui.Text("Total Queries")</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon red">⏳</div>
         <div>
             <div class="stat-value">@Model.PendingQueries</div>
-            <div class="stat-label">Pending</div>
+            <div class="stat-label">@Ui.Text("Pending")</div>
         </div>
     </div>
 </div>
@@ -44,59 +44,59 @@
         <div class="stat-icon yellow">📨</div>
         <div>
             <div class="stat-value">@Model.PendingEscalations</div>
-            <div class="stat-label">Pending Escal.</div>
+            <div class="stat-label">@Ui.Text("Pending Escal.")</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green">✅</div>
         <div>
             <div class="stat-value">@Model.SolvedEscalations</div>
-            <div class="stat-label">Solved Escal.</div>
+            <div class="stat-label">@Ui.Text("Solved Escal.")</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon brown">🌾</div>
         <div>
             <div class="stat-value">@Model.TotalCrops</div>
-            <div class="stat-label">Crop Types</div>
+            <div class="stat-label">@Ui.Text("Crop Types")</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon blue">📜</div>
         <div>
             <div class="stat-value">@Model.ActiveSchemes</div>
-            <div class="stat-label">Active Schemes</div>
+            <div class="stat-label">@Ui.Text("Active Schemes")</div>
         </div>
     </div>
 </div>
 
 <!-- Quick Admin Actions -->
 <div class="card p-4 mb-4">
-    <h5 style="font-weight:700;margin-bottom:14px;">⚡ Quick Actions</h5>
+    <h5 style="font-weight:700;margin-bottom:14px;">@Ui.Text("⚡ Quick Actions")</h5>
     <div class="grid-6">
         <a href="/Admin/Farmers" class="action-card"><span class="action-icon">👨‍🌾</span>
-            <h6>Farmers</h6>
-            <p>Manage users</p>
+            <h6>@Ui.Text("Farmers")</h6>
+            <p>@Ui.Text("Manage users")</p>
         </a>
         <a href="/Admin/Officers" class="action-card"><span class="action-icon">👮</span>
-            <h6>Officers</h6>
-            <p>Manage staff</p>
+            <h6>@Ui.Text("Officers")</h6>
+            <p>@Ui.Text("Manage staff")</p>
         </a>
         <a href="/Admin/AssignFarmerToOfficer" class="action-card"><span class="action-icon">🔗</span>
-            <h6>Assignments</h6>
-            <p>Link farmers</p>
+            <h6>@Ui.Text("Assignments")</h6>
+            <p>@Ui.Text("Link farmers")</p>
         </a>
         <a href="/Admin/Crops" class="action-card"><span class="action-icon">🌾</span>
-            <h6>Crops</h6>
-            <p>Crop database</p>
+            <h6>@Ui.Text("Crops")</h6>
+            <p>@Ui.Text("Crop database")</p>
         </a>
         <a href="/Admin/Schemes" class="action-card"><span class="action-icon">📜</span>
-            <h6>Schemes</h6>
-            <p>Gov schemes</p>
+            <h6>@Ui.Text("Schemes")</h6>
+            <p>@Ui.Text("Gov schemes")</p>
         </a>
         <a href="/Admin/Diseases" class="action-card"><span class="action-icon">🔬</span>
-            <h6>Diseases</h6>
-            <p>Disease DB</p>
+            <h6>@Ui.Text("Diseases")</h6>
+            <p>@Ui.Text("Disease DB")</p>
         </a>
     </div>
 </div>
@@ -105,18 +105,17 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header-green d-flex justify-between align-center">
-                <span style="font-weight:700;">👨‍🌾 Recent Farmers</span>
-                <a href="/Admin/Farmers" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">View
-                    All →</a>
+                <span style="font-weight:700;">@Ui.Text("👨‍🌾 Recent Farmers")</span>
+                <a href="/Admin/Farmers" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">@Ui.Text("View All →")</a>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>District</th>
-                                <th>Role</th>
-                                <th>Status</th>
+                                <th>@Ui.Text("Name")</th>
+                                <th>@Ui.Text("District")</th>
+                                <th>@Ui.Text("Role")</th>
+                                <th>@Ui.Text("Status")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -142,18 +141,17 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header-green d-flex justify-between align-center">
-                    <span style="font-weight:700;">💬 Recent Queries</span>
-                    <a href="/Admin/Queries" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">View
-                        All →</a>
+                    <span style="font-weight:700;">@Ui.Text("💬 Recent Queries")</span>
+                    <a href="/Admin/Queries" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">@Ui.Text("View All →")</a>
                     </div>
                     <div style="overflow-x:auto;">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Farmer</th>
-                                    <th>Query</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
+                                    <th>@Ui.Text("Farmer")</th>
+                                    <th>@Ui.Text("Query")</th>
+                                    <th>@Ui.Text("Type")</th>
+                                    <th>@Ui.Text("Status")</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -170,7 +168,7 @@
                                                 style="font-size:1rem;">@(q.QueryType=="Image"?"📷":q.QueryType=="Voice"?"🎤":"💬")</span>
                                             </td>
                                             <td><span
-                                                class="badge @(q.Status=="Answered"?"badge-green":q.Status=="Escalated"?"badge-yellow":"badge-gray")">@q.Status</span>
+                                                class="badge @(q.Status=="Answered"?"badge-green":q.Status=="Escalated"?"badge-yellow":"badge-gray")">@Ui.Text(q.Status)</span>
                                             </td>
                                         </tr>
                                     }

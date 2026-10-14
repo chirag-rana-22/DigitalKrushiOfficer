@@ -8,7 +8,7 @@ public class MarketPriceService(IConfiguration config, IHttpClientFactory client
     public const string Source = "https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi";
     private record Price(string Commodity,string State,string District,string Market,string Variety,DateOnly Date,decimal Min,decimal Max,decimal Modal);
     public async Task<string> AnswerAsync(MarketPriceRequest request,string language,CancellationToken ct=default) {
-        string Local(string en,string hi,string gu)=>language=="Hindi"?hi:language=="Gujarati"?gu:en;
+        string Local(string en,string hi,string gu)=>ReminderLanguage.Text(language,en,hi,gu)+(en.EndsWith(" ")?" ":"");
         var r=MarketConversation.Normalize(request with {Commodity=request.Commodity.Trim(),State=request.State.Trim(),District=request.District.Trim(),Market=request.Market.Trim()});
         var missing=new List<string>();
         if(string.IsNullOrWhiteSpace(r.Commodity))missing.Add(Local("crop","फसल","પાક"));
@@ -52,7 +52,7 @@ public class MarketPriceService(IConfiguration config, IHttpClientFactory client
         var latest=rows.Max(p=>p.Date);var stale=latest<DateOnly.FromDateTime(DateTime.UtcNow.AddHours(5.5));
         var title=Local("Reported wholesale mandi prices (INR per quintal; 1 quintal = 100 kg). Modal is the commonly reported trading price, not a guaranteed selling price.","मंडी के रिपोर्ट किए गए थोक भाव (₹/क्विंटल; 1 क्विंटल = 100 किलो)। Modal प्रचलित व्यापार भाव है, बिक्री की गारंटी नहीं।","મંડીના નોંધાયેલા જથ્થાબંધ ભાવ (₹/ક્વિન્ટલ; 1 ક્વિન્ટલ = 100 કિલો). Modal પ્રચલિત વેપાર ભાવ છે, વેચાણની ખાતરી નથી.");
         if(stale)title+="\n"+Local("Older report — these are NOT today's confirmed prices.","पुरानी report — ये आज के पुष्टि किए गए भाव नहीं हैं।","જૂનો અહેવાલ — આ આજના પુષ્ટિ કરેલા ભાવ નથી.");
-        var lines=rows.Where(p=>p.Date==latest).OrderBy(p=>p.Market).ThenBy(p=>p.Variety).Take(8).Select(p=>$"{p.Commodity} · {p.Variety}\n{p.Market}, {p.District}, {p.State} · {p.Date.ToString("dd/MM/yyyy",CultureInfo.InvariantCulture)}\nMin ₹{p.Min.ToString("0.##",CultureInfo.InvariantCulture)} | Modal ₹{p.Modal.ToString("0.##",CultureInfo.InvariantCulture)} | Max ₹{p.Max.ToString("0.##",CultureInfo.InvariantCulture)} / quintal");
+        var lines=rows.Where(p=>p.Date==latest).OrderBy(p=>p.Market).ThenBy(p=>p.Variety).Take(8).Select(p=>$"{p.Commodity} · {p.Variety}\n{p.Market}, {p.District}, {p.State} · {p.Date.ToString("dd/MM/yyyy",CultureInfo.InvariantCulture)}\n{Local("Min","न्यूनतम","ઓછામાં ઓછો")} ₹{p.Min.ToString("0.##",CultureInfo.InvariantCulture)} | {Local("Modal","प्रचलित भाव","પ્રચલિત ભાવ")} ₹{p.Modal.ToString("0.##",CultureInfo.InvariantCulture)} | {Local("Max","अधिकतम","વધુમાં વધુ")} ₹{p.Max.ToString("0.##",CultureInfo.InvariantCulture)} / {Local("quintal","क्विंटल","ક્વિન્ટલ")}");
         return title+"\n\n"+string.Join("\n\n",lines)+"\n\n"+Local("Source: AGMARKNET / data.gov.in. Reports update when mandis submit data; availability varies. Up to 8 matching entries shown. Cache: up to 5 minutes.","स्रोत: AGMARKNET / data.gov.in. मंडी की reporting पर updates निर्भर हैं। अधिकतम 8 entries दिखाई गई हैं। Cache अधिकतम 5 मिनट।","સ્ત્રોત: AGMARKNET / data.gov.in. અપડેટ મંડીની reporting પર આધારિત છે. વધુમાં વધુ 8 entries બતાવી છે. Cache વધુમાં વધુ 5 મિનિટ.")+"\n"+Source;
     }
 }

@@ -1,3 +1,4 @@
+using Digital_Krushi_Officer.Services;
 using Digital_Krushi_Officer.Data;
 using Digital_Krushi_Officer.Models;
 using Digital_Krushi_Officer.Models.ViewModels;
@@ -150,7 +151,7 @@ namespace Digital_Krushi_Officer.Controllers
             if (assignment.Id == 0) _db.FarmerOfficerAssignments.Add(assignment);
             await _db.SaveChangesAsync();
 
-            TempData["Success"] = $"Farmer {farmer.Name} assigned to Officer {officer.Name}";
+            TempData["Success"] = string.Format(TranslationCatalog.Translate("Farmer {0} assigned to Officer {1}", SiteLanguage.Current(HttpContext)), farmer.Name, officer.Name);
             return RedirectToAction("AssignFarmerToOfficer", new { district = farmer.District });
         }
 

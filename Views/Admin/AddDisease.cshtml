@@ -1,48 +1,48 @@
 @model Digital_Krushi_Officer.Models.TblDiseaseDataset
 @{ ViewData["Title"] = "Add Disease"; ViewData["ActiveMenu"] = "Diseases"; }
-<div class="page-header"><h1>🔬 Add Disease Record</h1></div>
+<div class="page-header"><h1>@Ui.Text("🔬 Add Disease Record")</h1></div>
 <div class="card p-4" style="max-width:660px;">
     <form asp-action="AddDisease" method="post" enctype="multipart/form-data" asp-antiforgery="true">
 
         <div class="grid-2">
-            <div class="form-group"><label class="form-label">🌾 Crop Name</label><input asp-for="CropName" class="form-control" required /></div>
-            <div class="form-group"><label class="form-label">🦠 Disease Name</label><input asp-for="DiseaseName" class="form-control" required /></div>
+            <div class="form-group"><label class="form-label">@Ui.Text("🌾 Crop Name")</label><input asp-for="CropName" class="form-control" required /></div>
+            <div class="form-group"><label class="form-label">@Ui.Text("🦠 Disease Name")</label><input asp-for="DiseaseName" class="form-control" required /></div>
         </div>
-        <div class="form-group"><label class="form-label">🔍 Symptoms</label><textarea asp-for="Symptoms" class="form-control" rows="3"></textarea></div>
-        <div class="form-group"><label class="form-label">💊 Solution / Treatment</label><textarea asp-for="Solution" class="form-control" rows="3"></textarea></div>
+        <div class="form-group"><label class="form-label">@Ui.Text("🔍 Symptoms")</label><textarea asp-for="Symptoms" class="form-control" rows="3"></textarea></div>
+        <div class="form-group"><label class="form-label">@Ui.Text("💊 Solution / Treatment")</label><textarea asp-for="Solution" class="form-control" rows="3"></textarea></div>
         <div class="grid-2">
-            <div class="form-group"><label class="form-label">🧪 Recommended Pesticide</label><input asp-for="RecommendedPesticide" class="form-control" /></div>
+            <div class="form-group"><label class="form-label">@Ui.Text("🧪 Recommended Pesticide")</label><input asp-for="RecommendedPesticide" class="form-control" /></div>
             <div class="form-group">
-                <label class="form-label">⚠ Severity Level</label>
+                <label class="form-label">@Ui.Text("⚠ Severity Level")</label>
                 <select asp-for="SeverityLevel" class="form-control form-select">
-                    <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+                    <option>@Ui.Text("Low")</option><option>@Ui.Text("Medium")</option><option>@Ui.Text("High")</option><option>@Ui.Text("Critical")</option>
                 </select>
             </div>
         </div>
 
 
         <div class="form-group" style="margin-top:12px;">
-            <label class="form-label">🖼️ Disease Reference Image</label>
+            <label class="form-label">@Ui.Text("🖼️ Disease Reference Image")</label>
             <input type="file" id="diseaseImageInput" name="DiseaseImage" class="form-control"
                    accept="image/*" onchange="previewDiseaseImage(event)"
                    style="padding:8px;" />
             <small style="color:var(--text-muted,#888);display:block;margin-top:4px;">
-                Accepted formats: JPG, PNG, WEBP &nbsp;|&nbsp; Max size: 5 MB
+                @Ui.Text("Accepted formats: JPG, PNG, WEBP · Max size: 5 MB")
             </small>
         </div>
 
 
         <div id="diseaseImagePreviewContainer" style="display:none;margin-bottom:14px;">
-            <label class="form-label">Preview</label>
+            <label class="form-label">@Ui.Text("Preview")</label>
             <div style="border:2px dashed var(--border-color,#ccc);border-radius:10px;padding:10px;text-align:center;background:var(--card-bg,#f9f9f9);">
-                <img id="diseaseImagePreview" src="#" alt="Disease Image Preview"
+                <img id="diseaseImagePreview" src="#" alt="@Ui.Text("Disease Image Preview")"
                      style="max-width:100%;max-height:220px;border-radius:8px;object-fit:contain;" />
             </div>
         </div>
 
         <div style="display:flex;gap:10px;margin-top:8px;">
-            <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">✅ Add Disease</button>
-            <a href="/Admin/Diseases" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">Cancel</a>
+            <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">@Ui.Text("✅ Add Disease")</button>
+            <a href="/Admin/Diseases" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">@Ui.Text("Cancel")</a>
         </div>
     </form>
 </div>

@@ -14,7 +14,7 @@ public class AIService(IConfiguration config, ILogger<AIService> logger, IHttpCl
 {
     public async Task<AIResult> GenerateAsync(string query, string language, byte[]? image = null, CancellationToken ct = default, IReadOnlyList<byte[]>? additionalImages = null, IReadOnlyList<AIConversationTurn>? history = null, string? cropContext = null) {
         var watch = Stopwatch.StartNew(); var model = config["AISettings:GeminiModel"] ?? "gemini-2.5-flash";
-        AIResult Unavailable() => new(language == "Hindi" ? "अभी AI सेवा से जवाब नहीं मिल पाया। आपकी query सुरक्षित है; थोड़ी देर बाद फिर कोशिश करें। यह तकनीकी समस्या है, इसलिए इसे officer को नहीं भेजा गया है।" : language == "Gujarati" ? "હાલ AI સેવા તરફથી જવાબ મળ્યો નથી. તમારો પ્રશ્ન સાચવેલો છે; થોડી વાર પછી ફરી પ્રયાસ કરો. આ તકનીકી સમસ્યા હોવાથી officer ને મોકલ્યો નથી." : "The AI service could not respond right now. Your question is saved; please try again shortly. This technical failure was not sent to an officer.", false, "Unavailable", (int)watch.ElapsedMilliseconds, false, RetryableFailure:true);
+        AIResult Unavailable() => new(TranslationCatalog.Translate("The AI service could not respond right now. Your question is saved; please try again shortly. This technical failure was not sent to an officer.", language), false, "Unavailable", (int)watch.ElapsedMilliseconds, false, RetryableFailure:true);
         var directPrice = image == null ? MarketConversation.Resolve(query, history) : null;
         if(directPrice != null && marketPrices != null)
             return new(await marketPrices.AnswerAsync(directPrice,language,ct),true,"AGMARKNET",(int)watch.ElapsedMilliseconds,false);
@@ -96,7 +96,7 @@ public class AIService(IConfiguration config, ILogger<AIService> logger, IHttpCl
             if (data.TryGetProperty("marketPrice", out var marketFlag) && marketFlag.GetBoolean()) {
                 string marketAnswer;
                 if (Field("marketPriceKind") != "Wholesale")
-                    marketAnswer = language == "Hindi" ? "मंडी का थोक भाव, खुदरा भाव, MSP और ऐतिहासिक भाव अलग हैं। मैं वर्तमान मंडी report खोज सकता हूँ। कौन सी फसल, मंडी/जिला और राज्य चाहिए?" : language == "Gujarati" ? "મંડીના જથ્થાબંધ, છૂટક, MSP અને જૂના ભાવ અલગ છે. હું વર્તમાન મંડી અહેવાલ શોધી શકું છું. કયો પાક, મંડી/જિલ્લો અને રાજ્ય જોઈએ?" : "Wholesale mandi, retail, MSP and historical prices are different. I can look up current mandi reports. Which crop, mandi/district and state do you want?";
+                    marketAnswer = TranslationCatalog.Translate("Wholesale mandi, retail, MSP and historical prices are different. I can look up current mandi reports. Which crop, mandi/district and state do you want?", language);
                 else if (marketPrices != null) marketAnswer = await marketPrices.AnswerAsync(new(Field("commodity"), Field("state"), Field("district"), Field("market")), language, ct);
                 else marketAnswer = "Verified mandi prices are currently unavailable. Source: " + MarketPriceService.Source;
                 return new(marketAnswer, true, "AGMARKNET", (int)watch.ElapsedMilliseconds, false);

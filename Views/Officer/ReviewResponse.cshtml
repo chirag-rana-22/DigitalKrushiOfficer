@@ -11,29 +11,29 @@
     <div class="review-detail-page">
         <!-- Header -->
         <div class="detail-header">
-            <a href="/Officer/PendingReviews" class="back-btn">← Back to Reviews</a>
-            <h1>Review & Approve AI Response</h1>
+            <a href="/Officer/PendingReviews" class="back-btn">@Ui.Text("← Back to Reviews")</a>
+            <h1>@Ui.Text("Review & Approve AI Response")</h1>
         </div>
 
         <div class="detail-container">
             <!-- Farmer Info Card -->
             <div class="info-card farmer-info">
-                <h3>👨‍🌾 Farmer Details</h3>
+                <h3>@Ui.Text("👨‍🌾 Farmer Details")</h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <label>Name:</label>
+                        <label>@Ui.Text("Name:")</label>
                         <strong>@farmer?.Name</strong>
                     </div>
                     <div class="info-item">
-                        <label>Email:</label>
+                        <label>@Ui.Text("Email:")</label>
                         <strong>@farmer?.Email</strong>
                     </div>
                     <div class="info-item">
-                        <label>Phone:</label>
+                        <label>@Ui.Text("Phone:")</label>
                         <strong>@farmer?.Mobile</strong>
                     </div>
                     <div class="info-item">
-                        <label>Location:</label>
+                        <label>@Ui.Text("Location:")</label>
                         <strong>@farmer?.District, @farmer?.State</strong>
                     </div>
                 </div>
@@ -41,51 +41,51 @@
 
             <!-- Query Info -->
             <div class="info-card query-info">
-                <h3>❓ Farmer's Question</h3>
+                <h3>@Ui.Text("❓ Farmer's Question")</h3>
                 <div class="query-text">@query?.QueryText</div>
                 @if (query?.CropContext != null) { <partial name="_CropContext" model="query.CropContext" /> }
                 @if(query != null) { <partial name="_QueryImages" model="query" /> }
 
                 <div class="query-meta">
-                    <small>Asked on: @query?.CreatedDate.ToString("dd MMM yyyy HH:mm")</small>
+                    <small>@Ui.Text("Asked on"): @query?.CreatedDate.ToString("dd MMM yyyy HH:mm")</small>
                 </div>
             </div>
 
             <!-- AI Response Info -->
             <div class="info-card ai-info">
-                <h3>🤖 AI assessment for review</h3>
-                <p><strong>Reason for escalation:</strong> @Model?.EscalationReason</p>
+                <h3>@Ui.Text("🤖 AI assessment for review")</h3>
+                <p><strong>@Ui.Text("Reason for escalation:")</strong> @Model?.EscalationReason</p>
 
                 <div class="response-stats">
                     <div class="stat">
-                        <span class="stat-label">Confidence Score</span>
+                        <span class="stat-label">@Ui.Text("Confidence Score")</span>
                         <span class="stat-value">@(Model?.ConfidenceScore?.ToString("0") ?? "Not measured")</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Complexity Level</span>
+                        <span class="stat-label">@Ui.Text("Complexity Level")</span>
                         <span class="stat-value">
                             @if (Model?.ComplexityLevel == ComplexityLevel.Complex)
                             {
-                                <span class="badge-danger">🔴 Complex</span>
+                                <span class="badge-danger">@Ui.Text("🔴 Complex")</span>
                             }
                             else if (Model?.ComplexityLevel == ComplexityLevel.Medium)
                             {
-                                <span class="badge-warning">🟡 Medium</span>
+                                <span class="badge-warning">@Ui.Text("🟡 Medium")</span>
                             }
                             else
                             {
-                                <span class="badge-success">🟢 Simple</span>
+                                <span class="badge-success">@Ui.Text("🟢 Simple")</span>
                             }
                         </span>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Response Time</span>
+                        <span class="stat-label">@Ui.Text("Response Time")</span>
                         <span class="stat-value">@(Model?.ResponseTimeMs)ms</span>
                     </div>
                 </div>
 
                 <div class="ai-answer-full">
-                    <h4>Full Answer:</h4>
+                    <h4>@Ui.Text("Full Answer:")</h4>
                     <div class="answer-box">
                         @(Model?.AIAnswer ?? "No draft available")
                     </div>
@@ -94,46 +94,46 @@
 
             <!-- Review Actions -->
             <div class="action-panel">
-                <h3>✅ Your Review</h3>
+                <h3>@Ui.Text("✅ Your Review")</h3>
 
                 <!-- Approve -->
                 <div class="action-section">
-                    <h4>Approve As-Is</h4>
-                    <p class="action-desc">Send the AI answer directly to the farmer without changes.</p>
+                    <h4>@Ui.Text("Approve As-Is")</h4>
+                    <p class="action-desc">@Ui.Text("Send the AI answer directly to the farmer without changes.")</p>
                     <form method="post" action="/Officer/ApproveResponse"
                           onsubmit="return confirm('Approve this response?');" asp-antiforgery="true">
                         <input type="hidden" name="id" value="@Model?.Id" />
-                        <textarea name="officerNotes" placeholder="Optional: Add notes (visible to admin only)..."
+                        <textarea name="officerNotes" placeholder="@Ui.Text("Optional: Add notes (visible to admin only)...")"
                                   style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px;"></textarea>
-                        <button type="submit" class="btn btn-success">✅ Approve Response</button>
+                        <button type="submit" class="btn btn-success">@Ui.Text("✅ Approve Response")</button>
                     </form>
                 </div>
 
                 <!-- Modify -->
                 <div class="action-section">
-                    <h4>Edit & Approve</h4>
-                    <p class="action-desc">Modify the AI answer before sending to the farmer.</p>
+                    <h4>@Ui.Text("Edit & Approve")</h4>
+                    <p class="action-desc">@Ui.Text("Modify the AI answer before sending to the farmer.")</p>
                     <form method="post" action="/Officer/ModifyAndApprove" asp-antiforgery="true">
                         <input type="hidden" name="id" value="@Model?.Id" />
                         <textarea name="modifiedAnswer" required
                                   style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px;min-height:150px;">@Model?.AIAnswer</textarea>
-                        <textarea name="officerNotes" placeholder="What did you change and why?..."
+                        <textarea name="officerNotes" placeholder="@Ui.Text("What did you change and why?...")"
                                   style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px;"></textarea>
-                        <button type="submit" class="btn btn-info">✏️ Modify & Approve</button>
+                        <button type="submit" class="btn btn-info">@Ui.Text("✏️ Modify & Approve")</button>
                     </form>
                 </div>
 
                 <!-- Reject -->
                 <div class="action-section">
-                    <h4>Mark for revision</h4>
-                    <p class="action-desc">Keep the draft private and record what needs correction. You can edit and approve the corrected answer from your queue.</p>
+                    <h4>@Ui.Text("Mark for revision")</h4>
+                    <p class="action-desc">@Ui.Text("Keep the draft private and record what needs correction. You can edit and approve the corrected answer from your queue.")</p>
                     <form method="post" action="/Officer/RejectResponse"
                           onsubmit="return confirm('Mark this draft for officer revision?');" asp-antiforgery="true">
                         <input type="hidden" name="id" value="@Model?.Id" />
                         <textarea name="rejectionReason" required
-                                  placeholder="Reason for rejection (e.g., 'Inaccurate disease identification', 'Incorrect dosage')..."
+                                  placeholder="@Ui.Text("Reason for rejection (e.g., 'Inaccurate disease identification', 'Incorrect dosage')...")"
                                   style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px;"></textarea>
-                        <button type="submit" class="btn btn-danger">❌ Mark for revision</button>
+                        <button type="submit" class="btn btn-danger">@Ui.Text("❌ Mark for revision")</button>
                     </form>
                 </div>
             </div>

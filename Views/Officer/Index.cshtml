@@ -5,29 +5,29 @@
 }
 <div class="page-header d-flex justify-between align-center">
     <div>
-        <h1>👮 Officer Dashboard</h1>
-        <p>Welcome, @Model.User?.Name · @Model.OfficerDetails?.Designation</p>
+        <h1>@Ui.Text("👮 Officer Dashboard")</h1>
+        <p>@Ui.Text("Welcome"), @Model.User?.Name · @Model.OfficerDetails?.Designation</p>
     </div>
-    <a href="/Officer/Escalations" class="btn-primary-green">📨 View All Queries</a>
+    <a href="/Officer/Escalations" class="btn-primary-green">@Ui.Text("📨 View All Queries")</a>
 </div>
 
 <div class="grid-4 mb-4">
-    <div class="stat-card"><div class="stat-icon yellow">⏳</div><div><div class="stat-value">@Model.PendingEscalations</div><div class="stat-label">Pending</div></div></div>
-    <div class="stat-card"><div class="stat-icon blue">🔄</div><div><div class="stat-value">@Model.InProgressEscalations</div><div class="stat-label">In Progress</div></div></div>
-    <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-value">@Model.SolvedEscalations</div><div class="stat-label">Solved</div></div></div>
-    <div class="stat-card"><div class="stat-icon brown">📊</div><div><div class="stat-value">@Model.TotalEscalations</div><div class="stat-label">Total Queries</div></div></div>
+    <div class="stat-card"><div class="stat-icon yellow">⏳</div><div><div class="stat-value">@Model.PendingEscalations</div><div class="stat-label">@Ui.Text("Pending")</div></div></div>
+    <div class="stat-card"><div class="stat-icon blue">🔄</div><div><div class="stat-value">@Model.InProgressEscalations</div><div class="stat-label">@Ui.Text("In Progress")</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-value">@Model.SolvedEscalations</div><div class="stat-label">@Ui.Text("Solved")</div></div></div>
+    <div class="stat-card"><div class="stat-icon brown">📊</div><div><div class="stat-value">@Model.TotalEscalations</div><div class="stat-label">@Ui.Text("Total Queries")</div></div></div>
 </div>
 
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header-green d-flex justify-between align-center">
-                <span style="font-weight:700;">📨 Recent Escalated Queries</span>
-                <a href="/Officer/Escalations" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">View All →</a>
+                <span style="font-weight:700;">@Ui.Text("📨 Recent Escalated Queries")</span>
+                <a href="/Officer/Escalations" style="color:rgba(255,255,255,0.8);font-size:0.8rem;text-decoration:none;">@Ui.Text("View All →")</a>
             </div>
             <div style="overflow-x:auto;">
                 <table class="data-table">
-                    <thead><tr><th>Farmer</th><th>Query</th><th>Priority</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+                    <thead><tr><th>@Ui.Text("Farmer")</th><th>@Ui.Text("Query")</th><th>@Ui.Text("Priority")</th><th>@Ui.Text("Status")</th><th>@Ui.Text("Date")</th><th>@Ui.Text("Action")</th></tr></thead>
                     <tbody>
                         @foreach (var e in Model.RecentEscalations)
                         {
@@ -42,23 +42,23 @@
                                     </div>
                                 </td>
                                 <td><span class="badge @(e.Priority=="Urgent"?"badge-red":e.Priority=="High"?"badge-red":e.Priority=="Medium"?"badge-yellow":"badge-gray")">@e.Priority</span></td>
-                                <td><span class="badge @(e.Status=="Solved"?"badge-green":e.Status=="InProgress"?"badge-blue":e.Status=="Rejected"?"badge-red":"badge-yellow")">@e.Status</span></td>
+                                <td><span class="badge @(e.Status=="Solved"?"badge-green":e.Status=="InProgress"?"badge-blue":e.Status=="Rejected"?"badge-red":"badge-yellow")">@Ui.Text(e.Status)</span></td>
                                 <td style="font-size:0.8rem;color:var(--text-gray);">@e.CreatedDate.ToString("dd MMM")</td>
                                 <td>
                                     @if (e.Status == "Pending" || e.Status == "InProgress")
                                     {
-                                        <a href="/Officer/EscalationDetail/@e.Id" class="btn-primary-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">Reply</a>
+                                        <a href="/Officer/EscalationDetail/@e.Id" class="btn-primary-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">@Ui.Text("Reply")</a>
                                     }
                                     else
                                     {
-                                        <a href="/Officer/EscalationDetail/@e.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">View</a>
+                                        <a href="/Officer/EscalationDetail/@e.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">@Ui.Text("View")</a>
                                     }
                                 </td>
                             </tr>
                         }
                         @if (!Model.RecentEscalations.Any())
                         {
-                            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-gray);">No escalated queries yet ✅</td></tr>
+                            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-gray);">@Ui.Text("No escalated queries yet ✅")</td></tr>
                         }
                     </tbody>
                 </table>
@@ -67,30 +67,30 @@
     </div>
     <div class="col-lg-4">
         <div class="card p-4 mb-3">
-            <h6 style="font-weight:700;margin-bottom:16px;">📊 Query Resolution</h6>
+            <h6 style="font-weight:700;margin-bottom:16px;">@Ui.Text("📊 Query Resolution")</h6>
             @{
                 var total = Model.TotalEscalations > 0 ? Model.TotalEscalations : 1;
                 var solvedPct = (int)((double)Model.SolvedEscalations / total * 100);
                 var pendingPct = (int)((double)Model.PendingEscalations / total * 100);
             }
             <div style="margin-bottom:12px;">
-                <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span>Solved</span><span style="font-weight:700;color:var(--green);">@solvedPct%</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span>@Ui.Text("Solved")</span><span style="font-weight:700;color:var(--green);">@solvedPct%</span></div>
                 <div style="height:8px;background:#E0E0E0;border-radius:4px;overflow:hidden;"><div style="height:100%;background:#2E7D32;border-radius:4px;width:@solvedPct%"></div></div>
             </div>
             <div style="margin-bottom:12px;">
-                <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span>Pending</span><span style="font-weight:700;color:var(--yellow);">@pendingPct%</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span>@Ui.Text("Pending")</span><span style="font-weight:700;color:var(--yellow);">@pendingPct%</span></div>
                 <div style="height:8px;background:#E0E0E0;border-radius:4px;overflow:hidden;"><div style="height:100%;background:#FBC02D;border-radius:4px;width:@pendingPct%"></div></div>
             </div>
         </div>
         <div class="card p-4">
-            <h6 style="font-weight:700;margin-bottom:12px;">👤 My Profile</h6>
+            <h6 style="font-weight:700;margin-bottom:12px;">@Ui.Text("👤 My Profile")</h6>
             <div style="text-align:center;padding:10px 0;">
                 <div style="width:64px;height:64px;background:linear-gradient(135deg,#2E7D32,#43A047);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:white;margin:0 auto 10px;">👮</div>
                 <div style="font-weight:700;">@Model.User?.Name</div>
                 <div style="color:var(--text-gray);font-size:0.82rem;">@Model.OfficerDetails?.Designation</div>
                 <div style="color:var(--text-gray);font-size:0.82rem;">@Model.OfficerDetails?.Department</div>
             </div>
-            <a href="/Officer/EditProfile" class="btn-outline-green w-100" style="display:block;text-align:center;margin-top:12px;text-decoration:none;padding:10px;">✏ Edit Profile</a>
+            <a href="/Officer/EditProfile" class="btn-outline-green w-100" style="display:block;text-align:center;margin-top:12px;text-decoration:none;padding:10px;">@Ui.Text("✏ Edit Profile")</a>
         </div>
     </div>
 </div>

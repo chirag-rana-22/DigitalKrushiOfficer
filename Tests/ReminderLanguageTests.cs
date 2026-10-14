@@ -24,6 +24,6 @@ public class ReminderLanguageTests
     [Fact] public void CustomTextIsPreservedAndHtmlEncoded() {
         var task=Task("Custom");task.Title="મારો ખાસ રિમાઇન્ડર <script>bad</script>";task.FarmerCrop!.CustomCropName="મારો પાક";
         var body=ReminderLanguage.Email(new(){Name="<b>Name</b>",PreferredLanguage="Gujarati"},[task],new DateTime(2026,10,14),Website);
-        Assert.Contains("&lt;script&gt;",body);Assert.DoesNotContain("<script>",body);Assert.Equal(task.Title,ReminderLanguage.TaskTitle(task,"Gujarati"));Assert.Equal("મારો પાક",ReminderLanguage.CropName(task.FarmerCrop,"Gujarati"));Assert.Equal("Gujarati",ReminderLanguage.Normalize(null));
+        Assert.Contains("&lt;script&gt;",body);Assert.DoesNotContain("<script>",body);Assert.Equal(task.Title,ReminderLanguage.TaskTitle(task,"Gujarati"));Assert.Equal("મારો પાક",ReminderLanguage.CropName(task.FarmerCrop,"Gujarati"));Assert.Equal("English",ReminderLanguage.Normalize(null));
     }
 }

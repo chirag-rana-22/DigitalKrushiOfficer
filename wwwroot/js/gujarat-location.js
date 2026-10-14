@@ -6,6 +6,7 @@
  */
 
 (function () {
+    const t = window.dkoText || (value => value);
     const DATA_URL = '/js/gujarat-locations.json';
 
     let _cache = null;
@@ -34,7 +35,7 @@
         if (!sel || !data) return;
 
         const districts = Object.keys(data).sort();
-        sel.innerHTML = '<option value="">-- Select District --</option>';
+        sel.innerHTML = '<option value="">' + t('Select District') + '</option>';
         districts.forEach(d => {
             const opt = document.createElement('option');
             opt.value = d;
@@ -55,7 +56,7 @@
         const sel = document.getElementById(villageSelectId);
         if (!sel || !data) return;
 
-        sel.innerHTML = '<option value="">-- Select Village / City --</option>';
+        sel.innerHTML = '<option value="">' + t('Select Village / City') + '</option>';
         if (district && data[district]) {
             const villages = data[district].sort();
             villages.forEach(v => {
@@ -66,7 +67,7 @@
                 sel.appendChild(opt);
             });
         } else {
-            sel.innerHTML = '<option value="">-- Select District First --</option>';
+            sel.innerHTML = '<option value="">' + t('Select District First') + '</option>';
         }
     }
 

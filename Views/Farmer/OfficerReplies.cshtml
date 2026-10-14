@@ -94,23 +94,23 @@
 <div class="or-page-header">
     <div class="or-page-icon">👮</div>
     <div class="or-page-title">
-        <h1>Officer Replies</h1>
-        <p>Your questions answered by Krushi Officers — shown as conversations</p>
+        <h1>@Ui.Text("Officer Replies")</h1>
+        <p>@Ui.Text("Your questions answered by Krushi Officers — shown as conversations")</p>
     </div>
 </div>
 
 <div class="or-stats">
     <div class="or-stat">
         <div class="or-stat-icon">📨</div>
-        <div><div class="or-stat-val">@total</div><div class="or-stat-lbl">Total Replies</div></div>
+        <div><div class="or-stat-val">@total</div><div class="or-stat-lbl">@Ui.Text("Total Replies")</div></div>
     </div>
     <div class="or-stat">
         <div class="or-stat-icon">✅</div>
-        <div><div class="or-stat-val">@solved</div><div class="or-stat-lbl">Solved</div></div>
+        <div><div class="or-stat-val">@solved</div><div class="or-stat-lbl">@Ui.Text("Solved")</div></div>
     </div>
     <div class="or-stat">
         <div class="or-stat-icon">🌟</div>
-        <div><div class="or-stat-val">@avgRating</div><div class="or-stat-lbl">Avg Rating</div></div>
+        <div><div class="or-stat-val">@avgRating</div><div class="or-stat-lbl">@Ui.Text("Avg Rating")</div></div>
     </div>
 </div>
 
@@ -118,9 +118,9 @@
 {
     <div class="empty-state">
         <div class="empty-icon">👮</div>
-        <div class="empty-title">No Officer Replies Yet</div>
-        <div class="empty-text">When a Krushi Officer responds to your query, the full conversation will appear here.</div>
-        <a href="/Chat/Index" class="btn-primary-green" style="text-decoration:none;display:inline-block;padding:10px 24px;">🤖 Ask AI Now</a>
+        <div class="empty-title">@Ui.Text("No Officer Replies Yet")</div>
+        <div class="empty-text">@Ui.Text("When a Krushi Officer responds to your query, the full conversation will appear here.")</div>
+        <a href="/Chat/Index" class="btn-primary-green" style="text-decoration:none;display:inline-block;padding:10px 24px;">@Ui.Text("🤖 Ask AI Now")</a>
     </div>
 }
 else
@@ -141,15 +141,15 @@ else
                     <span class="thread-type @typeCls">@typeIcon @q.QueryType</span>
                     @if (q.Status == "Answered" || esc?.Status == "Solved")
                     {
-                        <span class="thread-status status-solved">✅ Solved</span>
+                        <span class="thread-status status-solved">@Ui.Text("✅ Solved")</span>
                     }
                     else if (q.Status == "Rejected" || esc?.Status == "Rejected")
                     {
-                        <span class="thread-status status-rejected">Rejected</span>
+                        <span class="thread-status status-rejected">@Ui.Text("Rejected")</span>
                     }
                     else
                     {
-                        <span class="thread-status status-inprog">🔄 In Progress</span>
+                        <span class="thread-status status-inprog">@Ui.Text("🔄 In Progress")</span>
                     }
                 </div>
                 <span class="thread-date">📅 @q.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</span>
@@ -160,7 +160,7 @@ else
                 <!-- ── Farmer's Question (right bubble) ── -->
                 <div class="q-row">
                     <div class="q-bubble">
-                        <div class="q-label">👨‍🌾 YOUR QUESTION</div>
+                        <div class="q-label">@Ui.Text("👨‍🌾 YOUR QUESTION")</div>
                         <partial name="_QueryImages" model="q" />
                         <div>@q.QueryText</div>
                         <div class="q-ts">@q.CreatedDate.ToString("hh:mm tt")</div>
@@ -188,7 +188,7 @@ else
 
                         <!-- Star feedback -->
                         <div class="fb-row" id="fb-@q.Id">
-                            <span class="fb-label">Rate this reply:</span>
+                            <span class="fb-label">@Ui.Text("Rate this reply:")</span>
                             @for (int i = 1; i <= 5; i++)
                             {
                                 <button onclick="submitFeedback(@q.Id, @i)" title="Rate @i star">

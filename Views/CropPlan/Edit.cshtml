@@ -1,19 +1,19 @@
 @model Digital_Krushi_Officer.Models.ViewModels.EditCropModel
 @{ ViewData["Title"] = "Edit crop"; ViewData["ActiveMenu"] = "Crops"; }
-<div class="page-header"><h1>Edit @ViewBag.CropName</h1><p>Keep this field's details and reminders up to date.</p></div>
+<div class="page-header"><h1>@Ui.Text("Edit") @ViewBag.CropName</h1><p>@Ui.Text("Keep this field's details and reminders up to date.")</p></div>
 <form method="post" class="card p-4" style="max-width:720px" asp-action="Edit">
     <input asp-for="Id" type="hidden" />
     <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-    <div class="form-group"><label asp-for="FieldName">Field name / खेत का नाम</label><input asp-for="FieldName" class="form-control" maxlength="100" required placeholder="e.g. North field / खेत 1" /></div>
-    <div class="form-group"><label asp-for="Variety">Variety (optional)</label><input asp-for="Variety" class="form-control" maxlength="100" /></div>
-    <div class="form-group"><label asp-for="LandArea">Area in acres</label><input asp-for="LandArea" type="number" step="0.01" min="0.01" max="1000000" class="form-control" /></div>
+    <div class="form-group"><label asp-for="FieldName">@Ui.Text("Field name / खेत का नाम")</label><input asp-for="FieldName" class="form-control" maxlength="100" required placeholder="@Ui.Text("e.g. North field / खेत 1")" /></div>
+    <div class="form-group"><label asp-for="Variety">@Ui.Text("Variety (optional)")</label><input asp-for="Variety" class="form-control" maxlength="100" /></div>
+    <div class="form-group"><label asp-for="LandArea">@Ui.Text("Area in acres")</label><input asp-for="LandArea" type="number" step="0.01" min="0.01" max="1000000" class="form-control" /></div>
     <div class="grid-2">
-        <div class="form-group"><label asp-for="SowingDate">Sowing date</label><input asp-for="SowingDate" class="form-control" /></div>
-        <div class="form-group"><label asp-for="ExpectedHarvestDate">Estimated harvest date</label><input asp-for="ExpectedHarvestDate" class="form-control" /></div>
+        <div class="form-group"><label asp-for="SowingDate">@Ui.Text("Sowing date")</label><input asp-for="SowingDate" class="form-control" /></div>
+        <div class="form-group"><label asp-for="ExpectedHarvestDate">@Ui.Text("Estimated harvest date")</label><input asp-for="ExpectedHarvestDate" class="form-control" /></div>
     </div>
-    <p>Dates are your plan, not a prediction of crop maturity. For perennial crops, plan one harvest cycle at a time.</p>
-    <div class="form-group"><label><input asp-for="EmailRemindersEnabled" /> Email me a daily summary of due and overdue tasks for this crop.</label><p class="text-muted">Optional. Sent to your verified account email. Turn this off here anytime. Website reminders remain available. Scheduled email may arrive late; check Today's tasks for the current list.</p></div>
-    @if (ViewBag.EmailSchedulerEnabled != true) { <p role="status">Scheduled email delivery is awaiting setup. You can save your preference; website reminders work now.</p> }
-    <button class="btn-primary-green" type="submit">Save details</button>
-    <a asp-action="Index" asp-route-id="@Model.Id" class="btn-outline-green">Cancel</a>
+    <p>@Ui.Text("Dates are your plan, not a prediction of crop maturity. For perennial crops, plan one harvest cycle at a time.")</p>
+    <div class="form-group"><label><input asp-for="EmailRemindersEnabled" />@Ui.Text("Email me a daily summary of due and overdue tasks for this crop.")</label><p class="text-muted">@Ui.Text("Optional. Sent to your verified account email. Turn this off here anytime. Website reminders remain available. Scheduled email may arrive late; check Today's tasks for the current list.")</p></div>
+    @if (ViewBag.EmailSchedulerEnabled != true) { <p role="status">@Ui.Text("Scheduled email delivery is awaiting setup. You can save your preference; website reminders work now.")</p> }
+    <button class="btn-primary-green" type="submit">@Ui.Text("Save details")</button>
+    <a asp-action="Index" asp-route-id="@Model.Id" class="btn-outline-green">@Ui.Text("Cancel")</a>
 </form>

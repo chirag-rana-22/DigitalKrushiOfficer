@@ -4,46 +4,46 @@
     ViewData["ActiveMenu"] = "Schemes";
 }
 <div class="page-header">
-    <div class="breadcrumb"><a href="/Scheme/Index" style="color:var(--green);text-decoration:none;">📜 Schemes</a> → @Model.SchemeName</div>
-    <h1>@Model.SchemeName</h1>
+    <div class="breadcrumb"><a href="/Scheme/Index" style="color:var(--green);text-decoration:none;">@Ui.Text("📜 Schemes")</a> → @Model.SchemeName</div>
+    <h1>@Ui.Text(Model.SchemeName)</h1>
 </div>
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="card p-4 mb-3">
-            <h5 style="font-weight:700;margin-bottom:14px;">📋 Scheme Details</h5>
-            <p style="line-height:1.8;color:#424242;">@Model.Description</p>
+            <h5 style="font-weight:700;margin-bottom:14px;">@Ui.Text("📋 Scheme Details")</h5>
+            <p style="line-height:1.8;color:#424242;">@Ui.Text(Model.Description)</p>
         </div>
         <div class="card p-4 mb-3">
-            <h5 style="font-weight:700;margin-bottom:14px;">✅ Eligibility Criteria</h5>
-            <p style="line-height:1.8;color:#424242;">@Model.Eligibility</p>
+            <h5 style="font-weight:700;margin-bottom:14px;">@Ui.Text("✅ Eligibility Criteria")</h5>
+            <p style="line-height:1.8;color:#424242;">@Ui.Text(Model.Eligibility)</p>
         </div>
         @if (Uri.TryCreate(Model.DocumentUrl, UriKind.Absolute, out var documentUri) && (documentUri.Scheme == "https" || documentUri.Scheme == "http"))
         {
             <div class="card p-4">
-                <h5 style="font-weight:700;margin-bottom:14px;">Official information / document</h5>
-                <a href="@Model.DocumentUrl" target="_blank" rel="noopener noreferrer" class="btn-primary-green" style="display:inline-flex;">Open official information ↗</a>
+                <h5 style="font-weight:700;margin-bottom:14px;">@Ui.Text("Official information / document")</h5>
+                <a href="@Model.DocumentUrl" target="_blank" rel="noopener noreferrer" class="btn-primary-green" style="display:inline-flex;">@Ui.Text("Open official information ↗")</a>
             </div>
         }
     </div>
     <div class="col-lg-4">
         <div class="card p-4 mb-3">
             <div style="display:flex;flex-direction:column;gap:14px;">
-                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">CATEGORY</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;">@Model.Category</div></div>
-                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">STATUS</div><span class="badge badge-green mt-1">@(Model.LastDate == null ? "Check availability" : Model.Status)</span></div>
-                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">START DATE</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;">@(Model.StartDate?.ToString("dd MMM yyyy") ?? "—")</div></div>
-                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">LAST DATE</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;color:var(--red);">@(Model.LastDate?.ToString("dd MMM yyyy") ?? "Check official portal")</div></div>
+                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">@Ui.Text("CATEGORY")</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;">@Ui.Text(Model.Category)</div></div>
+                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">@Ui.Text("STATUS")</div><span class="badge badge-green mt-1">@Ui.Text(Model.LastDate == null ? "Check availability" : Model.Status)</span></div>
+                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">@Ui.Text("START DATE")</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;">@(Model.StartDate?.ToString("dd MMM yyyy") ?? "—")</div></div>
+                <div><div style="font-size:0.75rem;color:var(--text-gray);font-weight:600;">@Ui.Text("LAST DATE")</div><div style="font-weight:700;font-size:0.95rem;margin-top:3px;color:var(--red);">@(Model.LastDate?.ToString("dd MMM yyyy") ?? Ui.Text("Check official portal"))</div></div>
             </div>
         </div>
         <div class="card p-4" style="background:#E8F5E9;">
-            <h6 style="font-weight:700;color:#2E7D32;margin-bottom:10px;">💡 How to Apply?</h6>
+            <h6 style="font-weight:700;color:#2E7D32;margin-bottom:10px;">@Ui.Text("💡 How to Apply?")</h6>
             <ol style="font-size:0.82rem;color:#424242;line-height:2;padding-left:18px;margin:0;">
-                <li>Read the eligibility and current application window on the official portal.</li>
-                <li>Follow that scheme's document and application instructions.</li>
-                <li>For local availability, contact the responsible department or participating bank.</li>
+                <li>@Ui.Text("Read the eligibility and current application window on the official portal.")</li>
+                <li>@Ui.Text("Follow that scheme's document and application instructions.")</li>
+                <li>@Ui.Text("For local availability, contact the responsible department or participating bank.")</li>
             </ol>
         </div>
     </div>
 </div>
 <div style="margin-top:16px;">
-    <a href="/Scheme/Index" class="btn-outline-green" style="text-decoration:none;">← Back to Schemes</a>
+    <a href="/Scheme/Index" class="btn-outline-green" style="text-decoration:none;">@Ui.Text("← Back to Schemes")</a>
 </div>

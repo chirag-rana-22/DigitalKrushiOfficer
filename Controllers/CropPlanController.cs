@@ -36,7 +36,7 @@ public class CropPlanController(AppDbContext db, IConfiguration config) : Contro
     {
         var crop = await OwnCrop(id); if (crop == null) return NotFound();
         ViewBag.EmailSchedulerEnabled = config.GetValue<bool>("Reminders:Enabled");
-        ViewBag.CropName = crop.DisplayName;
+        ViewBag.CropName = ReminderLanguage.CropName(crop, SiteLanguage.Current(HttpContext));
         return View(new EditCropModel { Id = crop.Id, FieldName = crop.FieldName ?? "", Variety = crop.Variety, LandArea = crop.LandArea, SowingDate = crop.SowingDate, ExpectedHarvestDate = crop.ExpectedHarvestDate, EmailRemindersEnabled = crop.EmailRemindersEnabled });
     }
     [HttpPost]
@@ -46,7 +46,7 @@ public class CropPlanController(AppDbContext db, IConfiguration config) : Contro
         if (string.IsNullOrWhiteSpace(model.FieldName)) ModelState.AddModelError(nameof(model.FieldName), "Enter a field name.");
         if (model.SowingDate != null && model.ExpectedHarvestDate != null && (model.ExpectedHarvestDate <= model.SowingDate || (model.ExpectedHarvestDate - model.SowingDate).Value.TotalDays > 730))
             ModelState.AddModelError(nameof(model.ExpectedHarvestDate), "Choose a harvest estimate after sowing and within two years. For perennial crops, plan one harvest cycle at a time.");
-        if (!ModelState.IsValid) { ViewBag.EmailSchedulerEnabled = config.GetValue<bool>("Reminders:Enabled"); ViewBag.CropName = crop.DisplayName; return View(model); }
+        if (!ModelState.IsValid) { ViewBag.EmailSchedulerEnabled = config.GetValue<bool>("Reminders:Enabled"); ViewBag.CropName = ReminderLanguage.CropName(crop, SiteLanguage.Current(HttpContext)); return View(model); }
         var datesChanged = crop.SowingDate != model.SowingDate || crop.ExpectedHarvestDate != model.ExpectedHarvestDate;
         crop.FieldName = model.FieldName.Trim(); crop.Variety = model.Variety?.Trim(); crop.LandArea = model.LandArea;
         crop.SowingDate = model.SowingDate?.Date; crop.ExpectedHarvestDate = model.ExpectedHarvestDate?.Date;

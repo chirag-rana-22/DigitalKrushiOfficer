@@ -4,24 +4,24 @@
     ViewData["ActiveMenu"] = "Schemes";
 }
 <div class="page-header d-flex justify-between align-center">
-    <div><h1>📜 Manage Schemes</h1><p>Government agriculture schemes</p></div>
-    <a href="/Admin/AddScheme" class="btn-primary-green">➕ Add Scheme</a>
+    <div><h1>@Ui.Text("📜 Manage Schemes")</h1><p>@Ui.Text("Government agriculture schemes")</p></div>
+    <a href="/Admin/AddScheme" class="btn-primary-green">@Ui.Text("➕ Add Scheme")</a>
 </div>
 <div class="card">
     <div style="overflow-x:auto;">
         <table class="data-table">
-            <thead><tr><th>Name</th><th>Category</th><th>Status</th><th>Last Date</th><th>Active</th><th>Action</th></tr></thead>
+            <thead><tr><th>@Ui.Text("Name")</th><th>@Ui.Text("Category")</th><th>@Ui.Text("Status")</th><th>@Ui.Text("Last Date")</th><th>@Ui.Text("Active")</th><th>@Ui.Text("Action")</th></tr></thead>
             <tbody>
                 @foreach (var s in Model)
                 {
                     <tr>
-                        <td style="font-weight:700;max-width:200px;">@s.SchemeName</td>
-                        <td><span class="badge badge-blue">@s.Category</span></td>
+                        <td style="font-weight:700;max-width:200px;">@Ui.Text(s.SchemeName)</td>
+                        <td><span class="badge badge-blue">@Ui.Text(s.Category)</span></td>
                         <td><span class="badge @(s.Status=="Active"?"badge-green":"badge-red")">@s.Status</span></td>
                         <td style="font-size:0.82rem;">@(s.LastDate?.ToString("dd MMM yyyy") ?? "Open")</td>
                         <td><span class="badge @(s.IsActive?"badge-green":"badge-red")">@(s.IsActive?"Yes":"No")</span></td>
                         <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-                            <a href="/Admin/EditScheme/@s.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">✏️ Update</a>
+                            <a href="/Admin/EditScheme/@s.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">@Ui.Text("✏️ Update")</a>
                             <form asp-action="ToggleSchemeStatus" method="post" style="display:inline;" asp-antiforgery="true">
 
                                 <input type="hidden" name="id" value="@s.Id" />

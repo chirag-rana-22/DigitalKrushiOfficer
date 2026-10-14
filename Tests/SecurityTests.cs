@@ -61,8 +61,9 @@ public class TestApp : WebApplicationFactory<Program>
 public class AiFake : IAIService {
     public AIResult Result { get; set; } = new("<script>alert('unsafe')</script> draft advice",true,"Fake",5,true,"Uncertain diagnosis", Digital_Krushi_Officer.Models.ComplexityLevel.Complex);
     public Task<AIResult> GenerateAsync(string q,string l,byte[]? image=null,CancellationToken ct=default,IReadOnlyList<byte[]>? additionalImages=null,IReadOnlyList<AIConversationTurn>? history=null,string? cropContext=null) {
-        LastCropContext=cropContext; LastImageCount=(image==null?0:1)+(additionalImages?.Count??0); LastHistory=history?.ToList()??new(); return Task.FromResult(Result);
+        LastLanguage=l; LastCropContext=cropContext; LastImageCount=(image==null?0:1)+(additionalImages?.Count??0); LastHistory=history?.ToList()??new(); return Task.FromResult(Result);
     }
+    public string? LastLanguage { get; private set; }
     public string? LastCropContext { get; private set; }
     public int LastImageCount { get; private set; }
     public List<AIConversationTurn> LastHistory { get; private set; } = new();
@@ -73,11 +74,11 @@ public class MailFake : IEmailService {
     public List<(string To, string Subject, string Body)> Sent = new();
     public string? DeliveryError { get; set; }
     public Task<string?> SendEmailAsync(string a,string n,string s,string b) { Sent.Add((a,s,b)); return Task.FromResult(DeliveryError); }
-    public Task<string?> SendOtpEmailAsync(string a,string n,string code){ Codes[a]=code; return Task.FromResult<string?>(null); }
-    public Task<string?> SendPasswordResetEmailAsync(string a,string n,string code){ Codes[a]=code; return Task.FromResult<string?>(null); }
+    public Task<string?> SendOtpEmailAsync(string a,string n,string code,string language="English"){ Codes[a]=code; return Task.FromResult<string?>(null); }
+    public Task<string?> SendPasswordResetEmailAsync(string a,string n,string code,string language="English"){ Codes[a]=code; return Task.FromResult<string?>(null); }
     public Task SendWelcomeEmailAsync(string a,string n,string r)=>Task.CompletedTask;
     public Task SendEscalationNotificationAsync(string a,string n,string f,string q)=>Task.CompletedTask;
-    public Task SendOfficerReplyNotificationAsync(string a,string n,string o,string r)=>Task.CompletedTask;
+    public Task SendOfficerReplyNotificationAsync(string a,string n,string o,string r,string language="English")=>Task.CompletedTask;
 }
 public class SecurityTests
 {

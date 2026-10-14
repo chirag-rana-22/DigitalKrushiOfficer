@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-advisory-language="@User.FindFirst("Language")?.Value">
+<html lang="@Ui.Code" data-advisory-language="@Ui.Language">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Digital Krushi Officer</title>
+    <title>@Ui.Text(ViewData["Title"]?.ToString()) - Digital Krushi Officer</title>
     <meta name="description" content="AI-Powered Smart Agriculture Advisory System for farmers" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 </head>
 <body>
 @Html.AntiForgeryToken()
-<a href="#main" class="skip-link">Skip to content</a>
+<a href="#main" class="skip-link">@Ui.Text("Skip to content")</a>
 
 @if (User.Identity?.IsAuthenticated == true && ViewData["HideLayout"] == null)
 {
@@ -27,103 +27,104 @@
         <div class="sidebar-brand">
             <div class="sidebar-logo">🌾</div>
             <h4>Digital Krushi Officer</h4>
-            <small>AI Agriculture Assistant</small>
+            <small>@Ui.Text("AI Agriculture Assistant")</small>
         </div>
         <nav class="sidebar-nav">
             @if (role == "Farmer")
             {
-                <span class="nav-section">Main</span>
-                <a href="/Farmer/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Dashboard" ? "active" : "")"><span class="icon">🏠</span> Dashboard</a>
-                <a href="/Chat/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Chat" ? "active" : "")"><span class="icon">🤖</span> Ask AI</a>
-                <a href="/Chat/DiseaseDetection" class="@(ViewData["ActiveMenu"]?.ToString() == "Disease" ? "active" : "")"><span class="icon">🔬</span> Disease Library</a>
-                <span class="nav-section">Farming</span>
-                <a href="/Farmer/Crops" class="@(ViewData["ActiveMenu"]?.ToString() == "Crops" ? "active" : "")"><span class="icon">🌱</span> My Crops</a>
-                <a href="/CropPlan/Today"><span class="icon">🔔</span> Today’s tasks</a>
-                <a href="/Farmer/QueryHistory" class="@(ViewData["ActiveMenu"]?.ToString() == "History" ? "active" : "")"><span class="icon">📋</span> Query History</a>
-                <a href="/Farmer/OfficerReplies" class="@(ViewData["ActiveMenu"]?.ToString() == "OfficerReplies" ? "active" : "")"><span class="icon">👮</span> Officer Replies</a>
-                <span class="nav-section">Explore</span>
-                <a href="/Weather/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Weather" ? "active" : "")"><span class="icon">☁</span> Weather</a>
-                <a href="/Scheme/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Schemes" ? "active" : "")"><span class="icon">📜</span> Gov. Schemes</a>
-                <span class="nav-section">Account</span>
-                <a href="/Farmer/Profile" class="@(ViewData["ActiveMenu"]?.ToString() == "Profile" ? "active" : "")"><span class="icon">👤</span> My Profile</a>
+                <span class="nav-section">@Ui.Text("Main")</span>
+                <a href="/Farmer/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Dashboard" ? "active" : "")"><span class="icon">🏠</span>@Ui.Text("Dashboard")</a>
+                <a href="/Chat/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Chat" ? "active" : "")"><span class="icon">🤖</span>@Ui.Text("Ask AI")</a>
+                <a href="/Chat/DiseaseDetection" class="@(ViewData["ActiveMenu"]?.ToString() == "Disease" ? "active" : "")"><span class="icon">🔬</span>@Ui.Text("Disease Library")</a>
+                <span class="nav-section">@Ui.Text("Farming")</span>
+                <a href="/Farmer/Crops" class="@(ViewData["ActiveMenu"]?.ToString() == "Crops" ? "active" : "")"><span class="icon">🌱</span>@Ui.Text("My Crops")</a>
+                <a href="/CropPlan/Today"><span class="icon">🔔</span>@Ui.Text("Today’s tasks")</a>
+                <a href="/Farmer/QueryHistory" class="@(ViewData["ActiveMenu"]?.ToString() == "History" ? "active" : "")"><span class="icon">📋</span>@Ui.Text("Query History")</a>
+                <a href="/Farmer/OfficerReplies" class="@(ViewData["ActiveMenu"]?.ToString() == "OfficerReplies" ? "active" : "")"><span class="icon">👮</span>@Ui.Text("Officer Replies")</a>
+                <span class="nav-section">@Ui.Text("Explore")</span>
+                <a href="/Weather/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Weather" ? "active" : "")"><span class="icon">☁</span>@Ui.Text("Weather")</a>
+                <a href="/Scheme/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Schemes" ? "active" : "")"><span class="icon">📜</span>@Ui.Text("Gov. Schemes")</a>
+                <span class="nav-section">@Ui.Text("Account")</span>
+                <a href="/Farmer/Profile" class="@(ViewData["ActiveMenu"]?.ToString() == "Profile" ? "active" : "")"><span class="icon">👤</span>@Ui.Text("My Profile")</a>
             }
             else if (role == "Officer")
             {
-                <span class="nav-section">Main</span>
-                <a href="/Officer/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Dashboard" ? "active" : "")"><span class="icon">🏠</span> Dashboard</a>
-                <a href="/Officer/PendingReviews" class="@(ViewData["ActiveMenu"]?.ToString() == "PendingReviews" ? "active" : "")"><span class="icon">✅</span> Pending Reviews</a>
-                <a href="/Officer/Escalations" class="@(ViewData["ActiveMenu"]?.ToString() == "Escalations" ? "active" : "")"><span class="icon">📨</span> Escalated Queries</a>
-                <span class="nav-section">Account</span>
-                <a href="/Officer/Profile" class="@(ViewData["ActiveMenu"]?.ToString() == "Profile" ? "active" : "")"><span class="icon">👤</span> My Profile</a>
+                <span class="nav-section">@Ui.Text("Main")</span>
+                <a href="/Officer/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Dashboard" ? "active" : "")"><span class="icon">🏠</span>@Ui.Text("Dashboard")</a>
+                <a href="/Officer/PendingReviews" class="@(ViewData["ActiveMenu"]?.ToString() == "PendingReviews" ? "active" : "")"><span class="icon">✅</span>@Ui.Text("Pending Reviews")</a>
+                <a href="/Officer/Escalations" class="@(ViewData["ActiveMenu"]?.ToString() == "Escalations" ? "active" : "")"><span class="icon">📨</span>@Ui.Text("Escalated Queries")</a>
+                <span class="nav-section">@Ui.Text("Account")</span>
+                <a href="/Officer/Profile" class="@(ViewData["ActiveMenu"]?.ToString() == "Profile" ? "active" : "")"><span class="icon">👤</span>@Ui.Text("My Profile")</a>
             }
             else if (role == "Admin")
             {
-                <span class="nav-section">Dashboard</span>
-                <a href="/Admin/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Dashboard" ? "active" : "")"><span class="icon">📊</span> Dashboard</a>
-                <a href="/Admin/Analytics" class="@(ViewData["ActiveMenu"]?.ToString() == "Analytics" ? "active" : "")"><span class="icon">📈</span> Analytics</a>
-                <span class="nav-section">Manage</span>
-                <a href="/Admin/Farmers" class="@(ViewData["ActiveMenu"]?.ToString() == "Farmers" ? "active" : "")"><span class="icon">👨‍🌾</span> Farmers</a>
-                <a href="/Admin/Officers" class="@(ViewData["ActiveMenu"]?.ToString() == "Officers" ? "active" : "")"><span class="icon">👮</span> Officers</a>
-                <a href="/Admin/Crops" class="@(ViewData["ActiveMenu"]?.ToString() == "Crops" ? "active" : "")"><span class="icon">🌾</span> Crops</a>
-                <a href="/Admin/Schemes" class="@(ViewData["ActiveMenu"]?.ToString() == "Schemes" ? "active" : "")"><span class="icon">📜</span> Schemes</a>
-                <a href="/Admin/Diseases" class="@(ViewData["ActiveMenu"]?.ToString() == "Diseases" ? "active" : "")"><span class="icon">🔬</span> Disease Dataset</a>
-                <span class="nav-section">Reports</span>
-                <a href="/Admin/ReviewQueue"><span class="icon">↗</span> Review queue</a>
-                <a href="/Admin/AssignFarmerToOfficer"><span class="icon">↗</span> Farmer assignments</a>
-                <a href="/Admin/Queries" class="@(ViewData["ActiveMenu"]?.ToString() == "Queries" ? "active" : "")"><span class="icon">💬</span> All Queries</a>
-                <a href="/Admin/Feedback" class="@(ViewData["ActiveMenu"]?.ToString() == "Feedback" ? "active" : "")"><span class="icon">⭐</span> Feedback</a>
+                <span class="nav-section">@Ui.Text("Dashboard")</span>
+                <a href="/Admin/Index" class="@(ViewData["ActiveMenu"]?.ToString() == "Dashboard" ? "active" : "")"><span class="icon">📊</span>@Ui.Text("Dashboard")</a>
+                <a href="/Admin/Analytics" class="@(ViewData["ActiveMenu"]?.ToString() == "Analytics" ? "active" : "")"><span class="icon">📈</span>@Ui.Text("Analytics")</a>
+                <span class="nav-section">@Ui.Text("Manage")</span>
+                <a href="/Admin/Farmers" class="@(ViewData["ActiveMenu"]?.ToString() == "Farmers" ? "active" : "")"><span class="icon">👨‍🌾</span>@Ui.Text("Farmers")</a>
+                <a href="/Admin/Officers" class="@(ViewData["ActiveMenu"]?.ToString() == "Officers" ? "active" : "")"><span class="icon">👮</span>@Ui.Text("Officers")</a>
+                <a href="/Admin/Crops" class="@(ViewData["ActiveMenu"]?.ToString() == "Crops" ? "active" : "")"><span class="icon">🌾</span>@Ui.Text("Crops")</a>
+                <a href="/Admin/Schemes" class="@(ViewData["ActiveMenu"]?.ToString() == "Schemes" ? "active" : "")"><span class="icon">📜</span>@Ui.Text("Schemes")</a>
+                <a href="/Admin/Diseases" class="@(ViewData["ActiveMenu"]?.ToString() == "Diseases" ? "active" : "")"><span class="icon">🔬</span>@Ui.Text("Disease Dataset")</a>
+                <span class="nav-section">@Ui.Text("Reports")</span>
+                <a href="/Admin/ReviewQueue"><span class="icon">↗</span>@Ui.Text("Review queue")</a>
+                <a href="/Admin/AssignFarmerToOfficer"><span class="icon">↗</span>@Ui.Text("Farmer assignments")</a>
+                <a href="/Admin/Queries" class="@(ViewData["ActiveMenu"]?.ToString() == "Queries" ? "active" : "")"><span class="icon">💬</span>@Ui.Text("All Queries")</a>
+                <a href="/Admin/Feedback" class="@(ViewData["ActiveMenu"]?.ToString() == "Feedback" ? "active" : "")"><span class="icon">⭐</span>@Ui.Text("Feedback")</a>
             }
         </nav>
         <div class="sidebar-footer">
-            <a href="/Account/ChangePassword" style="color:#d8e9ba;font-size:.75rem">Change password</a>
+            <a href="/Account/ChangePassword" style="color:#d8e9ba;font-size:.75rem">@Ui.Text("Change password")</a>
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar">@initials</div>
                 <div class="sidebar-user-info">
                     <strong>@userName</strong>
-                    <small>@role</small>
+                    <small>@Ui.Text(role)</small>
                 </div>
             </div>
             <form asp-controller="Account" asp-action="Logout" method="post" style="margin-top:12px;" asp-antiforgery="true">
 
-                <button type="submit" style="width:100%;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px;cursor:pointer;font-size:0.8rem;font-family:Poppins,sans-serif;">
-                    🚪 Logout
-                </button>
+                <button type="submit" style="width:100%;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px;cursor:pointer;font-size:0.8rem;font-family:Poppins,sans-serif;">@Ui.Text("🚪 Logout")</button>
             </form>
         </div>
     </aside>
 
-    <button id="sidebarToggle" type="button" aria-label="Hide navigation" title="Hide navigation" aria-controls="sidebar" aria-expanded="true">
+    <button id="sidebarToggle" type="button" aria-label="@Ui.Text("Hide navigation")" title="@Ui.Text("Hide navigation")" aria-controls="sidebar" aria-expanded="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
     </button>
 
     <main id="main" class="main-content @(Equals(ViewData["ChatWorkspace"], true) ? "chat-main" : "")">
-        <div class="workspace-topbar"><strong>YOUR FIELD. YOUR NEXT CHAPTER.</strong><span>@role workspace · <a href="/Home/Privacy">Privacy</a></span></div>
+        <div class="workspace-topbar"><strong>@Ui.Text("YOUR FIELD. YOUR NEXT CHAPTER.")</strong><partial name="_LanguagePicker" /><span>@Ui.Text(role) · <a href="/Home/Privacy">@Ui.Text("Privacy")</a></span></div>
         @if (TempData["Success"] != null)
         {
-            <div class="alert-banner success mb-3">✅ @TempData["Success"]</div>
+            <div class="alert-banner success mb-3">✅ @Ui.Text(TempData["Success"]?.ToString())</div>
         }
         @if (TempData["Error"] != null)
         {
-            <div class="alert-banner danger mb-3">❌ @TempData["Error"]</div>
+            <div class="alert-banner danger mb-3">❌ @Ui.Text(TempData["Error"]?.ToString())</div>
         }
         @if (TempData["Warning"] != null)
         {
-            <div class="alert-banner warning mb-3">⚠ @TempData["Warning"]</div>
+            <div class="alert-banner warning mb-3">⚠ @Ui.Text(TempData["Warning"]?.ToString())</div>
         }
         @RenderBody()
     </main>
 
     @if (role == "Farmer")
     {
-        <a href="/Chat/Index" class="floating-ai" title="Ask AI">🤖</a>
+        <a href="/Chat/Index" class="floating-ai" title="@Ui.Text("Ask AI")">🤖</a>
     }
 }
 else
 {
+    <div class="language-toolbar"><partial name="_LanguagePicker" /></div>
     @RenderBody()
 }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script id="ui-translations" type="application/json">@Json.Serialize(Ui.ClientStrings)</script>
+<script src="~/js/language.js" asp-append-version="true"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 

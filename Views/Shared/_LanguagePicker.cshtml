@@ -1,0 +1,11 @@
+<form asp-controller="Language" asp-action="Change" method="post" class="language-picker" translate="no">
+    <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+    <label><span aria-hidden="true">🌐</span><span class="visually-hidden">@Ui.Text("Language")</span>
+        <select name="language" aria-label="@Ui.Text("Language")" onchange="this.form.requestSubmit()">
+            @foreach (var language in Digital_Krushi_Officer.Services.SiteLanguage.Options) {
+                <option value="@language.Name" selected="@(Ui.Language == language.Name)">@language.NativeName</option>
+            }
+        </select>
+    </label>
+    <noscript><button type="submit">@Ui.Text("Apply")</button></noscript>
+</form>

@@ -1,14 +1,14 @@
 @model IReadOnlyList<Digital_Krushi_Officer.Models.TblQuery>
 @if (Model.Count > 0) {
-    <section class="card p-4 mt-4" aria-label="Earlier conversation">
-        <h2 style="font-size:1.2rem">Earlier conversation and photos</h2>
-        <p>The farmer's earlier messages for this case, in order.</p>
+    <section class="card p-4 mt-4" aria-label="@Ui.Text("Earlier conversation")">
+        <h2 style="font-size:1.2rem">@Ui.Text("Earlier conversation and photos")</h2>
+        <p>@Ui.Text("The farmer's earlier messages for this case, in order.")</p>
         @foreach(var query in Model) {
             <details class="mb-3">
                 <summary>@query.CreatedDate.ToString("dd MMM yyyy HH:mm") · @query.QueryText</summary>
                 <partial name="_QueryImages" model="query" />
-                @if(query.AIResponse != null) { <p class="review-content"><strong>AI assessment:</strong> @query.AIResponse.AIAnswer</p> }
-                @if(query.Escalation?.OfficerReply != null) { <p class="review-content"><strong>Officer reply:</strong> @query.Escalation.OfficerReply</p> }
+                @if(query.AIResponse != null) { <p class="review-content"><strong>@Ui.Text("AI assessment:")</strong> @query.AIResponse.AIAnswer</p> }
+                @if(query.Escalation?.OfficerReply != null) { <p class="review-content"><strong>@Ui.Text("Officer reply:")</strong> @query.Escalation.OfficerReply</p> }
             </details>
         }
     </section>

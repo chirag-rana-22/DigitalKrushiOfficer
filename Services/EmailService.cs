@@ -7,11 +7,11 @@ namespace Digital_Krushi_Officer.Services
     public interface IEmailService
     {
         Task<string?> SendEmailAsync(string toEmail, string toName, string subject, string htmlBody);
-        Task<string?> SendOtpEmailAsync(string toEmail, string toName, string otpCode);
+        Task<string?> SendOtpEmailAsync(string toEmail, string toName, string otpCode, string language = "English");
         Task SendWelcomeEmailAsync(string toEmail, string toName, string role);
-        Task<string?> SendPasswordResetEmailAsync(string toEmail, string toName, string resetToken);
+        Task<string?> SendPasswordResetEmailAsync(string toEmail, string toName, string resetToken, string language = "English");
         Task SendEscalationNotificationAsync(string toEmail, string officerName, string farmerName, string queryText);
-        Task SendOfficerReplyNotificationAsync(string toEmail, string farmerName, string officerName, string reply);
+        Task SendOfficerReplyNotificationAsync(string toEmail, string farmerName, string officerName, string reply, string language = "English");
     }
 
     public class EmailService : IEmailService
@@ -98,18 +98,14 @@ namespace Digital_Krushi_Officer.Services
         }
 
 
-        public async Task<string?> SendOtpEmailAsync(string toEmail, string toName, string otpCode)
+        public async Task<string?> SendOtpEmailAsync(string toEmail, string toName, string otpCode, string language = "English")
         {
-            var html = $@"<div style='font-family:Poppins,sans-serif;max-width:600px;margin:auto;padding:30px;background:#f8f9fa;border-radius:12px;'>
-              <div style='background:linear-gradient(135deg,#2E7D32,#43A047);padding:20px;border-radius:10px;text-align:center;'>
-                <h1 style='color:white;margin:0;'>🌾 Digital Krushi Officer</h1></div>
-              <div style='background:white;padding:30px;border-radius:10px;margin-top:20px;'>
-                <h2 style='color:#2E7D32;'>OTP Verification</h2>
-                <p>Dear {toName}, your OTP is:</p>
-                <div style='background:#E8F5E9;border:2px dashed #2E7D32;border-radius:10px;padding:20px;text-align:center;'>
-                  <span style='font-size:36px;font-weight:bold;color:#2E7D32;letter-spacing:10px;'>{otpCode}</span></div>
-                <p style='color:#757575;'>Valid for <strong>10 minutes</strong>. Do not share with anyone.</p></div></div>";
-            return await SendEmailAsync(toEmail, toName, "OTP Verification - Digital Krushi Officer", html);
+            return await SendEmailAsync(toEmail, toName, TranslationCatalog.Translate("OTP Verification", language) + " - Digital Krushi Officer", CodeEmail(toName, otpCode, "OTP Verification", language));
+        }
+        private static string CodeEmail(string name, string code, string heading, string language) {
+            string E(string value) => System.Net.WebUtility.HtmlEncode(value);
+            string T(string value) => E(TranslationCatalog.Translate(value, language));
+            return $"<html lang='{SiteLanguage.Code(language)}'><body style='font-family:system-ui,sans-serif;max-width:600px;margin:auto;padding:24px'><h1>Digital Krushi Officer</h1><h2>{T(heading)}</h2><p>{E(name)}, {T("Your code is:")}</p><p style='font-size:30px;font-weight:bold;letter-spacing:5px'>{E(code)}</p><p>{T("Valid for 10 minutes. Do not share this code with anyone.")}</p></body></html>";
         }
 
         public async Task SendWelcomeEmailAsync(string toEmail, string toName, string role)
@@ -124,18 +120,9 @@ namespace Digital_Krushi_Officer.Services
             await SendEmailAsync(toEmail, toName, "Welcome to Digital Krushi Officer!", html);
         }
 
-        public async Task<string?> SendPasswordResetEmailAsync(string toEmail, string toName, string resetToken)
+        public async Task<string?> SendPasswordResetEmailAsync(string toEmail, string toName, string resetToken, string language = "English")
         {
-            var html = $@"<div style='font-family:Poppins,sans-serif;max-width:600px;margin:auto;padding:30px;background:#f8f9fa;border-radius:12px;'>
-              <div style='background:linear-gradient(135deg,#2E7D32,#43A047);padding:20px;border-radius:10px;text-align:center;'>
-                <h1 style='color:white;margin:0;'>🌾 Digital Krushi Officer</h1></div>
-              <div style='background:white;padding:30px;border-radius:10px;margin-top:20px;'>
-                <h2 style='color:#E53935;'>Password Reset</h2>
-                <p>Dear {toName}, your reset OTP is:</p>
-                <div style='background:#FFEBEE;border:2px dashed #E53935;padding:20px;text-align:center;border-radius:10px;'>
-                  <span style='font-size:36px;font-weight:bold;color:#E53935;letter-spacing:10px;'>{resetToken}</span></div>
-                <p style='color:#757575;'>Valid for 10 minutes.</p></div></div>";
-            return await SendEmailAsync(toEmail, toName, "Password Reset - Digital Krushi Officer", html);
+            return await SendEmailAsync(toEmail, toName, TranslationCatalog.Translate("Password Reset", language) + " - Digital Krushi Officer", CodeEmail(toName, resetToken, "Password Reset", language));
         }
 
         public async Task SendEscalationNotificationAsync(string toEmail, string officerName, string farmerName, string queryText)
@@ -152,17 +139,13 @@ namespace Digital_Krushi_Officer.Services
             await SendEmailAsync(toEmail, officerName, "New Escalated Query - Digital Krushi Officer", html);
         }
 
-        public async Task SendOfficerReplyNotificationAsync(string toEmail, string farmerName, string officerName, string reply)
+        public async Task SendOfficerReplyNotificationAsync(string toEmail, string farmerName, string officerName, string reply, string language = "English")
         {
-            var html = $@"<div style='font-family:Poppins,sans-serif;max-width:600px;margin:auto;padding:30px;background:#f8f9fa;border-radius:12px;'>
-              <div style='background:linear-gradient(135deg,#2E7D32,#43A047);padding:20px;border-radius:10px;text-align:center;'>
-                <h1 style='color:white;margin:0;'>🌾 Digital Krushi Officer</h1></div>
-              <div style='background:white;padding:30px;border-radius:10px;margin-top:20px;'>
-                <h2 style='color:#2E7D32;'>✅ Officer Reply Received</h2>
-                <p>Dear {farmerName}, Officer <strong>{officerName}</strong> replied:</p>
-                <div style='background:#E8F5E9;border-left:4px solid #2E7D32;padding:15px;border-radius:5px;'>
-                  <p style='margin:0;'>{reply}</p></div></div></div>";
-            await SendEmailAsync(toEmail, farmerName, "Officer Reply - Digital Krushi Officer", html);
+            string E(string value) => System.Net.WebUtility.HtmlEncode(value);
+            var heading = TranslationCatalog.Translate("New officer reply", language);
+            var message = TranslationCatalog.Translate("Your Krushi Officer has replied. Open your query history to read the full conversation.", language);
+            var html = $"<html lang='{SiteLanguage.Code(language)}'><body><h2>{E(heading)}</h2><p>{E(farmerName)}, {E(message)}</p><p>{E(officerName)}</p><blockquote>{E(reply)}</blockquote></body></html>";
+            await SendEmailAsync(toEmail, farmerName, heading + " - Digital Krushi Officer", html);
         }
     }
 }

@@ -8,13 +8,13 @@
     <div class="auth-card" style="max-width:560px;margin:auto;">
         <div class="auth-logo">
             <div class="logo-icon">🌾</div>
-            <h2>Create Account</h2>
-            <p>Join Digital Krushi Officer today</p>
+            <h2>@Ui.Text("Create Account")</h2>
+            <p>@Ui.Text("Join Digital Krushi Officer today")</p>
         </div>
         <!-- Role Tabs -->
         <div class="role-tabs" id="roleTabs">
-            <div class="role-tab active" onclick="setRole('Farmer',this)">👨‍🌾 Farmer</div>
-            <div class="role-tab" onclick="setRole('Officer',this)">👮 Officer</div>
+            <div class="role-tab active" onclick="setRole('Farmer',this)">@Ui.Text("👨‍🌾 Farmer")</div>
+            <div class="role-tab" onclick="setRole('Officer',this)">@Ui.Text("👮 Officer")</div>
         </div>
         <form asp-action="Register" method="post" id="regForm" asp-antiforgery="true">
 
@@ -22,68 +22,66 @@
             <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3"></div>
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">👤 Full Name</label>
-                    <input asp-for="Name" class="form-control" placeholder="Your full name" />
+                    <label class="form-label">@Ui.Text("👤 Full Name")</label>
+                    <input asp-for="Name" class="form-control" placeholder="@Ui.Text("Your full name")" />
                     <span asp-validation-for="Name" class="validation-msg"></span>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">📱 Mobile</label>
-                    <input asp-for="Mobile" class="form-control" placeholder="10-digit number" />
+                    <label class="form-label">@Ui.Text("📱 Mobile")</label>
+                    <input asp-for="Mobile" class="form-control" placeholder="@Ui.Text("10-digit number")" />
                     <span asp-validation-for="Mobile" class="validation-msg"></span>
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">📧 Email</label>
+                <label class="form-label">@Ui.Text("📧 Email")</label>
                 <input asp-for="Email" class="form-control" placeholder="your@email.com" />
                 <span asp-validation-for="Email" class="validation-msg"></span>
             </div>
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">🔒 Password</label>
-                    <input asp-for="Password" class="form-control" placeholder="At least 10 characters" />
+                    <label class="form-label">@Ui.Text("🔒 Password")</label>
+                    <input asp-for="Password" class="form-control" placeholder="@Ui.Text("At least 10 characters")" />
                     <span asp-validation-for="Password" class="validation-msg"></span>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">🔒 Confirm</label>
-                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Repeat password" />
+                    <label class="form-label">@Ui.Text("🔒 Confirm")</label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="@Ui.Text("Repeat password")" />
                     <span asp-validation-for="ConfirmPassword" class="validation-msg"></span>
                 </div>
             </div>
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">🗺 State</label>
+                    <label class="form-label">@Ui.Text("🗺 State")</label>
                     <input asp-for="State" class="form-control" value="Gujarat" readonly
                            style="background:rgba(255,255,255,0.05);color:var(--text-gray);cursor:not-allowed;opacity:0.8;" />
                 </div>
                 <div class="form-group">
-                    <label class="form-label">📍 District</label>
+                    <label class="form-label">@Ui.Text("📍 District")</label>
                     <select asp-for="District" id="reg-district" class="form-control form-select">
-                        <option value="">Loading districts...</option>
+                        <option value="">@Ui.Text("Loading districts...")</option>
                     </select>
                 </div>
             </div>
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">🏘 Village / City</label>
+                    <label class="form-label">@Ui.Text("🏘 Village / City")</label>
                     <select asp-for="Village" id="reg-village" class="form-control form-select">
-                        <option value="">-- Select District First --</option>
+                        <option value="">@Ui.Text("-- Select District First --")</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">🌐 Language</label>
+                    <label class="form-label">@Ui.Text("🌐 Language")</label>
                     <select asp-for="PreferredLanguage" class="form-control form-select">
                         <option value="Gujarati">ગુજરાતી (Gujarati)</option>
                         <option value="Hindi">हिन्दी (Hindi)</option>
                         <option value="English">English</option>
+                    <option value="Marathi">मराठी (Marathi)</option>
                     </select>
                 </div>
             </div>
-            <button type="submit" class="btn-primary-green w-100" style="justify-content:center;padding:14px;font-size:1rem;margin-top:8px;">
-                ✅ Create Account
-            </button>
+            <button type="submit" class="btn-primary-green w-100" style="justify-content:center;padding:14px;font-size:1rem;margin-top:8px;">@Ui.Text("✅ Create Account")</button>
         </form>
-        <p style="text-align:center;margin-top:16px;font-size:0.875rem;color:var(--text-gray);">
-            Already have an account? <a href="/Account/Login" style="color:var(--green);font-weight:700;">Login</a>
+        <p style="text-align:center;margin-top:16px;font-size:0.875rem;color:var(--text-gray);">@Ui.Text("Already have an account?")<a href="/Account/Login" style="color:var(--green);font-weight:700;">@Ui.Text("Login")</a>
         </p>
     </div>
 </div>

@@ -6,15 +6,15 @@
     var fd = farmer?.FarmerDetails;
 }
 <div class="page-header">
-    <div class="breadcrumb"><a href="/Officer/Escalations" style="color:var(--green);text-decoration:none;">📨 Queries</a> → Query #@Model.Id</div>
-    <h1>Query Detail #@Model.Id</h1>
+    <div class="breadcrumb"><a href="/Officer/Escalations" style="color:var(--green);text-decoration:none;">@Ui.Text("📨 Queries")</a> → @Ui.Text("Query") #@Model.Id</div>
+    <h1>@Ui.Text("Query Detail") #@Model.Id</h1>
 </div>
 
 <div class="row g-4">
     <div class="col-lg-7">
         <!-- Farmer Query -->
         <div class="card mb-3">
-            <div class="card-header-green"><span style="font-weight:700;">👨‍🌾 Farmer Query</span></div>
+            <div class="card-header-green"><span style="font-weight:700;">@Ui.Text("👨‍🌾 Farmer Query")</span></div>
             <div style="padding:24px;">
                 <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;">
                     <div style="width:48px;height:48px;background:#E8F5E9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
@@ -27,7 +27,7 @@
                     </div>
                     <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
                         <span class="badge @(Model.Priority=="Urgent"?"badge-red":Model.Priority=="High"?"badge-red":"badge-yellow")">@Model.Priority</span>
-                        <span class="badge @(Model.Status=="Solved"?"badge-green":Model.Status=="InProgress"?"badge-blue":"badge-yellow")">@Model.Status</span>
+                        <span class="badge @(Model.Status=="Solved"?"badge-green":Model.Status=="InProgress"?"badge-blue":"badge-yellow")">@Ui.Text(Model.Status)</span>
                     </div>
                 </div>
                 @if(Model.Query != null) { <partial name="_QueryImages" model="Model.Query" /> }
@@ -53,26 +53,26 @@
         @if (Model.Status == "Pending" || Model.Status == "InProgress")
         {
             <div class="card p-4">
-                <h5 style="font-weight:700;margin-bottom:16px;">✍ Your Expert Reply</h5>
+                <h5 style="font-weight:700;margin-bottom:16px;">@Ui.Text("✍ Your Expert Reply")</h5>
                 <form asp-action="Reply" method="post" asp-antiforgery="true">
 
                     <div asp-validation-summary="All" class="text-danger mb-3" role="alert"></div>
                     <input type="hidden" name="EscalationId" value="@Model.Id" />
                     <div class="form-group">
-                        <label class="form-label">Reply to Farmer</label>
-                        @Html.TextArea("OfficerReply", Model.OfficerReply, new { @class="form-control", rows=6, maxlength=16000, required="required", placeholder="Write your reply. If rejecting, explain why you cannot solve the query.", style="resize:vertical;" })
+                        <label class="form-label">@Ui.Text("Reply to Farmer")</label>
+                        @Html.TextArea("OfficerReply", Model.OfficerReply, new { @class="form-control", rows=6, maxlength=16000, required="required", placeholder=Ui.Text("Write your reply. If rejecting, explain why you cannot solve the query."), style="resize:vertical;" })
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Update Status</label>
+                        <label class="form-label">@Ui.Text("Update Status")</label>
                         @Html.DropDownList("Status", new[] {
-                            new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("In Progress", "InProgress", Model.Status == "InProgress" || Model.Status == "Pending"),
+                            new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem(Ui.Text("In Progress"), "InProgress", Model.Status == "InProgress" || Model.Status == "Pending"),
                             new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Mark as Solved", "Solved"),
                             new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Reject (Unable to solve)", "Rejected")
                         }, new { @class="form-control form-select" })
                     </div>
                     <div style="display:flex;gap:10px;">
-                        <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">📨 Send Reply to Farmer</button>
-                        <a href="/Officer/Escalations" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">Cancel</a>
+                        <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">@Ui.Text("📨 Send Reply to Farmer")</button>
+                        <a href="/Officer/Escalations" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">@Ui.Text("Cancel")</a>
                     </div>
                 </form>
             </div>
@@ -93,7 +93,7 @@
     <!-- Farmer Profile Sidebar -->
     <div class="col-lg-5">
         <div class="card p-4 mb-3">
-            <h6 style="font-weight:700;margin-bottom:14px;">👨‍🌾 Farmer Profile</h6>
+            <h6 style="font-weight:700;margin-bottom:14px;">@Ui.Text("👨‍🌾 Farmer Profile")</h6>
             <div style="display:flex;flex-direction:column;gap:10px;">
                 @{
                     void InfoRow(string icon, string label, string? value) {
@@ -118,10 +118,10 @@
             </div>
         </div>
         <div class="card p-4">
-            <h6 style="font-weight:700;margin-bottom:12px;">⚡ Quick Actions</h6>
+            <h6 style="font-weight:700;margin-bottom:12px;">@Ui.Text("⚡ Quick Actions")</h6>
             <div style="display:flex;flex-direction:column;gap:8px;">
-                <a href="/Officer/Escalations?status=Pending" class="btn-outline-green" style="text-align:center;text-decoration:none;padding:10px;">📨 All Pending Queries</a>
-                <a href="/Officer/Escalations?status=Solved" class="btn-outline-green" style="text-align:center;text-decoration:none;padding:10px;">✅ Solved Queries</a>
+                <a href="/Officer/Escalations?status=Pending" class="btn-outline-green" style="text-align:center;text-decoration:none;padding:10px;">@Ui.Text("📨 All Pending Queries")</a>
+                <a href="/Officer/Escalations?status=Solved" class="btn-outline-green" style="text-align:center;text-decoration:none;padding:10px;">@Ui.Text("✅ Solved Queries")</a>
             </div>
         </div>
     </div>

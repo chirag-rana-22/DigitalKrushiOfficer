@@ -1,6 +1,6 @@
 @model List<Digital_Krushi_Officer.Models.CropTask>
 @using Digital_Krushi_Officer.Services
-@{ ViewData["Title"] = "Today's tasks"; ViewData["ActiveMenu"] = "Crops"; var language = User.FindFirst("Language")?.Value ?? "Gujarati"; }
-<div class="page-header"><h1>@ReminderLanguage.Heading(language)</h1><p>@ReminderLanguage.Date(CropPlanning.Today, language) · @ReminderLanguage.Text(language, "India time", "भारत समय", "ભારતીય સમય") · @Model.Count @ReminderLanguage.Text(language, "due or overdue", "आज के या पिछली तारीख से बाकी काम", "આજના અથવા અગાઉની તારીખથી બાકી કામ")</p><a href="/Farmer/Crops" class="btn-outline-green">My Crops</a></div>
+@{ ViewData["Title"] = "Today's tasks"; ViewData["ActiveMenu"] = "Crops"; var language = Ui.Language; }
+<div class="page-header"><h1>@ReminderLanguage.Heading(language)</h1><p>@ReminderLanguage.Date(CropPlanning.Today, language) · @ReminderLanguage.Text(language, "India time", "भारत समय", "ભારતીય સમય") · @Model.Count @ReminderLanguage.Text(language, "due or overdue", "आज के या पिछली तारीख से बाकी काम", "આજના અથવા અગાઉની તારીખથી બાકી કામ")</p><a href="/Farmer/Crops" class="btn-outline-green">@Ui.Text("My Crops")</a></div>
 @if (!Model.Any()) { <div class="card p-4"><h3>@ReminderLanguage.Text(language, "You are up to date", "आज कोई काम बाकी नहीं है", "આજે કોઈ કામ બાકી નથી")</h3><p>@ReminderLanguage.Text(language, "No pending tasks are due. Open a crop to review its calendar or add your own reminders.", "फसल का कैलेंडर देखें या अपना नया रिमाइंडर जोड़ें।", "પાકનું કેલેન્ડર જુઓ અથવા તમારી પોતાની નવી યાદ અપાવવાની નોંધ ઉમેરો.")</p></div> }
 @foreach (var task in Model) { <partial name="_Task" model="task" /> }

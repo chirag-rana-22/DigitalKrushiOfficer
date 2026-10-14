@@ -4,10 +4,10 @@
     ViewData["ActiveMenu"] = "Escalations";
     var statusFilter = ViewBag.StatusFilter as string;
 }
-<div class="page-header"><h1>📨 Escalated Queries</h1><p>Farmer queries forwarded for your expert advice</p></div>
+<div class="page-header"><h1>@Ui.Text("📨 Escalated Queries")</h1><p>@Ui.Text("Farmer queries forwarded for your expert advice")</p></div>
 
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
-    <a href="/Officer/Escalations" class="@(statusFilter==null?"btn-primary-green":"btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">All</a>
+    <a href="/Officer/Escalations" class="@(statusFilter==null?"btn-primary-green":"btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">@Ui.Text("All")</a>
     @foreach(var s in new[]{"Pending","InProgress","Solved","Rejected"})
     {
         <a href="/Officer/Escalations?status=@s" class="@(statusFilter==s?"btn-primary-green":"btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">@s</a>
@@ -17,7 +17,7 @@
 <div class="card">
     <div style="overflow-x:auto;">
         <table class="data-table">
-            <thead><tr><th>#</th><th>Farmer</th><th>Query</th><th>Type</th><th>Priority</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+            <thead><tr><th>#</th><th>@Ui.Text("Farmer")</th><th>@Ui.Text("Query")</th><th>@Ui.Text("Type")</th><th>@Ui.Text("Priority")</th><th>@Ui.Text("Status")</th><th>@Ui.Text("Date")</th><th>@Ui.Text("Action")</th></tr></thead>
             <tbody>
                 @foreach (var e in Model)
                 {
@@ -35,7 +35,7 @@
                         </td>
                         <td><span style="font-size:1.1rem;">@(e.Query?.QueryType=="Image"?"📷":e.Query?.QueryType=="Voice"?"🎤":"💬")</span></td>
                         <td><span class="badge @(e.Priority=="Urgent"?"badge-red":e.Priority=="High"?"badge-red":e.Priority=="Medium"?"badge-yellow":"badge-gray")">@e.Priority</span></td>
-                        <td><span class="badge @(e.Status=="Solved"?"badge-green":e.Status=="InProgress"?"badge-blue":e.Status=="Rejected"?"badge-red":"badge-yellow")">@e.Status</span></td>
+                        <td><span class="badge @(e.Status=="Solved"?"badge-green":e.Status=="InProgress"?"badge-blue":e.Status=="Rejected"?"badge-red":"badge-yellow")">@Ui.Text(e.Status)</span></td>
                         <td style="font-size:0.8rem;color:var(--text-gray);">@e.CreatedDate.ToString("dd MMM yyyy")</td>
                         <td>
                             <a href="/Officer/EscalationDetail/@e.Id" class="@(e.Status=="Pending"||e.Status=="InProgress"?"btn-primary-green":"btn-outline-green")" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;display:inline-block;">
@@ -46,7 +46,7 @@
                 }
                 @if (!Model.Any())
                 {
-                    <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-gray);">No escalated queries found ✅</td></tr>
+                    <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-gray);">@Ui.Text("No escalated queries found ✅")</td></tr>
                 }
             </tbody>
         </table>

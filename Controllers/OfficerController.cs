@@ -117,7 +117,7 @@ namespace Digital_Krushi_Officer.Controllers
             var farmer = esc.Query?.Farmer;
             var officer = await _db.Users.FindAsync(UserId);
             if (farmer != null && officer != null)
-                await _email.SendOfficerReplyNotificationAsync(farmer.Email, farmer.Name, officer.Name, model.OfficerReply);
+                await _email.SendOfficerReplyNotificationAsync(farmer.Email, farmer.Name, officer.Name, model.OfficerReply, farmer.PreferredLanguage);
 
             TempData["Success"] = model.Status == "Rejected" ? "Query rejected. Your reason has been sent to the farmer." : "Reply sent to farmer!";
             return RedirectToAction("Escalations");

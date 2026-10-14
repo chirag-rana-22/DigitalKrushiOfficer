@@ -11,7 +11,7 @@ namespace Digital_Krushi_Officer.Controllers;
 [Authorize(Roles = "Farmer")]
 public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUploadService uploads, ILogger<ChatController> logger) : Controller {
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    private string Language => User.FindFirstValue("Language") ?? "Gujarati";
+    private string Language => SiteLanguage.Current(HttpContext);
     private Task<bool> OwnsConversation(int? id) => id == null ? Task.FromResult(true) : db.Queries.AnyAsync(q => q.Id == id && q.FarmerId == UserId && q.ParentQueryId == null);
     private async Task<bool> OwnsCropContext(int? conversationId, int? farmerCropId) {
         if (farmerCropId == null) return true;
@@ -48,7 +48,7 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
         ViewBag.FarmerCropId = farmerCropId;
         if (farmerCropId != null) {
             var selected = await db.FarmerCrops.Include(c => c.Crop).FirstOrDefaultAsync(c => c.Id == farmerCropId && c.FarmerId == UserId);
-            ViewBag.CropLabel = selected == null ? "Saved crop context (crop removed)" : selected.DisplayName + " · " + (selected.FieldName ?? "Field not named");
+            ViewBag.CropLabel = selected == null ? TranslationCatalog.Translate("Saved crop context (crop removed)", Language) : ReminderLanguage.CropName(selected, Language) + " · " + (selected.FieldName ?? TranslationCatalog.Translate("Field not named", Language));
         }
         var queries=conversationId==null ? new List<TblQuery>() : await Conversation(conversationId.Value).OrderByDescending(q=>q.Id).Take(51).ToListAsync();
         return View(new ChatViewModel {ConversationId=conversationId,Conversations=history,HasOlderMessages=queries.Count>50,Messages=queries.Take(50).Reverse().Select(Message).ToList()});
@@ -63,7 +63,7 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
         success=true, queryId=q.Id,conversationId=q.ParentQueryId??q.Id,
         answer=AdvisoryPolicy.IsPublished(q.AIResponse)?q.AIResponse!.AIAnswer:null,
         status=q.Status,approvalStatus=q.AIResponse?.ApprovalStatus.ToString(),isEscalated=q.AIResponse?.IsEscalated??false,
-        message=q.Status=="Answered"?"AI answered your question.":AdvisoryPolicy.PendingMessage(q.Status),entry=Message(q)
+        message=TranslationCatalog.Translate(q.Status=="Answered"?"AI answered your question.":AdvisoryPolicy.PendingMessage(q.Status), Language),entry=Message(q)
     });
     [HttpPost, EnableRateLimiting("advisory")]
     public async Task<IActionResult> Ask([FromBody] AskRequest? request) {

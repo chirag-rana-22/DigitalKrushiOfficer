@@ -10,3 +10,12 @@ body{background:var(--bg);color:var(--text-dark);font-family:'Poppins',system-ui
 @media(min-width:769px){body.navigation-collapsed>.sidebar{transform:translateX(-100%);visibility:hidden}body.navigation-collapsed>.main-content{margin-left:56px}body.navigation-collapsed>#sidebarToggle{left:8px}}
 @media(max-width:768px){#sidebarToggle{top:16px;left:16px}body:has(.sidebar.open)>#sidebarToggle{left:204px}.sidebar:not(.open){visibility:hidden}.sidebar.open{visibility:visible}}
 @media(prefers-reduced-motion:reduce){#sidebarToggle,.sidebar,.main-content{transition:none}}
+.language-picker{margin:0;flex-shrink:0;font-size:.8rem}
+.language-picker label{display:flex;align-items:center;gap:5px;margin:0}
+.language-picker select{max-width:125px;border:1px solid #dce4d8;border-radius:8px;background:#fff;color:#254735;padding:7px 5px;font:inherit;cursor:pointer}
+.language-picker select:focus-visible{outline:2px solid #35764d;outline-offset:2px}
+.language-toolbar{display:flex;justify-content:flex-end;padding:8px 20px;background:#f8faf6}
+.workspace-topbar{flex-wrap:wrap;gap:10px}
+html:lang(hi),html:lang(gu),html:lang(mr){line-height:1.6}
+html:lang(hi) body,html:lang(gu) body,html:lang(mr) body{font-family:system-ui,"Nirmala UI",sans-serif}
+@media(max-width:480px){.language-picker select{max-width:96px;padding:6px 3px}.thread-header{gap:6px}}

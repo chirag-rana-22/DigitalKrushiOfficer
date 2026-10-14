@@ -9,8 +9,8 @@
 
 <div class="page-header d-flex justify-between align-center">
     <div>
-        <h1>👨‍🌾 Assign Farmers to Officers</h1>
-        <p>Manage location-based farmer-officer assignments</p>
+        <h1>@Ui.Text("👨‍🌾 Assign Farmers to Officers")</h1>
+        <p>@Ui.Text("Manage location-based farmer-officer assignments")</p>
     </div>
 </div>
 
@@ -18,7 +18,7 @@
     <form method="get">
         <div style="display:flex;gap:12px;align-items:center;">
             <select name="district" class="form-control" style="flex:1;max-width:300px;" onchange="this.form.submit()">
-                <option value="">-- Select District --</option>
+                <option value="">@Ui.Text("-- Select District --")</option>
                 @foreach (var district in districts ?? new List<string>())
                 {
                     <option value="@district" selected="@(selectedDistrict == district)">@district</option>
@@ -28,13 +28,13 @@
             @if (!string.IsNullOrEmpty(selectedDistrict))
             {
                 <input type="hidden" name="district" value="@selectedDistrict" />
-                <input type="text" name="search" class="form-control" placeholder="Search farmer by name..." value="@search"
+                <input type="text" name="search" class="form-control" placeholder="@Ui.Text("Search farmer by name...")" value="@search"
                        style="flex:1;" />
-                <button type="submit" class="btn-primary-green" style="padding:10px 24px;">🔍 Search</button>
+                <button type="submit" class="btn-primary-green" style="padding:10px 24px;">@Ui.Text("🔍 Search")</button>
                 @if (search != null)
                 {
                     <a href="/Admin/AssignFarmerToOfficer?district=@selectedDistrict" class="btn-outline-green"
-                       style="padding:10px 18px;text-decoration:none;">✕ Clear</a>
+                       style="padding:10px 18px;text-decoration:none;">@Ui.Text("✕ Clear")</a>
                 }
             }
         </div>
@@ -46,7 +46,7 @@
     if (!Model.Any())
     {
         <div class="card" style="padding:32px;text-align:center;color:var(--text-gray);">
-            <p>No farmers found in @selectedDistrict district.</p>
+            <p>@Ui.Text("No farmers found in") @selectedDistrict.</p>
         </div>
     }
     else
@@ -57,13 +57,13 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Farmer Name</th>
-                            <th>Email</th>
-                            <th>Mobile</th>
-                            <th>Village</th>
-                            <th>Current Officer</th>
-                            <th>Assign Officer</th>
-                            <th>Action</th>
+                            <th>@Ui.Text("Farmer Name")</th>
+                            <th>@Ui.Text("Email")</th>
+                            <th>@Ui.Text("Mobile")</th>
+                            <th>@Ui.Text("Village")</th>
+                            <th>@Ui.Text("Current Officer")</th>
+                            <th>@Ui.Text("Assign Officer")</th>
+                            <th>@Ui.Text("Action")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,7 +87,7 @@
                                     }
                                     else
                                     {
-                                        <span class="badge badge-yellow">⚠ Not Assigned</span>
+                                        <span class="badge badge-yellow">@Ui.Text("⚠ Not Assigned")</span>
                                     }
                                 </td>
                                 <td>
@@ -98,7 +98,7 @@
                                             <div style="display:flex;gap:4px;">
                                                 <select name="officerId" class="form-control"
                                                         style="font-size:0.85rem;padding:6px 8px;flex:1;">
-                                                    <option value="">-- Select Officer --</option>
+                                                    <option value="">@Ui.Text("-- Select Officer --")</option>
                                                     @foreach (var officer in availableOfficers ?? new
                                         List<Digital_Krushi_Officer.Models.TblUser>())
                                                     {
@@ -108,9 +108,7 @@
                                                     }
                                                 </select>
                                                 <button type="submit" class="btn-primary-green"
-                                                        style="padding:6px 14px;font-size:0.78rem;white-space:nowrap;">
-                                                    Assign
-                                                </button>
+                                                        style="padding:6px 14px;font-size:0.78rem;white-space:nowrap;">@Ui.Text("Assign")</button>
                                             </div>
                                         </form>
                                     </div>
@@ -123,9 +121,7 @@
 
                                                 <input type="hidden" name="farmerId" value="@farmer.Id" />
                                                 <button type="submit" class="btn-red" style="padding:6px 14px;font-size:0.78rem;"
-                                                        onclick="return confirm('Remove assignment?')">
-                                                    Remove
-                                                </button>
+                                                        onclick="return confirm('Remove assignment?')">@Ui.Text("Remove")</button>
                                             </form>
                                         }
                                     </div>
@@ -141,7 +137,7 @@
 else
 {
     <div class="card" style="padding:32px;text-align:center;color:var(--text-gray);">
-        <p>👉 Select a district to see farmers and assign them to officers.</p>
+        <p>@Ui.Text("👉 Select a district to see farmers and assign them to officers.")</p>
     </div>
 }
 

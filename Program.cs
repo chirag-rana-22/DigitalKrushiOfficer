@@ -9,7 +9,11 @@ using System.Threading.RateLimiting;
 var builder = WebApplication.CreateBuilder(args.Where(a => a != "--migrate-only" && a != "--copy-media-to-cloud").ToArray());
 builder.Configuration.AddJsonFile("appsettings.Local.json", true, false).AddEnvironmentVariables();
 CloudHosting.Configure(builder);
-builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<TranslationCatalog>();
+builder.Services.AddScoped<UiText>();
+builder.Services.AddScoped<LocalizedResultFilter>();
+builder.Services.AddControllersWithViews(o => { o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()); o.Filters.AddService<LocalizedResultFilter>(); });
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
 builder.Services.AddDbContext<AppDbContext>(o => o.UseMySql(CloudHosting.DatabaseConnection(builder.Configuration), CloudHosting.DatabaseVersion(builder.Configuration), b => b.EnableRetryOnFailure()));
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(o => {
@@ -75,7 +79,7 @@ app.Use(async (context, next) => {
     if (context.Request.Path.StartsWithSegments("/uploads/crops") || context.Request.Path.StartsWithSegments("/uploads/voice")) { context.Response.StatusCode = 404; return; }
     await next();
 });
-app.UseStaticFiles(); app.UseRouting(); app.UseSession(); app.UseAuthentication(); app.UseAuthorization(); app.UseRateLimiter();
+app.UseStaticFiles(); app.UseRouting(); app.UseSession(); app.UseAuthentication(); app.Use(SiteLanguage.InvokeAsync); app.UseAuthorization(); app.UseRateLimiter();
 app.MapHealthChecks("/health/live");
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.Run();

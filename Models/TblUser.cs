@@ -34,7 +34,7 @@ namespace Digital_Krushi_Officer.Models
         public string? Village { get; set; }
 
         [MaxLength(50)]
-        public string PreferredLanguage { get; set; } = "Gujarati";
+        public string PreferredLanguage { get; set; } = "English";
 
         public bool IsEmailVerified { get; set; } = false;
 

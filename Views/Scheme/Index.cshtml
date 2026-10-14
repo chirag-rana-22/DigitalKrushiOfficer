@@ -7,13 +7,13 @@
     var catIcons = new Dictionary<string,string>{{"Subsidy","💰"},{"Loan","🏦"},{"Insurance","🛡"},{"Training","📚"},{"","📜"}};
 }
 <div class="page-header d-flex justify-between align-center">
-    <div><h1>📜 Government Schemes</h1><p>Agriculture subsidies, loans, and insurance for farmers</p></div>
+    <div><h1>@Ui.Text("📜 Government Schemes")</h1><p>@Ui.Text("Agriculture subsidies, loans, and insurance for farmers")</p></div>
 </div>
 
-<div class="card p-3 mb-3"><p class="mb-0">Explore scheme information and official links. Eligibility and application windows vary by scheme, state and season. Check the official portal before applying.</p></div>
+<div class="card p-3 mb-3"><p class="mb-0">@Ui.Text("Explore scheme information and official links. Eligibility and application windows vary by scheme, state and season. Check the official portal before applying.")</p></div>
 <!-- Category Filter -->
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
-    <a href="/Scheme/Index" class="@(currentCat == null ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">All Schemes</a>
+    <a href="/Scheme/Index" class="@(currentCat == null ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">@Ui.Text("All Schemes")</a>
     @foreach (var cat in categories.Where(c => c != null))
     {
         <a asp-controller="Scheme" asp-action="Index" asp-route-category="@cat" class="@(currentCat == cat ? "btn-primary-green" : "btn-outline-green")" style="padding:8px 18px;text-decoration:none;font-size:0.85rem;">
@@ -24,13 +24,14 @@
 
 @if (!Model.Any())
 {
-    <div class="card p-5 text-center"><div style="font-size:4rem;">📜</div><p style="color:var(--text-gray);">No schemes found.</p></div>
+    <div class="card p-5 text-center"><div style="font-size:4rem;">📜</div><p style="color:var(--text-gray);">@Ui.Text("No schemes found.")</p></div>
 }
 else
 {
     <div class="grid-2">
         @foreach (var s in Model)
         {
+            var description = Ui.Text(s.Description); var eligibility = Ui.Text(s.Eligibility);
             var isExpiringSoon = s.LastDate.HasValue && s.LastDate.Value < DateTime.Now.AddDays(30);
             <div class="card p-4">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
@@ -38,22 +39,21 @@ else
                         @(catIcons.ContainsKey(s.Category ?? "") ? catIcons[s.Category ?? ""] : "📌")
                     </div>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                        <span class="badge badge-green">@(s.LastDate == null ? "Check availability" : s.Status)</span>
-                        @if (s.Category != null) { <span class="badge badge-blue">@s.Category</span> }
-                        @if (isExpiringSoon) { <span class="badge badge-red">Expiring Soon!</span> }
+                        <span class="badge badge-green">@Ui.Text(s.LastDate == null ? "Check availability" : s.Status)</span>
+                        @if (s.Category != null) { <span class="badge badge-blue">@Ui.Text(s.Category)</span> }
+                        @if (isExpiringSoon) { <span class="badge badge-red">@Ui.Text("Expiring Soon!")</span> }
                     </div>
                 </div>
-                <h5 style="font-weight:700;margin-bottom:8px;font-size:1rem;">@s.SchemeName</h5>
-                <p style="color:var(--text-gray);font-size:0.83rem;margin-bottom:12px;line-height:1.5;">@(s.Description?.Length > 120 ? s.Description[..120] + "..." : s.Description)</p>
+                <h5 style="font-weight:700;margin-bottom:8px;font-size:1rem;">@Ui.Text(s.SchemeName)</h5>
+                <p style="color:var(--text-gray);font-size:0.83rem;margin-bottom:12px;line-height:1.5;">@(description.Length > 120 ? description[..120] + "..." : description)</p>
                 <div style="background:#F8F9FA;border-radius:8px;padding:10px;margin-bottom:12px;">
-                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-gray);margin-bottom:4px;">✅ ELIGIBILITY</div>
-                    <div style="font-size:0.82rem;color:#424242;">@(s.Eligibility?.Length > 80 ? s.Eligibility[..80] + "..." : s.Eligibility)</div>
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-gray);margin-bottom:4px;">@Ui.Text("✅ ELIGIBILITY")</div>
+                    <div style="font-size:0.82rem;color:#424242;">@(eligibility.Length > 80 ? eligibility[..80] + "..." : eligibility)</div>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div style="font-size:0.78rem;color:var(--text-gray);">
-                        📅 Last Date: <strong style="color:@(isExpiringSoon ? "var(--red)" : "var(--text-dark)");">@(s.LastDate?.ToString("dd MMM yyyy") ?? "Check official portal")</strong>
+                    <div style="font-size:0.78rem;color:var(--text-gray);">@Ui.Text("📅 Last Date:")<strong style="color:@(isExpiringSoon ? "var(--red)" : "var(--text-dark)");">@(s.LastDate?.ToString("dd MMM yyyy") ?? Ui.Text("Check official portal"))</strong>
                     </div>
-                    <a href="/Scheme/Detail/@s.Id" class="btn-outline-green" style="padding:7px 16px;font-size:0.8rem;text-decoration:none;">Details →</a>
+                    <a href="/Scheme/Detail/@s.Id" class="btn-outline-green" style="padding:7px 16px;font-size:0.8rem;text-decoration:none;">@Ui.Text("Details →")</a>
                 </div>
             </div>
         }

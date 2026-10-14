@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources/ui.json" />
     <Compile Remove="Tests/**/*.cs" />
     <Content Remove="Tests/**;App_Data/**;artifacts/**" />
     <None Remove="App_Data/**;artifacts/**" />

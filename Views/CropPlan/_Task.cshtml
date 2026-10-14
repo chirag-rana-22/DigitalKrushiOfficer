@@ -1,6 +1,6 @@
 @model Digital_Krushi_Officer.Models.CropTask
 @using Digital_Krushi_Officer.Services
-@{ var language = User.FindFirst("Language")?.Value ?? "Gujarati"; }
+@{ var language = Ui.Language; }
 
 <article class="card p-3" style="margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><strong>@ReminderLanguage.TaskTitle(Model, language)</strong><span class="badge @(Model.Status == "Pending" && Model.DueDate < CropPlanning.Today ? "badge-red" : "badge-green")">@ReminderLanguage.Date(Model.DueDate, language) · @ReminderLanguage.Status(Model.Status, language)</span></div>

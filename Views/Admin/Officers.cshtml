@@ -4,7 +4,7 @@
     ViewData["ActiveMenu"] = "Officers";
 }
 <div class="page-header">
-    <h1>👮 Manage Officers</h1>
+    <h1>@Ui.Text("👮 Manage Officers")</h1>
     <p>@Model.Count agriculture officers registered</p>
 </div>
 <div class="card">
@@ -13,13 +13,13 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Department</th>
-                    <th>Designation</th>
-                    <th>District</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>@Ui.Text("Name")</th>
+                    <th>@Ui.Text("Email")</th>
+                    <th>@Ui.Text("Department")</th>
+                    <th>@Ui.Text("Designation")</th>
+                    <th>@Ui.Text("District")</th>
+                    <th>@Ui.Text("Status")</th>
+                    <th>@Ui.Text("Action")</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,7 +38,7 @@
                         <td>
                             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                 <a href="/Admin/ViewOfficerFarmers/@o.Id" class="btn-primary-green"
-                                   style="padding:6px 12px;font-size:0.78rem;text-decoration:none;">👥 Farmers</a>
+                                   style="padding:6px 12px;font-size:0.78rem;text-decoration:none;">@Ui.Text("👥 Farmers")</a>
                                 <form asp-action="ToggleOfficerStatus" method="post" style="display:inline;" asp-antiforgery="true">
 
                                     <input type="hidden" name="id" value="@o.Id" />
@@ -52,8 +52,7 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="8" style="text-align:center;padding:32px;color:var(--text-gray);">No officers found.
-                        </td>
+                        <td colspan="8" style="text-align:center;padding:32px;color:var(--text-gray);">@Ui.Text("No officers found.")</td>
                     </tr>
                 }
             </tbody>

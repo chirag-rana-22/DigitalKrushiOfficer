@@ -4,24 +4,24 @@
     ViewData["ActiveMenu"] = "Crops";
 }
 <div class="page-header d-flex justify-between align-center">
-    <div><h1>🌾 Manage Crops</h1><p>Crop master database</p></div>
-    <a href="/Admin/AddCrop" class="btn-primary-green">➕ Add Crop</a>
+    <div><h1>@Ui.Text("🌾 Manage Crops")</h1><p>@Ui.Text("Crop master database")</p></div>
+    <a href="/Admin/AddCrop" class="btn-primary-green">@Ui.Text("➕ Add Crop")</a>
 </div>
 <div class="card">
     <div style="overflow-x:auto;">
         <table class="data-table">
-            <thead><tr><th>#</th><th>Crop Name</th><th>Season</th><th>Description</th><th>Status</th><th>Action</th></tr></thead>
+            <thead><tr><th>#</th><th>@Ui.Text("Crop Name")</th><th>@Ui.Text("Season")</th><th>@Ui.Text("Description")</th><th>@Ui.Text("Status")</th><th>@Ui.Text("Action")</th></tr></thead>
             <tbody>
                 @foreach (var c in Model)
                 {
                     <tr>
                         <td style="color:var(--text-gray);font-weight:600;">@c.Id</td>
                         <td style="font-weight:700;">@c.CropName</td>
-                        <td><span class="badge badge-blue">@c.Season</span></td>
+                        <td><span class="badge badge-blue">@Ui.Text(c.Season)</span></td>
                         <td style="max-width:200px;font-size:0.82rem;color:var(--text-gray);">@(c.Description?.Length>80?c.Description[..80]+"...":c.Description)</td>
                         <td><span class="badge @(c.IsActive?"badge-green":"badge-red")">@(c.IsActive?"Active":"Inactive")</span></td>
                         <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-                            <a href="/Admin/EditCrop/@c.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">✏️ Update</a>
+                            <a href="/Admin/EditCrop/@c.Id" class="btn-outline-green" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;">@Ui.Text("✏️ Update")</a>
                             <form asp-action="ToggleCropStatus" method="post" style="display:inline;" asp-antiforgery="true">
 
                                 <input type="hidden" name="id" value="@c.Id" />

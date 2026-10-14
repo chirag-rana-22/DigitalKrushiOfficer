@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.toggle('navigation-collapsed', !mobile.matches && collapsed);
             sidebar.inert = !visible;
             toggle.setAttribute('aria-expanded', String(visible));
-            toggle.setAttribute('aria-label', visible ? 'Hide navigation' : 'Show navigation');
-            toggle.title = visible ? 'Hide navigation' : 'Show navigation';
+            toggle.setAttribute('aria-label', window.dkoText(visible ? 'Hide navigation' : 'Show navigation'));
+            toggle.title = window.dkoText(visible ? 'Hide navigation' : 'Show navigation');
         }
         function closeMobile() {
             if (!mobile.matches || !sidebar.classList.contains('open')) return;

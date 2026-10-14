@@ -9,20 +9,19 @@
 
 <div class="content-wrapper">
     <div class="page-header">
-        <h1>✅ Pending AI Response Reviews</h1>
-        <p class="subtitle">Review and approve complex farmer queries</p>
+        <h1>@Ui.Text("✅ Pending AI Response Reviews")</h1>
+        <p class="subtitle">@Ui.Text("Review and approve complex farmer queries")</p>
     </div>
 
     <div class="alert-info" style="margin-bottom:20px;">
-        <strong>📋 @pending pending</strong> - Uncertain or complex questions needing your help
-    </div>
+        <strong>📋 @pending @Ui.Text("Pending")</strong>@Ui.Text("- Uncertain or complex questions needing your help")</div>
 
     @if (Model == null || Model.Count == 0)
     {
         <div class="empty-state">
             <div class="empty-icon">✨</div>
-            <h3>All Caught Up!</h3>
-            <p>No pending AI responses to review. Great work!</p>
+            <h3>@Ui.Text("All Caught Up!")</h3>
+            <p>@Ui.Text("No pending AI responses to review. Great work!")</p>
         </div>
     }
     else
@@ -37,20 +36,20 @@
                         <div class="review-meta">
                             <h3>@response.Query?.QueryText?.Substring(0, Math.Min(60, response.Query.QueryText?.Length ?? 0))...
                             </h3>
-                            <small>From: <strong>@farmer?.Name</strong> (@farmer?.Email)</small>
+                            <small>@Ui.Text("From:")<strong>@farmer?.Name</strong> (@farmer?.Email)</small>
                         </div>
                         <div class="complexity-badge">
                             @if (response.ComplexityLevel == ComplexityLevel.Complex)
                             {
-                                <span class="badge badge-danger">🔴 Complex</span>
+                                <span class="badge badge-danger">@Ui.Text("🔴 Complex")</span>
                             }
                         </div>
                     </div>
 
                     <div class="review-body">
                         <div class="ai-answer">
-                            <h4>AI assessment for review:</h4>
-                            <p><strong>Reason for escalation:</strong> @response.EscalationReason</p>
+                            <h4>@Ui.Text("AI assessment for review:")</h4>
+                            <p><strong>@Ui.Text("Reason for escalation:")</strong> @response.EscalationReason</p>
                             <div class="answer-preview"
                                  style="background:#f5f5f5;padding:12px;border-radius:8px;max-height:200px;overflow-y:auto;font-size:0.9rem;">
                                 @response.AIAnswer
@@ -59,22 +58,22 @@
 
                         <div class="response-info">
                             <div class="info-row">
-                                <span>🎯 Confidence:</span>
+                                <span>@Ui.Text("🎯 Confidence:")</span>
                                 <strong>@(response.ConfidenceScore?.ToString("0") ?? "Not measured")</strong>
                             </div>
                             <div class="info-row">
-                                <span>⏱️ Response Time:</span>
+                                <span>@Ui.Text("⏱️ Response Time:")</span>
                                 <strong>@(response.ResponseTimeMs)ms</strong>
                             </div>
                             <div class="info-row">
-                                <span>📅 Submitted:</span>
+                                <span>@Ui.Text("📅 Submitted:")</span>
                                 <strong>@response.CreatedDate.ToString("dd MMM yyyy HH:mm")</strong>
                             </div>
                         </div>
                     </div>
 
                     <div class="review-actions">
-                        <a href="/Officer/ReviewResponse/@response.Id" class="btn btn-primary">Review & Decide</a>
+                        <a href="/Officer/ReviewResponse/@response.Id" class="btn btn-primary">@Ui.Text("Review & Decide")</a>
                     </div>
                 </div>
             }

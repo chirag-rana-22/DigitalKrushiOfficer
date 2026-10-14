@@ -18,7 +18,7 @@ public class OtpService(AppDbContext db, IDataProtectionProvider protection, IEm
         challenge.ProtectedCode = protector.Protect(code);
         challenge.ExpiresUtc = now.AddMinutes(10); challenge.SentUtc = now; challenge.Attempts = 0; challenge.Consumed = false;
         try { await db.SaveChangesAsync(); } catch (DbUpdateException) { return false; }
-        var error = purpose == "verify" ? await email.SendOtpEmailAsync(user.Email, user.Name, code) : await email.SendPasswordResetEmailAsync(user.Email, user.Name, code);
+        var error = purpose == "verify" ? await email.SendOtpEmailAsync(user.Email, user.Name, code, user.PreferredLanguage) : await email.SendPasswordResetEmailAsync(user.Email, user.Name, code, user.PreferredLanguage);
         return error == null;
     }
     public async Task<bool> VerifyAsync(string address, string purpose, string? code)

@@ -2,50 +2,51 @@
 @{ ViewData["Title"]="Krushi AI Chat"; ViewData["ActiveMenu"]="Chat"; ViewData["ChatWorkspace"]=true; }
 @section Styles { <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" /> }
 <div class="chat-workspace" id="chatWorkspace" data-conversation-id="@Model.ConversationId" data-farmer-crop-id="@ViewBag.FarmerCropId">
-    <aside class="chat-history" id="chatHistory" aria-label="Conversation history">
-        <div class="history-heading"><strong>Your conversations</strong><button id="closeHistory" type="button" class="chat-icon-button" aria-label="Close chat history">×</button></div>
-        <a href="/Chat/Index?newChat=true" id="newChatLink" class="new-chat-link"><span>＋</span> New chat</a>
-        <label class="history-search"><span class="visually-hidden">Search conversations</span><input id="historySearch" type="search" placeholder="Search chats…" maxlength="200" autocomplete="off" /></label>
-        <p class="history-caption">Recent chats · search to find older</p>
-        <nav id="conversationList" class="conversation-list" aria-label="Saved chats">
+    <aside class="chat-history" id="chatHistory" aria-label="@Ui.Text("Conversation history")">
+        <div class="history-heading"><strong>@Ui.Text("Your conversations")</strong><button id="closeHistory" type="button" class="chat-icon-button" aria-label="@Ui.Text("Close chat history")">×</button></div>
+        <a href="/Chat/Index?newChat=true" id="newChatLink" class="new-chat-link"><span>＋</span>@Ui.Text("New chat")</a>
+        <label class="history-search"><span class="visually-hidden">@Ui.Text("Search conversations")</span><input id="historySearch" type="search" placeholder="@Ui.Text("Search chats…")" maxlength="200" autocomplete="off" /></label>
+        <p class="history-caption">@Ui.Text("Recent chats · search to find older")</p>
+        <nav id="conversationList" class="conversation-list" aria-label="@Ui.Text("Saved chats")">
             @foreach(var chat in Model.Conversations) {
                 <a href="/Chat/Index?conversationId=@chat.Id" data-conversation="@chat.Id" class="@(Model.ConversationId==chat.Id?"selected":"")" aria-current="@(Model.ConversationId==chat.Id?"page":null)"><span>@chat.Title</span><small>@chat.UpdatedAt.ToString("dd MMM")</small></a>
             }
-            @if(!Model.Conversations.Any()) { <p class="history-empty">Your conversations will appear here after your first message.</p> }
+            @if(!Model.Conversations.Any()) { <p class="history-empty">@Ui.Text("Your conversations will appear here after your first message.")</p> }
         </nav>
-        <div class="history-footer"><span class="chat-online-dot"></span> Private to your account</div>
+        <div class="history-footer"><span class="chat-online-dot"></span>@Ui.Text("Private to your account")</div>
     </aside>
-    <button class="history-backdrop" id="historyBackdrop" type="button" aria-label="Close conversation history"></button>
-    <section class="chat-panel" aria-label="AI conversation">
+    <button class="history-backdrop" id="historyBackdrop" type="button" aria-label="@Ui.Text("Close conversation history")"></button>
+    <section class="chat-panel" aria-label="@Ui.Text("AI conversation")">
         <header class="thread-header">
             <div class="thread-identity">
-                <button type="button" id="historyToggle" class="chat-icon-button" aria-label="Open conversation history" aria-controls="chatHistory" aria-expanded="false">☷</button>
+                <button type="button" id="historyToggle" class="chat-icon-button" aria-label="@Ui.Text("Open conversation history")" aria-controls="chatHistory" aria-expanded="false">☷</button>
                 <div><h1>Krushi <span>AI</span></h1>
                     @if (ViewBag.CropLabel != null) {
-                        <p><a class="chat-crop-link" href="/CropPlan/Index/@ViewBag.FarmerCropId" title="View crop details" aria-label="View selected crop details: @ViewBag.CropLabel">🌱 @ViewBag.CropLabel</a></p>
-                    } else { <p>Your farming companion</p> }
+                        <p><a class="chat-crop-link" href="/CropPlan/Index/@ViewBag.FarmerCropId" title="@Ui.Text("View crop details")" aria-label="View selected crop details: @ViewBag.CropLabel">🌱 @ViewBag.CropLabel</a></p>
+                    } else { <p>@Ui.Text("Your farming companion")</p> }
                 </div>
             </div>
-            <span class="thread-mode"><span class="chat-online-dot"></span> AI first · Expert help when needed</span>
+            <partial name="_LanguagePicker" />
+            <span class="thread-mode"><span class="chat-online-dot"></span>@Ui.Text("AI first · Expert help when needed")</span>
         </header>
-        <div id="messages" class="thread-messages" tabindex="0" aria-label="Messages">
-            <button id="loadOlder" class="load-older" type="button" hidden="@(!Model.HasOlderMessages)">Load earlier messages</button>
+        <div id="messages" class="thread-messages" tabindex="0" aria-label="@Ui.Text("Messages")">
+            <button id="loadOlder" class="load-older" type="button" hidden="@(!Model.HasOlderMessages)">@Ui.Text("Load earlier messages")</button>
             @if(!Model.Messages.Any()) {
-                <div class="thread-welcome" id="chatWelcome"><div class="welcome-mark" aria-hidden="true">✳</div><span class="eyebrow">A LITTLE HELP FOR YOUR NEXT HARVEST</span><h2>What's happening<br>in your field?</h2><p>Ask a question, share crop and soil photos, or continue a conversation. I’ll help you find the next step.</p><div class="chat-suggestions"><button type="button" data-question="What should I check before watering my crop?">Watering & soil <span>↗</span></button><button type="button" data-question="What photos should I take to understand changes in my crop leaves?">Crop health <span>↗</span></button><button type="button" data-question="Explain the farming schemes available in the catalog.">Government schemes <span>↗</span></button></div></div>
+                <div class="thread-welcome" id="chatWelcome"><div class="welcome-mark" aria-hidden="true">✳</div><span class="eyebrow">@Ui.Text("A LITTLE HELP FOR YOUR NEXT HARVEST")</span><h2>@Ui.Text("What's happening")<br>@Ui.Text("in your field?")</h2><p>@Ui.Text("Ask a question, share crop and soil photos, or continue a conversation. I’ll help you find the next step.")</p><div class="chat-suggestions"><button type="button" data-question="@Ui.Text("What should I check before watering my crop?")">@Ui.Text("Watering & soil")<span>↗</span></button><button type="button" data-question="@Ui.Text("What photos should I take to understand changes in my crop leaves?")">@Ui.Text("Crop health")<span>↗</span></button><button type="button" data-question="@Ui.Text("Explain the farming schemes available in the catalog.")">@Ui.Text("Government schemes")<span>↗</span></button></div></div>
             }
             @foreach(var message in Model.Messages) { <partial name="_ChatMessage" model="message" /> }
         </div>
         <div class="composer-wrap">
-            <button id="jumpLatest" class="jump-latest" type="button" hidden>↓ Latest message</button>
+            <button id="jumpLatest" class="jump-latest" type="button" hidden>@Ui.Text("↓ Latest message")</button>
             <form id="questionForm" class="chat-composer">
-                <div id="photoPreviews" class="photo-previews" aria-label="Selected photos"></div>
-                <label for="questionText" class="visually-hidden">Your question</label>
-                <textarea id="questionText" name="question" rows="1" maxlength="4000" placeholder="Ask about your crops, soil or farm…"></textarea>
-                <div class="compose-toolbar"><div class="compose-tools"><button type="button" id="attachPhotos" class="attach-photos" aria-label="Attach crop or soil photos"><span aria-hidden="true">＋</span><span>Photos</span></button><input id="cropPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden /><button type="button" id="voiceButton" class="chat-icon-button" aria-label="Use voice input" title="Voice input">♩</button><span id="photoLabel" class="attachment-count"></span></div><button type="submit" id="sendButton" class="send-message" aria-label="Send message"><span class="send-label">Send</span><span aria-hidden="true">↑</span></button></div>
+                <div id="photoPreviews" class="photo-previews" aria-label="@Ui.Text("Selected photos")"></div>
+                <label for="questionText" class="visually-hidden">@Ui.Text("Your question")</label>
+                <textarea id="questionText" name="question" rows="1" maxlength="4000" placeholder="@Ui.Text("Ask about your crops, soil or farm…")"></textarea>
+                <div class="compose-toolbar"><div class="compose-tools"><button type="button" id="attachPhotos" class="attach-photos" aria-label="@Ui.Text("Attach crop or soil photos")"><span aria-hidden="true">＋</span><span>@Ui.Text("Photos")</span></button><input id="cropPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden /><button type="button" id="voiceButton" class="chat-icon-button" aria-label="@Ui.Text("Use voice input")" title="@Ui.Text("Voice input")">♩</button><span id="photoLabel" class="attachment-count"></span></div><button type="submit" id="sendButton" class="send-message" aria-label="@Ui.Text("Send message")"><span class="send-label">@Ui.Text("Send")</span><span aria-hidden="true">↑</span></button></div>
                 <p id="chatStatus" class="compose-status" role="status" aria-live="polite"></p>
             </form>
-            <div class="composer-note"><span>Up to 20 photos · 5 MB each · 25 MB total. Paste or drop images.</span><span>Enter to send · Shift + Enter for a new line</span></div>
-            <p class="chat-disclaimer">AI answers everyday questions. Uncertain cases go to a Krushi Officer. <a href="/Home/Privacy">Privacy</a></p>
+            <div class="composer-note"><span>@Ui.Text("Up to 20 photos · 5 MB each · 25 MB total. Paste or drop images.")</span><span>@Ui.Text("Enter to send · Shift + Enter for a new line")</span></div>
+            <p class="chat-disclaimer">@Ui.Text("AI answers everyday questions. Uncertain cases go to a Krushi Officer.")<a href="/Home/Privacy">@Ui.Text("Privacy")</a></p>
         </div>
     </section>
 </div>

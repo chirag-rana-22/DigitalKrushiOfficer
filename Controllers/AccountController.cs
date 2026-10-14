@@ -11,7 +11,7 @@ namespace Digital_Krushi_Officer.Controllers;
 [EnableRateLimiting("account")]
 public class AccountController(AppDbContext db, OtpService otp, ILogger<AccountController> logger) : Controller
 {
-    [HttpGet] public IActionResult Register() => View();
+    [HttpGet] public IActionResult Register() => View(new RegisterViewModel { PreferredLanguage = SiteLanguage.Current(HttpContext) });
     [HttpPost] public async Task<IActionResult> Register(RegisterViewModel model) {
         if (model.Role is not ("Farmer" or "Officer")) ModelState.AddModelError("Role", "Select Farmer or Officer.");
         if (!ModelState.IsValid) return View(model);

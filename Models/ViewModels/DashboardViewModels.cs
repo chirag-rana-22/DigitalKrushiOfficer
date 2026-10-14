@@ -122,9 +122,9 @@ namespace Digital_Krushi_Officer.Models.ViewModels
         [Display(Name = "Village")]
         public string? Village { get; set; }
 
-        [RegularExpression("^(Gujarati|Hindi|English)$")]
+        [RegularExpression("^(Gujarati|Hindi|English|Marathi)$")]
         [Display(Name = "Preferred Language")]
-        public string PreferredLanguage { get; set; } = "Gujarati";
+        public string PreferredLanguage { get; set; } = "English";
 
         // Farmer specific
         [Range(0.01, 1000000)]

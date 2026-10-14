@@ -5,17 +5,17 @@
     var allCrops = ViewBag.AllCrops as List<Digital_Krushi_Officer.Models.TblCrop> ?? new();
 }
 <div class="page-header d-flex justify-between align-center">
-    <div><h1>🌱 My Crops</h1><p>Manage your crop portfolio · @allCrops.Count crop types available</p></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><a href="/CropPlan/Today" class="btn-outline-green">🔔 Today’s tasks</a><button onclick="document.getElementById('addCropModal').style.display='flex'" class="btn-primary-green">➕ Add Crop</button></div>
+    <div><h1>@Ui.Text("🌱 My Crops")</h1><p>@Ui.Text("Manage your crop portfolio") · @allCrops.Count @Ui.Text("crop types available")</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><a href="/CropPlan/Today" class="btn-outline-green">@Ui.Text("🔔 Today’s tasks")</a><button onclick="document.getElementById('addCropModal').style.display='flex'" class="btn-primary-green">@Ui.Text("➕ Add Crop")</button></div>
 </div>
 
 @if (!Model.Any())
 {
     <div class="card p-5 text-center">
         <div style="font-size:4rem;margin-bottom:16px;">🌾</div>
-        <h4 style="font-weight:700;">No crops added yet</h4>
-        <p style="color:var(--text-gray);">Choose a crop from the catalog and enter your own planting details to start tracking it.</p>
-        <button onclick="document.getElementById('addCropModal').style.display='flex'" class="btn-primary-green" style="margin-top:16px;display:inline-flex;">➕ Add Your First Crop</button>
+        <h4 style="font-weight:700;">@Ui.Text("No crops added yet")</h4>
+        <p style="color:var(--text-gray);">@Ui.Text("Choose a crop from the catalog and enter your own planting details to start tracking it.")</p>
+        <button onclick="document.getElementById('addCropModal').style.display='flex'" class="btn-primary-green" style="margin-top:16px;display:inline-flex;">@Ui.Text("➕ Add Your First Crop")</button>
     </div>
 }
 else
@@ -26,36 +26,36 @@ else
             <div class="card p-4">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                     <div style="width:48px;height:48px;background:#E8F5E9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🌾</div>
-                    <span class="badge @(c.Status=="Growing"?"badge-green":c.Status=="Harvested"?"badge-blue":"badge-red")">@c.Status</span>
+                    <span class="badge @(c.Status=="Growing"?"badge-green":c.Status=="Harvested"?"badge-blue":"badge-red")">@Ui.Text(c.Status)</span>
                 </div>
-                <h5 style="font-weight:700;margin-bottom:4px;">@c.DisplayName</h5><p>@(c.FieldName ?? "Field not named") · @(c.Variety ?? "Variety not set")</p>
-                <p style="color:var(--text-gray);font-size:0.8rem;margin-bottom:14px;">@(c.CustomCropName != null ? "Your custom crop" : c.Crop?.Season ?? "Season depends on location and variety")</p>
+                <h5 style="font-weight:700;margin-bottom:4px;">@Digital_Krushi_Officer.Services.ReminderLanguage.CropName(c, Ui.Language)</h5><p>@(c.FieldName ?? Ui.Text("Field not named")) · @(c.Variety ?? Ui.Text("Variety not set"))</p>
+                <p style="color:var(--text-gray);font-size:0.8rem;margin-bottom:14px;">@(c.CustomCropName != null ? Ui.Text("Your custom crop") : Ui.Text(c.Crop?.Season ?? "Season depends on location and variety"))</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
                     <div style="background:#F5F5F5;border-radius:8px;padding:8px;">
-                        <div style="font-size:0.7rem;color:var(--text-gray);">Land Area</div>
-                        <div style="font-weight:700;font-size:0.9rem;">@(c.LandArea ?? 0) acres</div>
+                        <div style="font-size:0.7rem;color:var(--text-gray);">@Ui.Text("Land Area")</div>
+                        <div style="font-weight:700;font-size:0.9rem;">@(c.LandArea ?? 0) @Ui.Text("acres")</div>
                     </div>
                     <div style="background:#F5F5F5;border-radius:8px;padding:8px;">
-                        <div style="font-size:0.7rem;color:var(--text-gray);">Sowing Date</div>
+                        <div style="font-size:0.7rem;color:var(--text-gray);">@Ui.Text("Sowing Date")</div>
                         <div style="font-weight:700;font-size:0.85rem;">@(c.SowingDate?.ToString("dd MMM") ?? "—")</div>
                     </div>
                     <div style="background:#F5F5F5;border-radius:8px;padding:8px;">
-                        <div style="font-size:0.7rem;color:var(--text-gray);">Expected Harvest</div>
+                        <div style="font-size:0.7rem;color:var(--text-gray);">@Ui.Text("Expected Harvest")</div>
                         <div style="font-weight:700;font-size:0.85rem;">@(c.ExpectedHarvestDate?.ToString("dd MMM") ?? "—")</div>
                     </div>
                     <div style="background:#F5F5F5;border-radius:8px;padding:8px;">
-                        <div style="font-size:0.7rem;color:var(--text-gray);">Added</div>
+                        <div style="font-size:0.7rem;color:var(--text-gray);">@Ui.Text("Added")</div>
                         <div style="font-weight:700;font-size:0.85rem;">@c.CreatedDate.ToString("dd MMM")</div>
                     </div>
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <a href="/CropPlan/Index/@c.Id" class="btn-primary-green">Calendar & reminders</a>
-                    <a href="/CropPlan/Edit/@c.Id" class="btn-outline-green">Edit</a>
-                    <a href="/Chat/Index?newChat=true&amp;farmerCropId=@c.Id" class="btn-outline-green">Ask AI</a>
+                    <a href="/CropPlan/Index/@c.Id" class="btn-primary-green">@Ui.Text("Calendar & reminders")</a>
+                    <a href="/CropPlan/Edit/@c.Id" class="btn-outline-green">@Ui.Text("Edit")</a>
+                    <a href="/Chat/Index?newChat=true&amp;farmerCropId=@c.Id" class="btn-outline-green">@Ui.Text("Ask AI")</a>
                     <form asp-action="DeleteCrop" method="post" asp-antiforgery="true">
 
                         <input type="hidden" name="id" value="@c.Id" />
-                        <button type="submit" class="btn-red" style="padding:8px 14px;font-size:0.8rem;" onclick="return confirm('Remove this crop?')">🗑</button>
+                        <button type="submit" class="btn-red" style="padding:8px 14px;font-size:0.8rem;" onclick="return confirm(window.dkoText('Remove this crop?'))">🗑</button>
                     </form>
                 </div>
             </div>
@@ -67,44 +67,44 @@ else
 <div id="addCropModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
     <div class="card p-4" style="width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <h5 style="font-weight:700;margin:0;">➕ Add New Crop</h5>
+            <h5 style="font-weight:700;margin:0;">@Ui.Text("➕ Add New Crop")</h5>
             <button onclick="document.getElementById('addCropModal').style.display='none'" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">✕</button>
         </div>
         <form asp-action="AddCrop" method="post" asp-antiforgery="true">
 
             <div class="form-group">
-                <label class="form-label" for="cropChoice">🌾 Select Crop</label>
+                <label class="form-label" for="cropChoice">@Ui.Text("🌾 Select Crop")</label>
                 <select name="cropId" id="cropChoice" class="form-control form-select" required>
-                    <option value="">Choose crop...</option>
+                    <option value="">@Ui.Text("Choose crop...")</option>
                     @foreach (var crop in allCrops)
                     {
-                        <option value="@crop.Id">@crop.CropName</option>
+                        <option value="@crop.Id">@Ui.Text(crop.CropName)</option>
                     }
-                    <option value="-1">Other / अपनी फसल जोड़ें</option>
+                    <option value="-1">@Ui.Text("Other / अपनी फसल जोड़ें")</option>
                 </select>
             </div>
             <div class="form-group" id="customCropFields" hidden>
-                <label class="form-label" for="customCropName">Your crop name / अपनी फसल का नाम</label>
-                <input name="customCropName" id="customCropName" class="form-control" maxlength="100" placeholder="Enter in English, Hindi or Gujarati" disabled />
-                <small>This name is saved only with your crop record.</small>
+                <label class="form-label" for="customCropName">@Ui.Text("Your crop name / अपनी फसल का नाम")</label>
+                <input name="customCropName" id="customCropName" class="form-control" maxlength="100" placeholder="@Ui.Text("Enter in English, Hindi or Gujarati")" disabled />
+                <small>@Ui.Text("This name is saved only with your crop record.")</small>
             </div>
             <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">📏 Land Area (acres)</label>
+                    <label class="form-label">@Ui.Text("📏 Land Area (acres)")</label>
                     <input type="number" name="landArea" class="form-control" placeholder="e.g. 2.5" step="0.1" min="0.1" />
                 </div>
                 <div class="form-group">
-                    <label class="form-label">📅 Sowing Date</label>
+                    <label class="form-label">@Ui.Text("📅 Sowing Date")</label>
                     <input type="date" name="sowingDate" class="form-control" />
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">🗓 Expected Harvest Date</label>
+                <label class="form-label">@Ui.Text("🗓 Expected Harvest Date")</label>
                 <input type="date" name="harvestDate" class="form-control" />
             </div>
             <div style="display:flex;gap:10px;margin-top:8px;">
-                <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:12px;">✅ Add Crop</button>
-                <button type="button" onclick="document.getElementById('addCropModal').style.display='none'" class="btn-outline-green" style="padding:12px 20px;">Cancel</button>
+                <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:12px;">@Ui.Text("✅ Add Crop")</button>
+                <button type="button" onclick="document.getElementById('addCropModal').style.display='none'" class="btn-outline-green" style="padding:12px 20px;">@Ui.Text("Cancel")</button>
             </div>
         </form>
     </div>

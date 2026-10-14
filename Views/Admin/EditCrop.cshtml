@@ -1,32 +1,32 @@
 @model Digital_Krushi_Officer.Models.TblCrop
 @{ ViewData["Title"] = "Update Crop"; ViewData["ActiveMenu"] = "Crops"; }
-<div class="page-header"><h1>✏️ Update Crop</h1></div>
+<div class="page-header"><h1>@Ui.Text("✏️ Update Crop")</h1></div>
 <div class="card p-4" style="max-width:560px;">
     <form asp-action="EditCrop" method="post" asp-antiforgery="true">
 
         <input asp-for="Id" type="hidden" />
         <div asp-validation-summary="ModelOnly" class="alert-banner danger mb-3"></div>
-        <div class="form-group"><label class="form-label">🌾 Crop Name</label><input asp-for="CropName" class="form-control" placeholder="e.g. Cotton" required /></div>
+        <div class="form-group"><label class="form-label">@Ui.Text("🌾 Crop Name")</label><input asp-for="CropName" class="form-control" placeholder="e.g. Cotton" required /></div>
         <div class="form-group">
-            <label class="form-label">📅 Season</label>
+            <label class="form-label">@Ui.Text("📅 Season")</label>
             <select asp-for="Season" class="form-control form-select">
-                <option value="Kharif">Kharif (Jun-Oct)</option>
-                <option value="Rabi">Rabi (Nov-Mar)</option>
-                <option value="Zaid">Zaid (Mar-Jun)</option>
-                <option value="Year-round">Year-round</option>
+                <option value="Kharif">@Ui.Text("Kharif (Jun-Oct)")</option>
+                <option value="Rabi">@Ui.Text("Rabi (Nov-Mar)")</option>
+                <option value="Zaid">@Ui.Text("Zaid (Mar-Jun)")</option>
+                <option value="Year-round">@Ui.Text("Year-round")</option>
             </select>
         </div>
-        <div class="form-group"><label class="form-label">📝 Description</label><textarea asp-for="Description" class="form-control" rows="3" placeholder="Brief description..."></textarea></div>
+        <div class="form-group"><label class="form-label">@Ui.Text("📝 Description")</label><textarea asp-for="Description" class="form-control" rows="3" placeholder="@Ui.Text("Brief description...")"></textarea></div>
         <div class="form-group">
-            <label class="form-label">🔄 Status</label>
+            <label class="form-label">@Ui.Text("🔄 Status")</label>
             <select asp-for="IsActive" class="form-control form-select">
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <option value="true">@Ui.Text("Active")</option>
+                <option value="false">@Ui.Text("Inactive")</option>
             </select>
         </div>
         <div style="display:flex;gap:10px;margin-top:8px;">
-            <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">💾 Save Changes</button>
-            <a href="/Admin/Crops" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">Cancel</a>
+            <button type="submit" class="btn-primary-green" style="flex:1;justify-content:center;padding:13px;">@Ui.Text("💾 Save Changes")</button>
+            <a href="/Admin/Crops" class="btn-outline-green" style="padding:13px 20px;text-decoration:none;">@Ui.Text("Cancel")</a>
         </div>
     </form>
 </div>

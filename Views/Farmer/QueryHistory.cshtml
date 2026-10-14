@@ -5,17 +5,17 @@
 }
 <partial name="_QueryFilters" />
 <div class="page-header">
-    <h1>📋 Query History</h1>
-    <p>All your past AI queries and responses</p>
+    <h1>@Ui.Text("📋 Query History")</h1>
+    <p>@Ui.Text("All your past AI queries and responses")</p>
 </div>
 
 @if (!Model.Any())
 {
     <div class="card p-5 text-center">
         <div style="font-size:4rem;margin-bottom:16px;">💬</div>
-        <h4>No queries yet</h4>
-        <p style="color:var(--text-gray);">Start by asking the AI a farming question</p>
-        <a href="/Chat/Index" class="btn-primary-green" style="display:inline-flex;margin-top:16px;">🤖 Ask AI Now</a>
+        <h4>@Ui.Text("No queries yet")</h4>
+        <p style="color:var(--text-gray);">@Ui.Text("Start by asking the AI a farming question")</p>
+        <a href="/Chat/Index" class="btn-primary-green" style="display:inline-flex;margin-top:16px;">@Ui.Text("🤖 Ask AI Now")</a>
     </div>
 }
 else
@@ -30,9 +30,9 @@ else
                     </div>
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
-                            <span class="badge @(q.Status=="Answered"?"badge-green":q.Status=="Escalated"?"badge-yellow":q.Status=="Closed"?"badge-blue":"badge-gray")">@q.Status</span>
-                            <span class="badge badge-gray">@q.QueryType</span>
-                            <span class="badge badge-gray">@q.QueryLanguage</span>
+                            <span class="badge @(q.Status=="Answered"?"badge-green":q.Status=="Escalated"?"badge-yellow":q.Status=="Closed"?"badge-blue":"badge-gray")">@Ui.Text(q.Status)</span>
+                            <span class="badge badge-gray">@Ui.Text(q.QueryType)</span>
+                            <span class="badge badge-gray">@Ui.Text(q.QueryLanguage)</span>
                             <span style="color:var(--text-gray);font-size:0.78rem;margin-left:auto;">@q.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</span>
                         </div>
                         <partial name="_QueryImages" model="q" />
@@ -64,7 +64,7 @@ else
                         else if (q.Status == "Answered")
                         {
                             <div style="margin-top:8px;" id="fb-@q.Id">
-                                <span style="font-size:0.78rem;color:var(--text-gray);">Rate this answer: </span>
+                                <span style="font-size:0.78rem;color:var(--text-gray);">@Ui.Text("Rate this answer:")</span>
                                 @for (int i = 1; i <= 5; i++)
                                 {
                                     var starVal = i;
