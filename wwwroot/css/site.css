@@ -70,8 +70,9 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 /* Buttons */
 .btn-primary-green { background: linear-gradient(135deg, var(--green), #43A047); color: white; border: none; padding: 12px 28px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
 .btn-primary-green:hover { background: linear-gradient(135deg, var(--green-dark), var(--green)); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(46,125,50,0.4); }
-.btn-outline-green { background: transparent; color: var(--green); border: 2px solid var(--green); padding: 10px 24px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition); font-size: 0.875rem; }
-.btn-outline-green:hover { background: var(--green); color: white; }
+.btn-outline-green { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; background: transparent; color: var(--green); border: 2px solid var(--green); padding: 10px 24px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition); font-size: 0.875rem; line-height: 1.4; text-align: center; text-decoration: none; vertical-align: middle; }
+.btn-outline-green:hover { background: var(--green); color: white; text-decoration: none; }
+.btn-outline-green:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; text-decoration: none; }
 .btn-yellow { background: var(--yellow); color: var(--text-dark); border: none; padding: 10px 24px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition); }
 .btn-yellow:hover { background: #F9A825; }
 .btn-red { background: var(--red); color: white; border: none; padding: 10px 24px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition); }
