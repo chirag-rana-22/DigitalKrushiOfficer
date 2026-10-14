@@ -17,6 +17,8 @@ body{background:var(--bg);color:var(--text-dark);font-family:'Poppins',system-ui
 .language-toolbar{display:flex;justify-content:flex-end;padding:8px 20px;background:#f8faf6}
 .workspace-topbar{flex-wrap:wrap;gap:10px}
 .workspace-topbar>strong{margin-right:auto}
+.workspace-account{display:flex;align-items:center;gap:12px;margin-left:auto}
+.workspace-account>span{white-space:nowrap}
 html:lang(hi),html:lang(gu),html:lang(mr){line-height:1.6}
 html:lang(hi) body,html:lang(gu) body,html:lang(mr) body{font-family:system-ui,"Nirmala UI",sans-serif}
 @media(max-width:480px){.language-picker select{max-width:96px;padding:6px 3px}.thread-header{gap:6px}}
