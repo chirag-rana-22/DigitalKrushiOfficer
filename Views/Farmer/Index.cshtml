@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Farmer Dashboard";
     ViewData["ActiveMenu"] = "Dashboard";
+    var reminderLanguage = User.FindFirst("Language")?.Value ?? "Gujarati";
 }
 <div class="page-header d-flex justify-between align-center">
     <div>
@@ -16,7 +17,7 @@
 </div>
 
 <!-- Stats -->
-<div class="card p-3" style="margin-bottom:20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong>🔔 Today's crop tasks</strong><p>@ViewBag.DueCropTasks due or overdue · Review field conditions before acting.</p></div><a href="/CropPlan/Today" class="btn-primary-green">View today's tasks</a></div>
+<div class="card p-3" style="margin-bottom:20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong>🔔 @Digital_Krushi_Officer.Services.ReminderLanguage.Heading(reminderLanguage)</strong><p>@ViewBag.DueCropTasks @Digital_Krushi_Officer.Services.ReminderLanguage.Text(reminderLanguage, "due or overdue tasks", "आज के या पिछली तारीख से बाकी काम", "આજના અથવા અગાઉની તારીખથી બાકી કામ")</p></div><a href="/CropPlan/Today" class="btn-primary-green">@Digital_Krushi_Officer.Services.ReminderLanguage.Text(reminderLanguage, "View today's tasks", "आज के काम देखें", "આજના કામ જુઓ")</a></div>
 <div class="grid-4 mb-4">
     <div class="stat-card">
         <div class="stat-icon green">💬</div>

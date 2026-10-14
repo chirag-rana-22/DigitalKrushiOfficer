@@ -1,6 +1,6 @@
 @model Digital_Krushi_Officer.Models.ViewModels.CropPlanModel
 @using Digital_Krushi_Officer.Services
-@{ ViewData["Title"] = "Crop calendar"; ViewData["ActiveMenu"] = "Crops"; var crop = Model.Crop; var today = CropPlanning.Today; }
+@{ ViewData["Title"] = "Crop calendar"; ViewData["ActiveMenu"] = "Crops"; var crop = Model.Crop; var today = CropPlanning.Today; var language = User.FindFirst("Language")?.Value ?? "Gujarati"; }
 <div class="page-header"><h1>@crop.DisplayName</h1><p>@(crop.FieldName ?? "Name your field in Edit details") · @(crop.Variety ?? "Variety not set") · @crop.Status</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap"><a asp-action="Edit" asp-route-id="@crop.Id" class="btn-outline-green">Edit details</a><a href="/Chat/Index?newChat=true&amp;farmerCropId=@crop.Id" class="btn-primary-green">Ask AI about this crop</a><a asp-action="Today" class="btn-outline-green">Today's tasks</a><a href="/Farmer/Crops" class="btn-outline-green">All crops</a></div>
 </div>
@@ -17,7 +17,7 @@
 <details class="card p-4" style="margin:20px 0"><summary><strong>Review suggested calendar — confirm before activating</strong></summary>
     <p>General check-ins only, not a crop-specific fertilizer or pesticide schedule. You can change every date. Past dates will not be added. Confirming replaces only pending suggested tasks; your custom tasks and completed history stay.</p>
     @if (!Model.Preview.Any()) { <a asp-action="Edit" asp-route-id="@crop.Id">Set sowing and estimated harvest dates to create a plan.</a> }
-    else { <ul>@foreach (var task in Model.Preview) { <li>@task.DueDate.ToString("dd MMM yyyy") — @task.Title @(task.DueDate < today ? "(past — not added)" : "")</li> }</ul><form method="post" asp-action="AcceptPlan"><input type="hidden" name="id" value="@crop.Id" /><button class="btn-primary-green">Confirm these reminder dates</button></form> }
+    else { <ul>@foreach (var task in Model.Preview) { <li>@ReminderLanguage.Date(task.DueDate, language) — @ReminderLanguage.TaskTitle(task, language) @(task.DueDate < today ? "(past — not added)" : "")</li> }</ul><form method="post" asp-action="AcceptPlan"><input type="hidden" name="id" value="@crop.Id" /><button class="btn-primary-green">Confirm these reminder dates</button></form> }
 </details>
 <div class="card p-4" style="margin:20px 0"><h3>Add your own reminder</h3><form method="post" asp-action="AddTask">
     <input type="hidden" name="id" value="@crop.Id" /><div class="form-group"><label for="title">Task</label><input class="form-control" id="title" name="title" maxlength="160" required placeholder="e.g. Check soil moisture" /></div>

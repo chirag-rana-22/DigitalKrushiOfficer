@@ -36,11 +36,8 @@ public class CropReminderDelivery(AppDbContext db, IEmailService email, IConfigu
                     if (await db.CropDigests.AnyAsync(d => d.FarmerId == farmer.Id && d.LocalDate == today)) continue;
                     throw;
                 }
-                string E(string? value) => WebUtility.HtmlEncode(value ?? "");
-                var heading = farmer.PreferredLanguage == "Hindi" ? "आज के खेती के काम" : farmer.PreferredLanguage == "Gujarati" ? "આજના ખેતીના કામ" : "Today's farming tasks";
-                var list = string.Join("", tasks.Select(t => $"<li><b>{E(t.FarmerCrop!.DisplayName)} — {E(t.FarmerCrop.FieldName)}</b>: {E(t.Title)} ({t.DueDate:dd MMM yyyy})</li>"));
-                var url = publicUrl.GetLeftPart(UriPartial.Authority);
-                var body = $"<h2>{heading}</h2><p>{E(farmer.Name)}, these are your due or overdue planned tasks for {today:dd MMM yyyy} (India time).</p><ul>{list}</ul><p>Check actual field conditions before acting. Harvest dates are estimates.</p><p><a href='{E(url)}/CropPlan/Today'>View all tasks, complete or reschedule</a></p><p>You opted in to crop reminders. To stop, open My Crops → Edit details and turn email reminders off.</p>";
+                var heading = ReminderLanguage.Heading(farmer.PreferredLanguage);
+                var body = ReminderLanguage.Email(farmer, tasks, today, publicUrl);
                 var error = await email.SendEmailAsync(farmer.Email, farmer.Name, heading, body);
                 digest.Status = error == null ? "Accepted" : "Failed";
                 digest.UpdatedAt = DateTime.UtcNow;

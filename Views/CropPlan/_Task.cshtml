@@ -1,18 +1,20 @@
 @model Digital_Krushi_Officer.Models.CropTask
 @using Digital_Krushi_Officer.Services
+@{ var language = User.FindFirst("Language")?.Value ?? "Gujarati"; }
+
 <article class="card p-3" style="margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><strong>@Model.Title</strong><span class="badge @(Model.Status == "Pending" && Model.DueDate < CropPlanning.Today ? "badge-red" : "badge-green")">@Model.DueDate.ToString("dd MMM yyyy") · @Model.Status</span></div>
-    @if (Model.FarmerCrop != null) { <p><a asp-controller="CropPlan" asp-action="Index" asp-route-id="@Model.FarmerCropId">@Model.FarmerCrop.DisplayName · @(Model.FarmerCrop.FieldName ?? "Field not named")</a></p> }
-    <p>@Model.Notes</p>
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><strong>@ReminderLanguage.TaskTitle(Model, language)</strong><span class="badge @(Model.Status == "Pending" && Model.DueDate < CropPlanning.Today ? "badge-red" : "badge-green")">@ReminderLanguage.Date(Model.DueDate, language) · @ReminderLanguage.Status(Model.Status, language)</span></div>
+    @if (Model.FarmerCrop != null) { <p><a asp-controller="CropPlan" asp-action="Index" asp-route-id="@Model.FarmerCropId">@ReminderLanguage.CropName(Model.FarmerCrop, language) · @(Model.FarmerCrop.FieldName ?? "Field not named")</a></p> }
+    <p>@ReminderLanguage.TaskNotes(Model, language)</p>
     @if (Model.Status == "Pending") {
         <form asp-controller="CropPlan" asp-action="TaskAction" method="post" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <input type="hidden" name="id" value="@Model.Id" />
-            <button class="btn-primary-green" name="action" value="done">Done</button>
-            <button class="btn-outline-green" name="action" value="later">Tomorrow</button>
-            <button class="btn-outline-green" name="action" value="skip">Skip</button>
-            <label for="date-@Model.Id">New date</label><input id="date-@Model.Id" name="dueDate" type="date" min="@CropPlanning.Today.ToString("yyyy-MM-dd")" max="@CropPlanning.Today.AddYears(2).ToString("yyyy-MM-dd")" />
-            <button class="btn-outline-green" name="action" value="reschedule">Reschedule</button>
+            <button class="btn-primary-green" name="action" value="done">@ReminderLanguage.Text(language, "Done", "पूरा", "પૂર્ણ")</button>
+            <button class="btn-outline-green" name="action" value="later">@ReminderLanguage.Text(language, "Tomorrow", "कल", "આવતીકાલે")</button>
+            <button class="btn-outline-green" name="action" value="skip">@ReminderLanguage.Text(language, "Skip", "छोड़ें", "છોડી દો")</button>
+            <label for="date-@Model.Id">@ReminderLanguage.Text(language, "New date", "नई तारीख", "નવી તારીખ")</label><input id="date-@Model.Id" name="dueDate" type="date" min="@CropPlanning.Today.ToString("yyyy-MM-dd")" max="@CropPlanning.Today.AddYears(2).ToString("yyyy-MM-dd")" />
+            <button class="btn-outline-green" name="action" value="reschedule">@ReminderLanguage.Text(language, "Reschedule", "तारीख बदलें", "તારીખ બદલો")</button>
         </form>
-        @if (Model.Kind == "HarvestCheck") { <p>“Done” records this check only. Use <strong>Confirm harvest</strong> below when harvesting actually happened.</p> }
+        @if (Model.Kind == "HarvestCheck") { <p>@ReminderLanguage.Text(language, "Done records this check only. Use Confirm harvest below when harvesting actually happened.", "पूरा दबाने से केवल यह जाँच दर्ज होती है। वास्तविक कटाई हो जाने पर नीचे Confirm harvest का उपयोग करें।", "પૂર્ણ દબાવવાથી માત્ર આ તપાસ નોંધાય છે. વાસ્તવિક કાપણી થયા પછી નીચે Confirm harvestનો ઉપયોગ કરો.")</p> }
     }
 </article>
