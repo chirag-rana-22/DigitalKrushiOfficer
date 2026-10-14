@@ -36,9 +36,9 @@ public class MarketPriceService(IConfiguration config, IHttpClientFactory client
         if(!cache.TryGetValue(cacheKey,out List<Price>? rows)) {
             if(cache.TryGetValue(backoffKey,out bool coolingDown) && coolingDown)return await Fallback();
             try {
-                var url="https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?format=json&limit=100&sort[arrival_date]=desc&api-key="+Uri.EscapeDataString(key);
+                var url="https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?format=json&limit=100&api-key="+Uri.EscapeDataString(key);
                 foreach(var pair in new[]{("commodity",r.Commodity),("state.keyword",r.State),("district",r.District),("market",r.Market)})
-                    if(pair.Item2.Length>0)url+="&filters["+pair.Item1+"]="+Uri.EscapeDataString(pair.Item2);
+                    if(pair.Item2.Length>0)url+="&"+Uri.EscapeDataString("filters["+pair.Item1+"]")+"="+Uri.EscapeDataString(pair.Item2);
                 using var timeout=CancellationTokenSource.CreateLinkedTokenSource(ct);timeout.CancelAfter(TimeSpan.FromSeconds(6));
                 using var apiRequest=new HttpRequestMessage(HttpMethod.Get,url);
                 apiRequest.Headers.Accept.ParseAdd("application/json");

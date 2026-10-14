@@ -21,6 +21,7 @@ public class MarketAndClarificationTests {
         var query=Uri.UnescapeDataString(handler.RequestUri!.Query);
         Assert.Contains("filters[state.keyword]=Gujarat",query);Assert.DoesNotContain("filters[state]=",query);
         Assert.Contains("filters[commodity]=Tomato",query);Assert.Contains("filters[district]=Rajkot",query);
+        Assert.DoesNotContain("sort[",query);
     }
     [Fact] public async Task AvailableDailyReportIsPreferredToWeeklyFallback() {
         using var cache=new MemoryCache(new MemoryCacheOptions());var handler=new ProviderHandler(Report());
