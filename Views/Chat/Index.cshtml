@@ -1,7 +1,7 @@
 @model Digital_Krushi_Officer.Models.ViewModels.ChatViewModel
 @{ ViewData["Title"]="Krushi AI Chat"; ViewData["ActiveMenu"]="Chat"; ViewData["ChatWorkspace"]=true; }
 @section Styles { <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" /> }
-<div class="chat-workspace" id="chatWorkspace" data-conversation-id="@Model.ConversationId">
+<div class="chat-workspace" id="chatWorkspace" data-conversation-id="@Model.ConversationId" data-farmer-crop-id="@ViewBag.FarmerCropId">
     <aside class="chat-history" id="chatHistory" aria-label="Conversation history">
         <div class="history-heading"><strong>Your conversations</strong><button id="closeHistory" type="button" class="chat-icon-button" aria-label="Close chat history">×</button></div>
         <a href="/Chat/Index?newChat=true" id="newChatLink" class="new-chat-link"><span>＋</span> New chat</a>
@@ -18,6 +18,7 @@
     <button class="history-backdrop" id="historyBackdrop" type="button" aria-label="Close conversation history"></button>
     <section class="chat-panel" aria-label="AI conversation">
         <header class="thread-header"><div class="thread-identity"><button type="button" id="historyToggle" class="chat-icon-button" aria-label="Open conversation history" aria-controls="chatHistory" aria-expanded="false">☷</button><div><h1>Krushi <span>AI</span></h1><p>Your farming companion</p></div></div><span class="thread-mode"><span class="chat-online-dot"></span> AI first · Expert help when needed</span></header>
+        @if (ViewBag.CropLabel != null) { <div class="p-3" style="background:#edf5df">🌱 @ViewBag.CropLabel · Details from My Crops are shared with AI for this conversation. <a href="/CropPlan/Index/@ViewBag.FarmerCropId">Crop calendar</a></div> }
         <div id="messages" class="thread-messages" tabindex="0" aria-label="Messages">
             <button id="loadOlder" class="load-older" type="button" hidden="@(!Model.HasOlderMessages)">Load earlier messages</button>
             @if(!Model.Messages.Any()) {

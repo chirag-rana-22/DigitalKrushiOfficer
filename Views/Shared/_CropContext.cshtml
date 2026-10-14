@@ -1,0 +1,20 @@
+@model string
+@using System.Text.Json
+@{
+    JsonDocument? document = null;
+    try { document = JsonDocument.Parse(Model); } catch (JsonException) { }
+}
+@if (document != null) {
+    using (document) {
+        var data = document.RootElement;
+        <details><summary>Farmer's crop details at submission</summary><dl>
+        @foreach (var field in new[] { ("Crop", "Crop"), ("FieldName", "Field"), ("Variety", "Variety"), ("AreaAcres", "Area (acres)"), ("SowingDate", "Sowing date"), ("ExpectedHarvestDate", "Estimated harvest"), ("Status", "Crop status") }) {
+            if (data.TryGetProperty(field.Item1, out var value) && value.ValueKind != JsonValueKind.Null) {
+                var text = value.ToString();
+                if (field.Item1.EndsWith("Date") && DateTime.TryParse(text, out var date)) text = date.ToString("dd MMM yyyy");
+                <dt>@field.Item2</dt><dd>@text</dd>
+            }
+        }
+        </dl><p>Farmer-entered information. Confirm field conditions where needed.</p></details>
+    }
+}

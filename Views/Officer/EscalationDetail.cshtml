@@ -33,6 +33,7 @@
                 @if(Model.Query != null) { <partial name="_QueryImages" model="Model.Query" /> }
                 <div style="background:#F8F9FA;border-radius:10px;padding:16px;font-size:0.9rem;line-height:1.7;">
                     @Model.Query?.QueryText
+                    @if (Model.Query?.CropContext != null) { <partial name="_CropContext" model="Model.Query.CropContext" /> }
                 </div>
             </div>
         </div>

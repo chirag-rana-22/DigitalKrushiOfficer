@@ -1,0 +1,6 @@
+@model List<Digital_Krushi_Officer.Models.CropTask>
+@using Digital_Krushi_Officer.Services
+@{ ViewData["Title"] = "Today's tasks"; ViewData["ActiveMenu"] = "Crops"; }
+<div class="page-header"><h1>Today's tasks</h1><p>@CropPlanning.Today.ToString("dd MMM yyyy") · India time · @Model.Count due or overdue</p><a href="/Farmer/Crops" class="btn-outline-green">My Crops</a></div>
+@if (!Model.Any()) { <div class="card p-4"><h3>You're up to date</h3><p>No pending tasks are due. Open a crop to review its calendar or add your own reminders.</p></div> }
+@foreach (var task in Model) { <partial name="_Task" model="task" /> }

@@ -37,6 +37,7 @@ builder.Services.AddHttpClient("storage", c => c.Timeout = TimeSpan.FromSeconds(
 builder.Services.AddHttpClient("email-api", c => c.Timeout = TimeSpan.FromSeconds(15)).RemoveAllLoggers();
 builder.Services.AddScoped<IPhotoStorage, PhotoStorage>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<CropReminderDelivery>();
 builder.Services.AddScoped<IAIService, AIService>();
 builder.Services.AddHttpClient("market-prices", c => c.Timeout = TimeSpan.FromSeconds(12)).RemoveAllLoggers();
 builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();

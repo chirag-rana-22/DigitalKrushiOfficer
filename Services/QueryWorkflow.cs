@@ -4,19 +4,35 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital_Krushi_Officer.Services;
 public class QueryWorkflow(AppDbContext db, IAIService ai)
 {
-    public async Task<TblQuery> SubmitAsync(int farmerId, string text, string kind, string language, byte[]? image = null, string? imagePath = null, int? conversationId = null, IReadOnlyList<StoredImage>? photos = null) {
+    public async Task<TblQuery> SubmitAsync(int farmerId, string text, string kind, string language, byte[]? image = null, string? imagePath = null, int? conversationId = null, IReadOnlyList<StoredImage>? photos = null, int? farmerCropId = null) {
         if (conversationId != null && !await db.Queries.AnyAsync(q => q.Id == conversationId && q.FarmerId == farmerId && q.ParentQueryId == null))
             throw new ArgumentException("Conversation not found.", nameof(conversationId));
         var history = new List<AIConversationTurn>();
+        string? cropContext = null;
+        if (conversationId != null) {
+            var root = await db.Queries.AsNoTracking().SingleAsync(q => q.Id == conversationId && q.FarmerId == farmerId);
+            if (farmerCropId != null && farmerCropId != root.FarmerCropId) throw new ArgumentException("Start a new chat to switch crops.");
+            farmerCropId = root.FarmerCropId;
+            cropContext = root.CropContext;
+        }
+        if (farmerCropId != null) {
+            var crop = await db.FarmerCrops.AsNoTracking().Include(c => c.Crop).FirstOrDefaultAsync(c => c.Id == farmerCropId && c.FarmerId == farmerId);
+            if (crop == null && conversationId == null) throw new ArgumentException("Crop not found.");
+            if (crop != null) {
+                var completed = await db.CropTasks.AsNoTracking().Where(t => t.FarmerCropId == crop.Id && t.Status == "Done").OrderByDescending(t => t.CompletedAt).Take(3).Select(t => new { t.Title, t.CompletedAt }).ToListAsync();
+                cropContext = System.Text.Json.JsonSerializer.Serialize(new { Crop = crop.DisplayName, crop.FieldName, crop.Variety, AreaAcres = crop.LandArea, crop.SowingDate, crop.ExpectedHarvestDate, crop.Status, CompletedTasks = completed }, new System.Text.Json.JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            }
+        }
         if (conversationId != null) {
             var previous = await db.Queries.AsNoTracking().Where(q => q.FarmerId == farmerId && (q.Id == conversationId || q.ParentQueryId == conversationId))
                 .Include(q => q.AIResponse).Include(q => q.Escalation).OrderByDescending(q => q.Id).Take(6).ToListAsync();
             history = previous.AsEnumerable().Reverse().Select(q => new AIConversationTurn(q.QueryText ?? "", AdvisoryPolicy.IsPublished(q.AIResponse) ? q.AIResponse!.AIAnswer ?? "" : q.Escalation?.OfficerReply ?? AdvisoryPolicy.PendingMessage(q.Status), q.Status == "AwaitingDetails")).ToList();
         }
         if (photos?.Count > 0) { image=photos[0].Bytes; imagePath="private:"+photos[0].FileName; }
-        var result = await ai.GenerateAsync(text, language, image, additionalImages: photos?.Skip(1).Select(p => p.Bytes).ToList(), history: history);
+        var result = await ai.GenerateAsync(text, language, image, additionalImages: photos?.Skip(1).Select(p => p.Bytes).ToList(), history: history, cropContext: cropContext);
         var needsOfficer = !result.RetryableFailure && (!result.Available || result.RequiresOfficerReview || result.Complexity == ComplexityLevel.Complex);
         var query = new TblQuery { FarmerId = farmerId, QueryText = text, QueryType = kind, QueryLanguage = language, ImagePath = imagePath, ImagePathsJson = photos?.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(photos.Select(p => "private:"+p.FileName)) : null, ParentQueryId = conversationId, Status = result.RetryableFailure ? "RetryNeeded" : needsOfficer ? "PendingApproval" : result.NeedsClarification ? "AwaitingDetails" : "Answered" };
+        query.FarmerCropId = farmerCropId; query.CropContext = cropContext;
         query.AIResponse = new TblAIResponse { AIAnswer = result.Answer, PublicSummary = needsOfficer ? result.PublicSummary : null, AIModel = result.Model, ResponseTimeMs = result.ResponseMs,
             ConfidenceScore = null, Language = language, ComplexityLevel = result.Complexity,
             ApprovalStatus = needsOfficer ? ApprovalStatus.Pending : ApprovalStatus.AIAnswered, IsEscalated = needsOfficer,

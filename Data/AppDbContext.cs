@@ -15,6 +15,8 @@ namespace Digital_Krushi_Officer.Data
         public DbSet<TblFarmerOfficerAssignment> FarmerOfficerAssignments { get; set; }
         public DbSet<TblCrop> Crops { get; set; }
         public DbSet<TblFarmerCrop> FarmerCrops { get; set; }
+        public DbSet<CropTask> CropTasks { get; set; }
+        public DbSet<CropDigest> CropDigests { get; set; }
         public DbSet<TblQuery> Queries { get; set; }
         public DbSet<TblAIResponse> AIResponses { get; set; }
         public DbSet<TblEscalation> Escalations { get; set; }
@@ -27,6 +29,9 @@ namespace Digital_Krushi_Officer.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<CropTask>().HasOne(t => t.FarmerCrop).WithMany(c => c.Tasks).HasForeignKey(t => t.FarmerCropId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<CropTask>().HasIndex(t => new { t.Status, t.DueDate });
+            modelBuilder.Entity<CropDigest>().HasIndex(d => new { d.FarmerId, d.LocalDate }).IsUnique();
             modelBuilder.Entity<OtpChallenge>().HasIndex(c => new { c.Email, c.Purpose }).IsUnique();
 
             // TblUser

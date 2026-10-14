@@ -18,6 +18,13 @@ namespace Digital_Krushi_Officer.Models
         [NotMapped]
         public string DisplayName => CustomCropName ?? Crop?.CropName ?? "Crop";
 
+        [MaxLength(100)] public string? FieldName { get; set; }
+        [MaxLength(100)] public string? Variety { get; set; }
+        public bool EmailRemindersEnabled { get; set; }
+        public DateTime? HarvestedDate { get; set; }
+        [ConcurrencyCheck] public int PlanVersion { get; set; }
+        public ICollection<CropTask> Tasks { get; set; } = new List<CropTask>();
+
         [Column(TypeName = "decimal(10,2)")]
         public decimal? LandArea { get; set; }
 

@@ -13,6 +13,11 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private string Language => User.FindFirstValue("Language") ?? "Gujarati";
     private Task<bool> OwnsConversation(int? id) => id == null ? Task.FromResult(true) : db.Queries.AnyAsync(q => q.Id == id && q.FarmerId == UserId && q.ParentQueryId == null);
+    private async Task<bool> OwnsCropContext(int? conversationId, int? farmerCropId) {
+        if (farmerCropId == null) return true;
+        if (conversationId != null) return await db.Queries.AnyAsync(q => q.Id == conversationId && q.FarmerId == UserId && q.ParentQueryId == null && q.FarmerCropId == farmerCropId);
+        return await db.FarmerCrops.AnyAsync(c => c.Id == farmerCropId && c.FarmerId == UserId);
+    }
     private async Task<List<ChatHistoryItemViewModel>> History(string? search = null) {
         var roots=db.Queries.AsNoTracking().Where(q=>q.FarmerId==UserId && q.ParentQueryId==null);
         if(!string.IsNullOrWhiteSpace(search)) roots=roots.Where(q=>q.QueryText!=null && q.QueryText.Contains(search));
@@ -33,10 +38,18 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
         IsEscalated=q.AIResponse?.IsEscalated??false,ApprovalStatus=q.AIResponse?.ApprovalStatus.ToString()??"Pending",
         FeedbackRating=q.Feedbacks.FirstOrDefault()?.Rating
     };
-    public async Task<IActionResult> Index(int? conversationId = null, bool newChat = false) {
+    public async Task<IActionResult> Index(int? conversationId = null, bool newChat = false, int? farmerCropId = null) {
         if(!await OwnsConversation(conversationId)) return NotFound();
+        if (!await OwnsCropContext(newChat ? null : conversationId, farmerCropId)) return NotFound();
+        if (farmerCropId != null && conversationId == null) newChat = true;
         var history=await History();
         if(newChat) conversationId=null; else conversationId ??= history.FirstOrDefault()?.Id;
+        if (conversationId != null) farmerCropId = await db.Queries.Where(q => q.Id == conversationId && q.FarmerId == UserId).Select(q => q.FarmerCropId).SingleAsync();
+        ViewBag.FarmerCropId = farmerCropId;
+        if (farmerCropId != null) {
+            var selected = await db.FarmerCrops.Include(c => c.Crop).FirstOrDefaultAsync(c => c.Id == farmerCropId && c.FarmerId == UserId);
+            ViewBag.CropLabel = selected == null ? "Saved crop context (crop removed)" : selected.DisplayName + " · " + (selected.FieldName ?? "Field not named");
+        }
         var queries=conversationId==null ? new List<TblQuery>() : await Conversation(conversationId.Value).OrderByDescending(q=>q.Id).Take(51).ToListAsync();
         return View(new ChatViewModel {ConversationId=conversationId,Conversations=history,HasOlderMessages=queries.Count>50,Messages=queries.Take(50).Reverse().Select(Message).ToList()});
     }
@@ -55,12 +68,12 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
     [HttpPost, EnableRateLimiting("advisory")]
     public async Task<IActionResult> Ask([FromBody] AskRequest? request) {
         if(request==null || string.IsNullOrWhiteSpace(request.QueryText) || request.QueryText.Length>4000) return BadRequest(new{message="Enter a question of 1–4000 characters."});
-        if(!await OwnsConversation(request.ConversationId)) return NotFound();
-        return Saved(await workflow.SubmitAsync(UserId,request.QueryText.Trim(),"Text",Language,conversationId:request.ConversationId));
+        if(!await OwnsConversation(request.ConversationId) || !await OwnsCropContext(request.ConversationId, request.FarmerCropId)) return NotFound();
+        return Saved(await workflow.SubmitAsync(UserId,request.QueryText.Trim(),"Text",Language,conversationId:request.ConversationId,farmerCropId:request.FarmerCropId));
     }
     [HttpPost, EnableRateLimiting("advisory"), RequestSizeLimit(27 * 1024 * 1024)]
-    public async Task<IActionResult> UploadImage(IFormFile? image, List<IFormFile>? images, string? userPrompt, string? cropName, int? conversationId) {
-        if(!await OwnsConversation(conversationId)) return NotFound();
+    public async Task<IActionResult> UploadImage(IFormFile? image, List<IFormFile>? images, string? userPrompt, string? cropName, int? conversationId, int? farmerCropId) {
+        if(!await OwnsConversation(conversationId) || !await OwnsCropContext(conversationId, farmerCropId)) return NotFound();
         var files=images?.ToList()??new List<IFormFile>();if(image!=null) files.Add(image);
         if(files.Count==0 || files.Count>ImageUploadService.MaximumImages || files.Sum(f=>f.Length)>ImageUploadService.MaximumBatchBytes || (userPrompt?.Length??0)>4000 || (cropName?.Length??0)>100)
             return BadRequest(new{message="Choose 1–20 photos, up to 5 MB each and 25 MB total, with a question under 4000 characters."});
@@ -68,7 +81,7 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
         try {
             foreach(var file in files) stored.Add(await uploads.SaveAsync(file));
             var text=string.IsNullOrWhiteSpace(userPrompt)?$"Please assess these {files.Count} crop/soil photos together.":userPrompt.Trim();
-            var q=await workflow.SubmitAsync(UserId,text,"Image",Language,conversationId:conversationId,photos:stored);saved=true;return Saved(q);
+            var q=await workflow.SubmitAsync(UserId,text,"Image",Language,conversationId:conversationId,photos:stored,farmerCropId:farmerCropId);saved=true;return Saved(q);
         } catch(ArgumentException ex) { return BadRequest(new{message=ex.Message}); }
         catch (HttpRequestException) { return StatusCode(503, new { message = "Photo storage is temporarily unavailable. Please try again." }); }
         catch (TaskCanceledException) { return StatusCode(503, new { message = "Photo upload timed out. Please try again." }); }
@@ -78,10 +91,11 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
         } }
     }
     [HttpPost, EnableRateLimiting("advisory")]
-    public async Task<IActionResult> UploadVoice(string? transcribedText,int? conversationId) {
+    public async Task<IActionResult> UploadVoice(string? transcribedText,int? conversationId, int? farmerCropId) {
         if(string.IsNullOrWhiteSpace(transcribedText) || transcribedText.Length>4000) return BadRequest(new{message="Review the voice transcript before sending it."});
         if(!await OwnsConversation(conversationId)) return NotFound();
-        return Saved(await workflow.SubmitAsync(UserId,transcribedText.Trim(),"Voice",Language,conversationId:conversationId));
+        if (!await OwnsCropContext(conversationId, farmerCropId)) return NotFound();
+        return Saved(await workflow.SubmitAsync(UserId,transcribedText.Trim(),"Voice",Language,conversationId:conversationId,farmerCropId:farmerCropId));
     }
     public async Task<IActionResult> DiseaseDetection(string? search,string? crop) {
         var query=db.DiseaseDatasets.Where(d=>d.IsActive);
@@ -95,4 +109,5 @@ public class ChatController(AppDbContext db, QueryWorkflow workflow, ImageUpload
 public class AskRequest {
     public string QueryText { get; set; }="";
     public int? ConversationId { get; set; }
+    public int? FarmerCropId { get; set; }
 }

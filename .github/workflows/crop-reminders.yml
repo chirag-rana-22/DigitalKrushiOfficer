@@ -1,0 +1,27 @@
+name: Crop reminder delivery
+on:
+  schedule:
+    # 09:07 and 10:07 India time. The second run picks up any farmers not attempted on the first run.
+    - cron: '37 3,4 * * *'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: crop-reminder-delivery
+  cancel-in-progress: false
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Deliver opted-in crop reminders
+        env:
+          REMINDER_TOKEN: ${{ secrets.DKO_REMINDER_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$REMINDER_TOKEN" ]; then
+            echo 'Reminder scheduler secret has not been configured.'
+            exit 1
+          fi
+          curl --fail --silent --show-error --max-time 420 --retry 2 --retry-delay 20 \
+            --request POST --header "X-Reminder-Token: $REMINDER_TOKEN" \
+            https://digital-krushi-officer.onrender.com/internal/reminders/run

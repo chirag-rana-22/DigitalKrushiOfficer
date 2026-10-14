@@ -28,6 +28,8 @@ namespace Digital_Krushi_Officer.Models
         public string? VoicePath { get; set; }
 
         public int? ParentQueryId { get; set; }
+        public int? FarmerCropId { get; set; }
+        [MaxLength(3000)] public string? CropContext { get; set; }
 
         [MaxLength(50)]
         public string Status { get; set; } = "Pending";

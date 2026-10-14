@@ -11,11 +11,12 @@
     </div>
     <div style="color:var(--text-gray);font-size:0.85rem;text-align:right;">
         📍 @(Model.User?.District ?? "Gujarat")<br>
-        <span style="color:var(--green);font-weight:600;">@DateTime.Now.ToString("dddd, dd MMM yyyy")</span>
+        <span style="color:var(--green);font-weight:600;">@Digital_Krushi_Officer.Services.CropPlanning.Today.ToString("dddd, dd MMM yyyy")</span>
     </div>
 </div>
 
 <!-- Stats -->
+<div class="card p-3" style="margin-bottom:20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong>🔔 Today's crop tasks</strong><p>@ViewBag.DueCropTasks due or overdue · Review field conditions before acting.</p></div><a href="/CropPlan/Today" class="btn-primary-green">View today's tasks</a></div>
 <div class="grid-4 mb-4">
     <div class="stat-card">
         <div class="stat-icon green">💬</div>

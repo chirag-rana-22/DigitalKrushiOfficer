@@ -6,6 +6,7 @@
     const status = document.getElementById('chatStatus'), send = document.getElementById('sendButton');
     const messages = document.getElementById('messages'), list = document.getElementById('conversationList');
     const jump = document.getElementById('jumpLatest'), older = document.getElementById('loadOlder');
+    const farmerCropId = Number(workspace.dataset.farmerCropId) || null;
     let conversationId = Number(workspace.dataset.conversationId) || null, files = [], pending = false, fromVoice = false;
     const token = () => document.querySelector('input[name="__RequestVerificationToken"]').value;
     const element = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text != null) node.textContent = text; return node; };
@@ -77,9 +78,9 @@
         pending = true; send.disabled = true; input.disabled = true; renderPreviews(); status.textContent = '';
         try {
             let url = '/Chat/Ask', body, headers = { RequestVerificationToken: token() };
-            if (files.length) { url = '/Chat/UploadImage'; body = new FormData(); files.forEach(item => body.append('images', item.file)); body.append('userPrompt', question); if (conversationId) body.append('conversationId', conversationId); }
-            else if (fromVoice) { url = '/Chat/UploadVoice'; body = new FormData(); body.append('transcribedText', question); if (conversationId) body.append('conversationId', conversationId); }
-            else { body = JSON.stringify({ queryText: question, conversationId }); headers['Content-Type'] = 'application/json'; }
+            if (files.length) { url = '/Chat/UploadImage'; body = new FormData(); files.forEach(item => body.append('images', item.file)); body.append('userPrompt', question); if (conversationId) body.append('conversationId', conversationId); if (farmerCropId) body.append('farmerCropId', farmerCropId); }
+            else if (fromVoice) { url = '/Chat/UploadVoice'; body = new FormData(); body.append('transcribedText', question); if (conversationId) body.append('conversationId', conversationId); if (farmerCropId) body.append('farmerCropId', farmerCropId); }
+            else { body = JSON.stringify({ queryText: question, conversationId, farmerCropId }); headers['Content-Type'] = 'application/json'; }
             const response = await fetch(url, { method: 'POST', headers, body });
             if (response.redirected || response.status === 401) throw new Error('Your session expired. Sign in again, then retry your message.');
             if (response.status === 429) throw new Error('Please wait a minute before sending another question.');

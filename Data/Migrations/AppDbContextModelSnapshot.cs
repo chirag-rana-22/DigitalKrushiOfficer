@@ -22,6 +22,91 @@ namespace Digital_Krushi_Officer.Data.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("Digital_Krushi_Officer.Models.CropDigest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FarmerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LocalDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FarmerId", "LocalDate")
+                        .IsUnique();
+
+                    b.ToTable("CropDigests");
+                });
+
+            modelBuilder.Entity("Digital_Krushi_Officer.Models.CropTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("FarmerCropId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FarmerCropId");
+
+                    b.HasIndex("Status", "DueDate");
+
+                    b.ToTable("CropTasks");
+                });
+
             modelBuilder.Entity("Digital_Krushi_Officer.Models.OtpChallenge", b =>
                 {
                     b.Property<int>("Id")
@@ -451,14 +536,28 @@ namespace Digital_Krushi_Officer.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<bool>("EmailRemindersEnabled")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("ExpectedHarvestDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("FarmerId")
                         .HasColumnType("int");
 
+                    b.Property<string>("FieldName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("HarvestedDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<decimal?>("LandArea")
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("PlanVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("SowingDate")
                         .HasColumnType("datetime(6)");
@@ -470,6 +569,10 @@ namespace Digital_Krushi_Officer.Data.Migrations
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Variety")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("Id");
 
@@ -863,6 +966,13 @@ namespace Digital_Krushi_Officer.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("CropContext")
+                        .HasMaxLength(3000)
+                        .HasColumnType("varchar(3000)");
+
+                    b.Property<int?>("FarmerCropId")
+                        .HasColumnType("int");
+
                     b.Property<int>("FarmerId")
                         .HasColumnType("int");
 
@@ -1055,6 +1165,17 @@ namespace Digital_Krushi_Officer.Data.Migrations
                     b.ToTable("TblWeatherLog");
                 });
 
+            modelBuilder.Entity("Digital_Krushi_Officer.Models.CropTask", b =>
+                {
+                    b.HasOne("Digital_Krushi_Officer.Models.TblFarmerCrop", "FarmerCrop")
+                        .WithMany("Tasks")
+                        .HasForeignKey("FarmerCropId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FarmerCrop");
+                });
+
             modelBuilder.Entity("Digital_Krushi_Officer.Models.TblAIResponse", b =>
                 {
                     b.HasOne("Digital_Krushi_Officer.Models.TblUser", "ApprovedByOfficer")
@@ -1204,6 +1325,11 @@ namespace Digital_Krushi_Officer.Data.Migrations
             modelBuilder.Entity("Digital_Krushi_Officer.Models.TblCrop", b =>
                 {
                     b.Navigation("FarmerCrops");
+                });
+
+            modelBuilder.Entity("Digital_Krushi_Officer.Models.TblFarmerCrop", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("Digital_Krushi_Officer.Models.TblQuery", b =>

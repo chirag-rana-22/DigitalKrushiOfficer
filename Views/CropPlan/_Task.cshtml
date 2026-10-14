@@ -1,0 +1,18 @@
+@model Digital_Krushi_Officer.Models.CropTask
+@using Digital_Krushi_Officer.Services
+<article class="card p-3" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><strong>@Model.Title</strong><span class="badge @(Model.Status == "Pending" && Model.DueDate < CropPlanning.Today ? "badge-red" : "badge-green")">@Model.DueDate.ToString("dd MMM yyyy") · @Model.Status</span></div>
+    @if (Model.FarmerCrop != null) { <p><a asp-controller="CropPlan" asp-action="Index" asp-route-id="@Model.FarmerCropId">@Model.FarmerCrop.DisplayName · @(Model.FarmerCrop.FieldName ?? "Field not named")</a></p> }
+    <p>@Model.Notes</p>
+    @if (Model.Status == "Pending") {
+        <form asp-controller="CropPlan" asp-action="TaskAction" method="post" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn-primary-green" name="action" value="done">Done</button>
+            <button class="btn-outline-green" name="action" value="later">Tomorrow</button>
+            <button class="btn-outline-green" name="action" value="skip">Skip</button>
+            <label for="date-@Model.Id">New date</label><input id="date-@Model.Id" name="dueDate" type="date" min="@CropPlanning.Today.ToString("yyyy-MM-dd")" max="@CropPlanning.Today.AddYears(2).ToString("yyyy-MM-dd")" />
+            <button class="btn-outline-green" name="action" value="reschedule">Reschedule</button>
+        </form>
+        @if (Model.Kind == "HarvestCheck") { <p>“Done” records this check only. Use <strong>Confirm harvest</strong> below when harvesting actually happened.</p> }
+    }
+</article>

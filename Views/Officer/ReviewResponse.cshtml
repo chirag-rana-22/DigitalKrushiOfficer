@@ -43,6 +43,7 @@
             <div class="info-card query-info">
                 <h3>❓ Farmer's Question</h3>
                 <div class="query-text">@query?.QueryText</div>
+                @if (query?.CropContext != null) { <partial name="_CropContext" model="query.CropContext" /> }
                 @if(query != null) { <partial name="_QueryImages" model="query" /> }
 
                 <div class="query-meta">

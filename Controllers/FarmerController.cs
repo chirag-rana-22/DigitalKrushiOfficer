@@ -29,6 +29,8 @@ namespace Digital_Krushi_Officer.Controllers
             var totalQueries = await _db.Queries.CountAsync(q => q.FarmerId == UserId);
             var pendingQueries = await _db.Queries.CountAsync(q => q.FarmerId == UserId && (q.Status != "Answered" && q.Status != "Closed" || q.Status == "Escalated"));
             var totalCrops = await _db.FarmerCrops.CountAsync(c => c.FarmerId == UserId);
+            var today = CropPlanning.Today;
+            ViewBag.DueCropTasks = await _db.CropTasks.CountAsync(t => t.FarmerCrop!.FarmerId == UserId && t.FarmerCrop.Status == "Growing" && t.Status == "Pending" && t.DueDate <= today);
             var totalFeedback = await _db.Feedbacks.CountAsync(f => f.Query!.FarmerId == UserId);
             var recentQueries = await _db.Queries.Where(q => q.FarmerId == UserId)
                 .Include(q => q.AIResponse)
@@ -143,17 +145,18 @@ namespace Digital_Krushi_Officer.Controllers
                 ? !string.IsNullOrWhiteSpace(customCropName) && customCropName.Length <= 100 && !customCropName.Any(char.IsControl)
                 : await _db.Crops.AnyAsync(c => c.Id == cropId && c.IsActive);
             if (!ModelState.IsValid || !validCrop || landArea <= 0 || landArea > 1000000 || (sowingDate != null && harvestDate < sowingDate)) return BadRequest("Choose an active crop or enter a crop name (1–100 characters), positive land area and valid dates.");
-            _db.FarmerCrops.Add(new TblFarmerCrop
+            var farmerCrop = new TblFarmerCrop
             {
                 FarmerId = UserId, CropId = cropId == -1 ? null : cropId,
                 CustomCropName = cropId == -1 ? customCropName : null,
                 LandArea = landArea, SowingDate = sowingDate,
                 ExpectedHarvestDate = harvestDate, Status = "Growing",
                 CreatedDate = DateTime.Now
-            });
+            };
+            _db.FarmerCrops.Add(farmerCrop);
             await _db.SaveChangesAsync();
-            TempData["Success"] = "Crop added successfully!";
-            return RedirectToAction("Crops");
+            TempData["Success"] = "Crop added. Name your field and review dates to set up its calendar.";
+            return RedirectToAction("Edit", "CropPlan", new { id = farmerCrop.Id });
         }
 
         [HttpPost]
@@ -161,7 +164,14 @@ namespace Digital_Krushi_Officer.Controllers
         {
             if (status is not ("Growing" or "Harvested" or "Failed")) return BadRequest("Invalid crop status.");
             var crop = await _db.FarmerCrops.FirstOrDefaultAsync(c => c.Id == id && c.FarmerId == UserId);
-            if (crop != null) { crop.Status = status; crop.UpdatedDate = DateTime.Now; await _db.SaveChangesAsync(); }
+            if (crop != null) {
+                crop.Status = status; crop.UpdatedDate = DateTime.UtcNow; crop.PlanVersion++;
+                if (status != "Growing") {
+                    var tasks = await _db.CropTasks.Where(t => t.FarmerCropId == id && t.Status == "Pending").ToListAsync();
+                    foreach (var task in tasks) { task.Status = "Cancelled"; task.Version++; }
+                }
+                await _db.SaveChangesAsync();
+            }
             return RedirectToAction("Crops");
         }
 
