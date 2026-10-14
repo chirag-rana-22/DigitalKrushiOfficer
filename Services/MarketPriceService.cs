@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Digital_Krushi_Officer.Services;
 public record MarketPriceRequest(string Commodity, string State, string District, string Market);
 public interface IMarketPriceService { Task<string> AnswerAsync(MarketPriceRequest request, string language, CancellationToken ct = default); }
-public class MarketPriceService(IConfiguration config, IHttpClientFactory clients, IMemoryCache cache) : IMarketPriceService {
+public class MarketPriceService(IConfiguration config, IHttpClientFactory clients, IMemoryCache cache, ILogger<MarketPriceService>? logger = null) : IMarketPriceService {
     public const string Source = "https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi";
     private record Price(string Commodity,string State,string District,string Market,string Variety,DateOnly Date,decimal Min,decimal Max,decimal Modal);
     public async Task<string> AnswerAsync(MarketPriceRequest request,string language,CancellationToken ct=default) {
@@ -46,9 +46,9 @@ public class MarketPriceService(IConfiguration config, IHttpClientFactory client
                 apiRequest.Headers.TryAddWithoutValidation("Origin","https://www.data.gov.in");
                 apiRequest.Headers.UserAgent.ParseAdd("DigitalKrushiOfficer/1.0");
                 using var response=await clients.CreateClient("market-prices").SendAsync(apiRequest,timeout.Token);
-                if(!response.IsSuccessStatusCode)return await Failed();
+                if(!response.IsSuccessStatusCode) { logger?.LogWarning("Daily mandi API returned HTTP {StatusCode}; using official fallback.",(int)response.StatusCode); return await Failed(); }
                 using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync(timeout.Token));
-                if(!doc.RootElement.TryGetProperty("records",out var records)||records.ValueKind!=JsonValueKind.Array)return await Failed();
+                if(!doc.RootElement.TryGetProperty("records",out var records)||records.ValueKind!=JsonValueKind.Array) { logger?.LogWarning("Daily mandi API returned an invalid records payload; using official fallback."); return await Failed(); }
                 rows=new();var today=DateOnly.FromDateTime(DateTime.UtcNow.AddHours(5.5));
                 foreach(var row in records.EnumerateArray()) {
                     string Get(string name)=>row.TryGetProperty(name,out var value)?value.ToString().Trim():"";
@@ -60,8 +60,9 @@ public class MarketPriceService(IConfiguration config, IHttpClientFactory client
                     rows.Add(new(Get("commodity"),Get("state"),Get("district"),Get("market"),Get("variety"),date,min,max,modal));
                 }
                 // Never reuse a failed or empty lookup as a price report.
+                logger?.LogInformation("Daily mandi API returned {ReceivedCount} records; {ValidCount} passed location, date and price validation.",records.GetArrayLength(),rows.Count);
                 if(rows.Count>0)cache.Set(cacheKey,rows,TimeSpan.FromMinutes(5));
-            } catch(Exception ex) when(ex is HttpRequestException or TaskCanceledException or JsonException) {return await Failed();}
+            } catch(Exception ex) when(ex is HttpRequestException or TaskCanceledException or JsonException) { logger?.LogWarning("Daily mandi API failed with {FailureType}; using official fallback.",ex.GetType().Name); return await Failed(); }
         }
         if(rows==null||rows.Count==0)return await Fallback(noReport:true);
         var latest=rows.Max(p=>p.Date);var stale=latest<DateOnly.FromDateTime(DateTime.UtcNow.AddHours(5.5));
