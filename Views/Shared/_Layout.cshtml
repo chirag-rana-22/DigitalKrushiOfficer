@@ -95,7 +95,7 @@
     </button>
 
     <main id="main" class="main-content @(Equals(ViewData["ChatWorkspace"], true) ? "chat-main" : "")">
-        <div class="workspace-topbar"><partial name="_LanguagePicker" /><strong>@Ui.Text("YOUR FIELD. YOUR NEXT CHAPTER.")</strong><span>@Ui.Text(role) · <a href="/Home/Privacy">@Ui.Text("Privacy")</a></span></div>
+        <div class="workspace-topbar"><strong>@Ui.Text("YOUR FIELD. YOUR NEXT CHAPTER.")</strong><span>@Ui.Text(role) · <a href="/Home/Privacy">@Ui.Text("Privacy")</a></span><partial name="_LanguagePicker" /></div>
         @if (TempData["Success"] != null)
         {
             <div class="alert-banner success mb-3">✅ @Ui.Text(TempData["Success"]?.ToString())</div>
