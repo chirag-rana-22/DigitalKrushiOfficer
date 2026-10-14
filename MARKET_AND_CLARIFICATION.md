@@ -1,5 +1,13 @@
 # AI clarification and mandi-price integration — 10 October 2026
 
+## Current price connection — 14 October 2026
+
+The Render mandi key was present, but both unfiltered and Onion/Surat data.gov.in requests timed out during diagnosis. The website now tries the public official AGMARKNET weekly report first when `MarketPrices:OfficialSourceEnabled` is true (enabled in the shipped configuration). It resolves commodity, state, district and market IDs from the official filters endpoint, validates the report title, commodity, date, positive numeric price and `Rs./Quintal` unit, and displays the latest available dated value. No API key is required for these public report endpoints. No authentication or CAPTCHA is bypassed.
+
+The official weekly report supplies a reported price, not separate min/max/modal fields. Its output labels that distinction and marks older dates as NOT today's confirmed prices. It does not silently choose a different district or named market. If the district has a central APMC with the same name, that APMC is explicitly named; districts with too many unmatched markets are left to the existing filtered data.gov.in path. Reports are cached for five minutes and reference IDs for six hours; public-source failures have a short cooldown. If the public source cannot return a validated report, the existing data.gov.in integration remains available with its private API key.
+
+Live read-only check: official Onion / Surat APMC / Gujarat returned a reported price of ₹3,100 per quintal dated 12 October 2026. The actual updated .NET service returned that dated report in Gujarati in approximately 3.55 seconds on its first lookup. This is one measured request, not a latency guarantee or confirmation of today's price. The older activation notes below describe the initial 10 October state and are retained as history.
+
 Implemented clarification-first photo handling. The model may ask up to two targeted questions/request clearer photos without creating an officer task. Clarification turns are saved as AwaitingDetails. After two clarification turns within recent context, continued uncertainty routes to an officer; clearly complex cases can route immediately. Ordinary supported answers remain direct. This routing still depends on model assessment and does not guarantee diagnostic accuracy.
 
 Officer escalation now stores a separate farmer-visible PublicSummary of observations/uncertainty and safe next steps. The private diagnostic draft remains hidden from farmers. Assigned officers receive earlier conversation text and photos up to the assigned query; future messages and unrelated conversations are not included in this access. The PublicAdvisorySummary migration was applied locally.

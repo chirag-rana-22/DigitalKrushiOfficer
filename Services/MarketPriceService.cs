@@ -17,7 +17,13 @@ public class MarketPriceService(IConfiguration config, IHttpClientFactory client
         var known=string.Join(", ",new[]{r.Commodity,r.Market,r.District,r.State}.Where(v=>!string.IsNullOrWhiteSpace(v)));
         if(missing.Count>0)return (known.Length>0?known+" — ":"")+Local("Please tell me only: ","बस यह जानकारी दें: ","માત્ર આ માહિતી જણાવો: ")+string.Join(", ",missing)+"?";
         var unavailable=known+" — "+Local("Verified mandi prices are temporarily unavailable. Please check the official source; I will not estimate today's price.","अभी सत्यापित मंडी भाव उपलब्ध नहीं हैं। आधिकारिक स्रोत पर जाँचें; मैं आज का भाव अनुमान से नहीं बताऊँगा।","હાલ ચકાસેલા મંડી ભાવ ઉપલબ્ધ નથી. સત્તાવાર સ્ત્રોત તપાસો; હું આજનો ભાવ અંદાજથી નહીં આપું.")+"\n"+Source;
+        if (config.GetValue<bool>("MarketPrices:OfficialSourceEnabled")) {
+            var official=await new OfficialMarketPriceService(clients,cache).AnswerAsync(r,language,ct);
+            if (official is not null) return official;
+        }
         var key=config["MarketPrices:ApiKey"];
+        if (string.IsNullOrWhiteSpace(key) && config.GetValue<bool>("MarketPrices:OfficialSourceEnabled"))
+            return unavailable.Replace(Source,OfficialMarketPriceService.Source,StringComparison.Ordinal);
         if(string.IsNullOrWhiteSpace(key)) return known+" — "+Local("The live mandi-price connection is not active on this website yet, so I cannot confirm a numeric price. You do not need to repeat the crop or location. Check the official market report here:","इस वेबसाइट का live मंडी-भाव connection अभी चालू नहीं है, इसलिए सही दाम की पुष्टि नहीं कर सकता। फसल या स्थान दोबारा बताने की जरूरत नहीं है। आधिकारिक मंडी report यहाँ देखें:","આ વેબસાઇટનું live મંડી-ભાવ connection હજી ચાલુ નથી, તેથી ચોક્કસ ભાવની પુષ્ટિ કરી શકતો નથી. પાક કે સ્થળ ફરી જણાવવાની જરૂર નથી. સત્તાવાર મંડી અહેવાલ અહીં જુઓ:")+"\nhttps://www.enam.gov.in/web/dashboard/agmarknet";
         if(new[]{r.Commodity,r.State,r.District,r.Market}.Any(v=>v.Length>100))return unavailable;
         var backoffKey="mandi-backoff:"+Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(key)));

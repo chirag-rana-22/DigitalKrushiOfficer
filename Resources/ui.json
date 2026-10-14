@@ -4,6 +4,21 @@
     "gu": "ભાષા",
     "mr": "भाषा"
   },
+  "Official AGMARKNET reported wholesale price (₹ per quintal; 1 quintal = 100 kg).": {
+    "hi": "आधिकारिक AGMARKNET में दर्ज थोक भाव (₹ प्रति क्विंटल; 1 क्विंटल = 100 किलो)।",
+    "gu": "સત્તાવાર AGMARKNETમાં નોંધાયેલ જથ્થાબંધ ભાવ (₹ પ્રતિ ક્વિન્ટલ; 1 ક્વિન્ટલ = 100 કિલો).",
+    "mr": "अधिकृत AGMARKNET मध्ये नोंदवलेला घाऊक भाव (₹ प्रति क्विंटल; 1 क्विंटल = 100 किलो)."
+  },
+  "Reported price": {
+    "hi": "दर्ज भाव",
+    "gu": "નોંધાયેલ ભાવ",
+    "mr": "नोंदवलेला भाव"
+  },
+  "Source: AGMARKNET official weekly report. Latest available reported date shown. This report does not supply separate minimum, maximum or modal fields; the price is not a guaranteed selling price.": {
+    "hi": "स्रोत: AGMARKNET की आधिकारिक साप्ताहिक रिपोर्ट। उपलब्ध नवीनतम रिपोर्ट की तारीख दिखाई गई है। इस report में अलग Min/Max/Modal fields नहीं हैं; बिक्री भाव की गारंटी नहीं है।",
+    "gu": "સ્ત્રોત: AGMARKNETનો સત્તાવાર સાપ્તાહિક અહેવાલ. ઉપલબ્ધ તાજેતરના અહેવાલની તારીખ બતાવી છે. આ અહેવાલમાં અલગ Min/Max/Modal fields નથી; વેચાણ ભાવની ખાતરી નથી.",
+    "mr": "स्रोत: AGMARKNET चा अधिकृत साप्ताहिक अहवाल. उपलब्ध सर्वात अलीकडील अहवालाची तारीख दाखवली आहे. या अहवालात स्वतंत्र किमान, कमाल किंवा प्रचलित भाव नाहीत; विक्रीच्या भावाची हमी नाही."
+  },
   "Apply": {
     "hi": "लागू करें",
     "gu": "લાગુ કરો",
