@@ -12,8 +12,9 @@ using SkiaSharp;
 using Xunit;
 public class ProviderHandler(string body, HttpStatusCode status = HttpStatusCode.OK) : HttpMessageHandler {
     public string? RequestBody;
+    public Uri? RequestUri;
     public int RequestCount;
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct){RequestCount++;RequestBody=request.Content==null?null:await request.Content.ReadAsStringAsync(ct);return new(status){Content=new StringContent(body)};}
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct){RequestCount++;RequestUri=request.RequestUri;RequestBody=request.Content==null?null:await request.Content.ReadAsStringAsync(ct);return new(status){Content=new StringContent(body)};}
 }
 public class ClientFactory(HttpMessageHandler handler):IHttpClientFactory {public HttpClient CreateClient(string name)=>new(handler,false);}
 public class ProviderAndUploadTests {

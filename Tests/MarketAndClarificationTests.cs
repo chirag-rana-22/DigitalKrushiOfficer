@@ -14,6 +14,21 @@ public class MarketAndClarificationTests {
         using var cache=new MemoryCache(new MemoryCacheOptions());var service=new MarketPriceService(Config(),new ClientFactory(new ProviderHandler(Report())),cache);
         var answer=await service.AnswerAsync(new("Tomato","Gujarat","Rajkot",""),"English");Assert.Contains("Modal ₹1500",answer);Assert.Contains("01/01/2020",answer);Assert.Contains("NOT today's",answer);Assert.Contains("quintal",answer);Assert.Contains(MarketPriceService.Source,answer);
     }
+    [Fact] public async Task DataGovUsesTheDocumentedExactStateFilter() {
+        using var cache=new MemoryCache(new MemoryCacheOptions());var handler=new ProviderHandler(Report());
+        var service=new MarketPriceService(Config(),new ClientFactory(handler),cache);
+        await service.AnswerAsync(new("Tomato","Gujarat","Rajkot",""),"English");
+        var query=Uri.UnescapeDataString(handler.RequestUri!.Query);
+        Assert.Contains("filters[state.keyword]=Gujarat",query);Assert.DoesNotContain("filters[state]=",query);
+        Assert.Contains("filters[commodity]=Tomato",query);Assert.Contains("filters[district]=Rajkot",query);
+    }
+    [Fact] public async Task AvailableDailyReportIsPreferredToWeeklyFallback() {
+        using var cache=new MemoryCache(new MemoryCacheOptions());var handler=new ProviderHandler(Report());
+        var cfg=new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string,string?>{{"MarketPrices:ApiKey","test-key"},{"MarketPrices:OfficialSourceEnabled","true"}}).Build();
+        var service=new MarketPriceService(cfg,new ClientFactory(handler),cache);
+        var answer=await service.AnswerAsync(new("Tomato","Gujarat","Rajkot",""),"English");
+        Assert.Contains("Modal ₹1500",answer);Assert.Equal(1,handler.RequestCount);Assert.Equal("api.data.gov.in",handler.RequestUri!.Host);
+    }
     [Theory] [InlineData("Onion","1000")] [InlineData("Tomato","-1")] [InlineData("Tomato","3000")]
     public async Task WrongCommodityOrInvalidPricesNeverBecomeAnswers(string commodity,string min) {
         using var cache=new MemoryCache(new MemoryCacheOptions());var service=new MarketPriceService(Config(),new ClientFactory(new ProviderHandler(Report(commodity:commodity,min:min))),cache);var answer=await service.AnswerAsync(new("Tomato","Gujarat","Rajkot",""),"English");Assert.Contains("No verified report",answer);Assert.DoesNotContain("₹1500",answer);
