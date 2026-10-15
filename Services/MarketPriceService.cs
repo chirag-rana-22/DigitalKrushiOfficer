@@ -62,7 +62,12 @@ public class MarketPriceService(IConfiguration config, IHttpClientFactory client
                 // Never reuse a failed or empty lookup as a price report.
                 logger?.LogInformation("Daily mandi API returned {ReceivedCount} records; {ValidCount} passed location, date and price validation.",records.GetArrayLength(),rows.Count);
                 if(rows.Count>0)cache.Set(cacheKey,rows,TimeSpan.FromMinutes(5));
-            } catch(Exception ex) when(ex is HttpRequestException or TaskCanceledException or JsonException) { logger?.LogWarning("Daily mandi API failed with {FailureType}; using official fallback.",ex.GetType().Name); return await Failed(); }
+            } catch(Exception ex) when(ex is HttpRequestException or TaskCanceledException or JsonException) {
+                // Exception messages may contain the credential-bearing request URL.
+                logger?.LogWarning("Daily mandi API failed with {FailureType}, category {Category}, inner type {InnerType}; using official fallback.",
+                    ex.GetType().Name, ex is HttpRequestException http ? http.HttpRequestError.ToString() : "NotApplicable", ex.InnerException?.GetType().Name ?? "None");
+                return await Failed();
+            }
         }
         if(rows==null||rows.Count==0)return await Fallback(noReport:true);
         var latest=rows.Max(p=>p.Date);var stale=latest<DateOnly.FromDateTime(DateTime.UtcNow.AddHours(5.5));
