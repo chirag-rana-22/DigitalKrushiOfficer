@@ -1,5 +1,13 @@
 # AI clarification and mandi-price integration — 10 October 2026
 
+## Live verification — 15 October 2026
+
+Daily data.gov.in integration is configured, but is **not working from Render**. The existing account key was previously verified against the ignored local configuration and Render private setting. The local .NET request succeeded on 14 October. On 15 October, live Render diagnostics identified `HttpRequestException`, category `ConnectionError`, inner type `SocketException`. This is a transport failure before an HTTP response; it does not establish an invalid API key or a particular provider blocking policy. TLS verification remains enabled. No key, request URL, or exception message is logged.
+
+Commits `249cd08` and `ada6b52` were deployed successfully. The latter's full GitHub Linux test/build pipeline passed; 27 targeted market/clarification tests also passed locally. Live farmer conversations 124 and 125 returned the official AGMARKNET fallback: Onion / Surat APMC / Gujarat, reported price ₹3,050 per quintal dated **13 October 2026**, explicitly labelled an older weekly report, not today's confirmed price. Evidence: ignored `artifacts/mandi-fix/live-15-oct-fallback.png`.
+
+The remaining limitation is daily-provider network connectivity from this hosting environment. Daily min/modal/max values must not be described as live-verified on Render until a fresh production query returns them. The fallback provides real dated reports where available; it cannot guarantee today's prices for every mandi. The sections below record earlier implementation and activation history, not current deployment status.
+
 ## Current price connection — 14 October 2026
 
 Later on 14 October, a logged-in test in data.gov.in's own API explorer returned HTTP 200 with today's Surat APMC Onion report: minimum ₹1,500, modal ₹3,250 and maximum ₹5,000 per quintal, dated 14 October 2026. The documented exact state parameter is `filters[state.keyword]`, not `filters[state]`. A server request using that parameter plus ordinary JSON Accept, application User-Agent and official portal Origin/Referer headers also returned the same record successfully.
